@@ -5,11 +5,12 @@ use bridge_core::deal::{Contract, RegDealStd};
 use bridge_core::distribution::hand::BridgeHand;
 use bridge_core::karty::cards::STANDARD_DECK;
 use bridge_core::karty::suits::SuitStd::Spades;
-use bridge_core::overseer::{Overseer, SimpleOverseer};
+use bridge_core::world::{Overseer, SimpleOverseer};
 use bridge_core::player::side::Side;
 use bridge_core::player::side::Side::{East, North, South, West};
 use bridge_core::player::situation::Situation;
-use bridge_core::protocol::ClientMessage;
+use bridge_core::protocol::ClientControlMessage::IamReady;
+use bridge_core::world::agent::AutomaticAgent;
 use karty_bridge_bot_random::Bot;
 
 fn setup_logger() -> Result<(), fern::InitError> {
@@ -43,10 +44,10 @@ fn basic_sim(){
            let x =simple_overseer.wait_for_readiness_rr();
             println!("{:?}", x);
         });
-        n_tx.send(ClientMessage::Ready).unwrap();
-        s_tx.send(ClientMessage::Ready).unwrap();
-        e_tx.send(ClientMessage::Ready).unwrap();
-        w_tx.send(ClientMessage::Ready).unwrap();
+        n_tx.send(IamReady.into()).unwrap();
+        s_tx.send(IamReady.into()).unwrap();
+        e_tx.send(IamReady.into()).unwrap();
+        w_tx.send(IamReady.into()).unwrap();
     });
     println!("{}", simple_overseer.are_players_ready());
 }
