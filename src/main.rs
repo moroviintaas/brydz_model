@@ -5,13 +5,13 @@ use bridge_core::deal::{Contract, RegDealStd};
 use bridge_core::distribution::hand::BridgeHand;
 use bridge_core::karty::cards::STANDARD_DECK;
 use bridge_core::karty::suits::SuitStd::Spades;
-use bridge_core::world::{Overseer, SimpleOverseer};
 use bridge_core::player::side::Side;
 use bridge_core::player::side::Side::{East, North, South, West};
 use bridge_core::player::situation::Situation;
-use bridge_core::protocol::ClientControlMessage::IamReady;
 use bridge_core::world::agent::AutomaticAgent;
+use bridge_core::world::environment::{ChannelDealEnvironment, NoCardCheck};
 use karty_bridge_bot_random::Bot;
+use bridge_core::world::environment::StagingEnvironment;
 
 fn setup_logger() -> Result<(), fern::InitError> {
     fern::Dispatch::new()
@@ -30,32 +30,12 @@ fn setup_logger() -> Result<(), fern::InitError> {
         .apply()?;
     Ok(())
 }
-#[allow(dead_code)]
-fn basic_sim(){
-    let deal = RegDealStd::new(Contract::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap()));
-    let mut simple_overseer = SimpleOverseer::new(deal);
-    let (n_tx, _n_rx) = simple_overseer.create_connection(&North);
-    let (s_tx, _s_rx) = simple_overseer.create_connection(&South);
-    let (e_tx, _e_rx) = simple_overseer.create_connection(&East);
-    let (w_tx, _w_rx) = simple_overseer.create_connection(&West);
-    println!("{}", simple_overseer.are_players_ready());
-    thread::scope(|s|{
-        s.spawn(||{
-           let x =simple_overseer.wait_for_readiness_rr();
-            println!("{:?}", x);
-        });
-        n_tx.send(IamReady.into()).unwrap();
-        s_tx.send(IamReady.into()).unwrap();
-        e_tx.send(IamReady.into()).unwrap();
-        w_tx.send(IamReady.into()).unwrap();
-    });
-    println!("{}", simple_overseer.are_players_ready());
-}
 
-fn basic_sim_with_bot(){
+fn basic_sim_with_bot2(){
     let contract = Contract::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
     let deal = RegDealStd::new(contract.clone());
-    let mut simple_overseer = SimpleOverseer::new(deal);
+    //let mut simple_overseer = SimpleOverseer::new(deal);
+    let mut simple_overseer = ChannelDealEnvironment::<NoCardCheck>::new(deal);
     let (n_tx, n_rx) = simple_overseer.create_connection(&North);
     let (s_tx, s_rx) = simple_overseer.create_connection(&South);
     let (e_tx, e_rx) = simple_overseer.create_connection(&East);
@@ -101,5 +81,5 @@ fn main(){
     setup_logger().unwrap();
     
     println!("Hello!");
-    basic_sim_with_bot();
+    basic_sim_with_bot2();
 }
