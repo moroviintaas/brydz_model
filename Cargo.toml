@@ -11,5 +11,7 @@ karty_bridge_bot_random = {path = "../karty_bridge_bot_random"}
 fern = "0.6.1"
 log = "0.4.17"
 chrono = "0.4.22"
+karty = {path = "../karty", features = ["speedy"]}
+rand = "0.8.5"
 
 
