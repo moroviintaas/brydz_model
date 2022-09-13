@@ -1,13 +1,13 @@
 [package]
-name = "karty_bridge_simulator"
+name = "brydz_simulator"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bridge_core = {path = "../bridge_core", features = ["world", "protocol"]}
-karty_bridge_bot_random = {path = "../karty_bridge_bot_random"}
+brydz_core = {path = "../brydz_core", features = ["world", "protocol"]}
+brydz_bot_random = {path = "../brydz_bot_random" }
 fern = "0.6.1"
 log = "0.4.17"
 chrono = "0.4.22"

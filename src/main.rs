@@ -4,19 +4,19 @@ use std::thread;
 use std::thread::{scope, spawn};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use bridge_core::bidding::Bid;
-use bridge_core::cards::trump::Trump;
-use bridge_core::deal::{Contract, RegDealStd};
-use bridge_core::distribution::hand::BridgeHand;
-use bridge_core::karty::cards::STANDARD_DECK;
-use bridge_core::karty::suits::SuitStd::Spades;
-use bridge_core::player::side::Side;
-use bridge_core::player::side::Side::{East, North, South, West};
-use bridge_core::player::situation::Situation;
-use bridge_core::world::agent::AutomaticAgent;
-use bridge_core::world::ChannelDummy;
-use bridge_core::world::environment::{ChannelDealEnvironment, NoCardCheck};
-use bridge_core::world::environment::StagingEnvironment;
+use brydz_core::bidding::Bid;
+use brydz_core::cards::trump::Trump;
+use brydz_core::deal::{Contract, RegDealStd};
+use brydz_core::distribution::hand::BridgeHand;
+use brydz_core::karty::cards::STANDARD_DECK;
+use brydz_core::karty::suits::SuitStd::Spades;
+use brydz_core::player::side::Side;
+use brydz_core::player::side::Side::{East, North, South, West};
+use brydz_core::player::situation::Situation;
+use brydz_core::world::agent::AutomaticAgent;
+use brydz_core::world::ChannelDummy;
+use brydz_core::world::environment::{ChannelDealEnvironment, NoCardCheck};
+use brydz_core::world::environment::StagingEnvironment;
 use karty::cards::CardStd;
 use karty::speedy::{Writable, Readable};
 
@@ -54,10 +54,10 @@ fn basic_sim_with_bot2(){
     let hand_west = BridgeHand::init(&mut card_supply).unwrap();
     let hand_north = BridgeHand::init(&mut card_supply).unwrap();
 
-    let mut bot_east = karty_bridge_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
-    let mut bot_south = karty_bridge_bot_random::defender::DefenderOverChannel::new(s_tx, s_rx, Situation::new(Side::South, hand_south, contract.clone()));
+    let mut bot_east = brydz_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
+    let mut bot_south = brydz_bot_random::defender::DefenderOverChannel::new(s_tx, s_rx, Situation::new(Side::South, hand_south, contract.clone()));
     let mut bot_west = ChannelDummy::new(w_tx, w_rx, Situation::new(Side::West, hand_west, contract.clone()));
-    let mut bot_north = karty_bridge_bot_random::defender::DefenderOverChannel::new(n_tx, n_rx, Situation::new(Side::North, hand_north, contract));
+    let mut bot_north = brydz_bot_random::defender::DefenderOverChannel::new(n_tx, n_rx, Situation::new(Side::North, hand_north, contract));
 
 
 
