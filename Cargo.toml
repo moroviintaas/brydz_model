@@ -13,5 +13,5 @@ log = "0.4.17"
 chrono = "0.4.22"
 karty = {path = "../karty", features = ["speedy"]}
 rand = "0.8.5"
-
+brydz_network_extensions = {path = "../brydz_network_extensions"}
 
