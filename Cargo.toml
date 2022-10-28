@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-brydz_core = {path = "../brydz_core", features = ["world", "protocol", "async", "speedy"]}
+#brydz_core = {path = "../brydz_core", features = ["world", "protocol", "async", "speedy"]}
+#brydz_core = {path = "../brydz_core", features = [ "async", "speedy"]}
+brydz_framework = {path = "../brydz_framework", features = ["speedy"] }
 brydz_bot_random = {path = "../brydz_bot_random" }
 fern = "0.6.1"
 log = "0.4.17"

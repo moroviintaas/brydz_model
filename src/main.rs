@@ -5,19 +5,19 @@ use std::thread::{scope};
 use brydz_network_extensions::tcp::speedy::{TcpComm};
 use log::{debug, info};
 
-use brydz_core::bidding::Bid;
-use brydz_core::cards::trump::Trump;
-use brydz_core::deal::{Contract, RegDealStd};
-use brydz_core::distribution::hand::BridgeHand;
-use brydz_core::error::BridgeErrorStd;
-use brydz_core::karty::cards::STANDARD_DECK;
-use brydz_core::karty::suits::SuitStd::Spades;
-use brydz_core::player::side::{Side, SideAssociated};
-use brydz_core::player::situation::Situation;
-use brydz_core::protocol::{ClientDealMessage, ServerDealMessage, DealAction};
-use brydz_core::world::agent::{AutomaticAgent, DummyBot};
-use brydz_core::world::comm::{SyncComm, TokioComm};
-use brydz_core::world::environment::{ NoCardCheck, RoundRobinDealEnvironment};
+use brydz_framework::brydz_core::bidding::Bid;
+use brydz_framework::brydz_core::cards::trump::Trump;
+use brydz_framework::brydz_core::deal::{Contract, RegDealStd};
+use brydz_framework::brydz_core::distribution::hand::BridgeHand;
+use brydz_framework::brydz_core::karty::cards::STANDARD_DECK;
+use brydz_framework::brydz_core::karty::suits::SuitStd::Spades;
+use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
+use brydz_framework::brydz_core::player::situation::Situation;
+use brydz_framework::error::BridgeErrorStd;
+use brydz_framework::protocol::{ClientDealMessage, ServerDealMessage, DealAction};
+use brydz_framework::world::agent::{AutomaticAgent, DummyBot};
+use brydz_framework::world::comm::{SyncComm, TokioComm};
+use brydz_framework::world::environment::{ NoCardCheck, RoundRobinDealEnvironment};
 use karty::cards::{ KING_HEARTS};
 use karty::speedy::{Writable, Readable};
 
@@ -426,4 +426,5 @@ fn main(){
     //test_tcp();
     //test_std_tcp();
     basic_sim_with_bot_tcp();
+    basic_sim_with_bot3();
 }
