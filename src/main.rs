@@ -2,13 +2,14 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::thread::{scope};
+use brydz_framework::brydz_core::deal::fair_bridge_deal;
 use brydz_network_extensions::tcp::speedy::{TcpComm};
 use log::{debug, info};
 
 use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::Trump;
 use brydz_framework::brydz_core::contract::{ContractSpec, RegDealStd};
-use brydz_framework::brydz_core::distribution::hand::BridgeHand;
+use brydz_framework::brydz_core::deal::hand::{HandVector, StackHandStd};
 use brydz_framework::brydz_core::karty::cards::STANDARD_DECK;
 use brydz_framework::brydz_core::karty::suits::SuitStd::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
@@ -65,10 +66,16 @@ fn basic_sim_with_bot3(){
     //let (w_tx, w_rx) = comm_west._decompose();
 
     let mut card_supply = Vec::from(STANDARD_DECK);
-    let hand_east = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_south = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_west = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_north = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_east = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_south = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+
+    //let card_deal = fair_bridge_deal::<StackHandStd>();
+    //let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
+    
+    
+
 
     //let mut bot_east = brydz_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
 
@@ -129,10 +136,10 @@ fn basic_sim_with_bot_tokio(){
     //let (w_tx, w_rx) = comm_west._decompose();
 
     let mut card_supply = Vec::from(STANDARD_DECK);
-    let hand_east = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_south = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_west = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_north = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_east = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_south = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
 
     //let mut bot_east = brydz_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
 
@@ -280,10 +287,10 @@ fn basic_sim_with_bot_tcp(){
 
 
     let mut card_supply = Vec::from(STANDARD_DECK);
-    let hand_east = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_south = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_west = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_north = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_east = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_south = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
 
     //let mut bot_east = brydz_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
 
