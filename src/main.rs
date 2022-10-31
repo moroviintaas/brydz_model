@@ -2,14 +2,13 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
 use std::thread::{scope};
-use brydz_framework::brydz_core::deal::fair_bridge_deal;
 use brydz_network_extensions::tcp::speedy::{TcpComm};
 use log::{debug, info};
 
 use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::Trump;
-use brydz_framework::brydz_core::contract::{ContractSpec, RegDealStd};
-use brydz_framework::brydz_core::deal::hand::{HandVector, StackHandStd};
+use brydz_framework::brydz_core::contract::{ContractSpec, ContractStd};
+use brydz_framework::brydz_core::deal::hand::{HandVector};
 use brydz_framework::brydz_core::karty::cards::STANDARD_DECK;
 use brydz_framework::brydz_core::karty::suits::SuitStd::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
@@ -43,7 +42,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
 #[allow(dead_code)]
 fn basic_sim_with_bot3(){
     let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
-    let deal = RegDealStd::new(contract.clone());
+    let deal = ContractStd::new(contract.clone());
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let (comm_env_north, comm_north) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
     let (comm_env_east, comm_east) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
@@ -113,7 +112,7 @@ fn basic_sim_with_bot3(){
 #[allow(dead_code)]
 fn basic_sim_with_bot_tokio(){
     let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
-    let deal = RegDealStd::new(contract.clone());
+    let deal = ContractStd::new(contract.clone());
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let (comm_env_north, comm_north) = TokioComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
     let (comm_env_east, comm_east) = TokioComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
@@ -277,7 +276,7 @@ fn basic_sim_with_bot_tokio_tcp(){
 
 fn basic_sim_with_bot_tcp(){
     let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
-    let deal = RegDealStd::new(contract.clone());
+    let deal = ContractStd::new(contract.clone());
     //let mut simple_overseer = SimpleOverseer::new(contract);
 
 
