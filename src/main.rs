@@ -15,7 +15,7 @@ use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
 use brydz_framework::brydz_core::player::situation::Situation;
 use brydz_framework::error::BridgeErrorStd;
 use brydz_framework::protocol::{ClientDealMessage, ServerDealMessage, DealAction};
-use brydz_framework::world::agent::{AutomaticAgent, DummyBot};
+use brydz_framework::world::agent::{AutomaticAgentOld, DummyBot};
 use brydz_framework::world::comm::{SyncComm, TokioComm};
 use brydz_framework::world::environment::{ NoCardCheck, RoundRobinDealEnvironment};
 use karty::cards::{ KING_HEARTS};
