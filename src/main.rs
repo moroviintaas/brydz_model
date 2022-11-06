@@ -1,29 +1,21 @@
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
+
 use std::thread;
-use std::thread::{scope};
 use brydz_framework::brydz_core::deal::fair_bridge_deal;
 use brydz_framework::error::comm::CommError;
-use brydz_framework::world::agent::bot::{SimpleBot2Phase, SimpleRandomBot2PhaseStd, DummyBotPhase2Std};
+use brydz_framework::world::agent::bot::{SimpleRandomBot2PhaseStd, DummyBotPhase2Std};
 use brydz_framework::world::agent::state::AgentStatePhase2Std;
 use brydz_framework::world::environment::{RoundRobinContractEnvStd, EnvStatePhase2Std};
-use brydz_network_extensions::tcp::speedy::{TcpComm};
-use log::{debug, info};
+
 
 use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::Trump;
 use brydz_framework::brydz_core::contract::{ContractSpec, ContractStd};
-use brydz_framework::brydz_core::deal::hand::{HandVector, StackHandStd};
-use brydz_framework::brydz_core::karty::cards::STANDARD_DECK;
+use brydz_framework::brydz_core::deal::hand::{StackHandStd};
 use brydz_framework::brydz_core::karty::suits::SuitStd::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
-use brydz_framework::brydz_core::player::situation::Situation;
-use brydz_framework::error::BridgeErrorStd;
-use brydz_framework::protocol::{ClientDealMessage, ServerDealMessage, DealAction, ServerDealMessageStd, ClientDealMessageStd};
-use brydz_framework::world::agent::{AutomaticAgentOld, AutomaticAgentPhase2};
-use brydz_framework::world::comm::{SyncComm, TokioComm};
-use karty::cards::{ KING_HEARTS};
-use karty::speedy::{Writable, Readable};
+use brydz_framework::protocol::{ServerDealMessageStd, ClientDealMessageStd};
+use brydz_framework::world::agent::{ AutomaticAgentPhase2};
+use brydz_framework::world::comm::{SyncComm};
 
 fn setup_logger() -> Result<(), fern::InitError> {
     fern::Dispatch::new()
@@ -42,73 +34,9 @@ fn setup_logger() -> Result<(), fern::InitError> {
         .apply()?;
     Ok(())
 }
+
+
 /*
-#[allow(dead_code)]
-fn basic_sim_with_bot3(){
-    let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
-    let deal = ContractStd::new(contract.clone());
-    //let mut simple_overseer = SimpleOverseer::new(contract);
-    let (comm_env_north, comm_north) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
-    let (comm_env_east, comm_east) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
-    let (comm_env_west, comm_west) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
-    let (comm_env_south, comm_south) = SyncComm::<ServerDealMessage, ClientDealMessage, BridgeErrorStd>::new_pair();
-
-    let comm_assotiation = SideAssociated::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
-
-
-    let mut simple_overseer = RoundRobinDealEnvironment::new(comm_assotiation, deal, NoCardCheck::default());
-
-    //let (n_tx, n_rx) = comm_north._decompose();
-    //let (s_tx, s_rx) = comm_south._decompose();
-    //let (e_tx, e_rx) = comm_east._decompose();
-    //let (w_tx, w_rx) = comm_west._decompose();
-
-    let mut card_supply = Vec::from(STANDARD_DECK);
-    let hand_east = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_south = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
-    let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
-
-    //let card_deal = fair_bridge_deal::<StackHandStd>();
-    //let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
-    
-    
-
-
-    //let mut bot_east = brydz_bot_random::declarer::DeclarerOverChannel::new(e_tx, e_rx, Situation::new(Side::East, hand_east, contract.clone()));
-
-    let mut bot_east = brydz_bot_random::declarer::DeclarerBot::new(comm_east, Situation::new(Side::East, hand_east, contract.clone()));
-    //let mut bot_south = brydz_bot_random::defender::DefenderOverChannel::new(s_tx, s_rx, Situation::new(Side::South, hand_south, contract.clone()));
-    let mut bot_south = brydz_bot_random::defender::DefenderBot::new(comm_south, Situation::new(Side::South, hand_south, contract.clone()));
-    let mut bot_west = DummyBot::new(comm_west, Situation::new(Side::West, hand_west, contract.clone()));
-    //let mut bot_north = brydz_bot_random::defender::DefenderOverChannel::new(n_tx, n_rx, Situation::new(Side::North, hand_north, contract));
-    let mut bot_north = brydz_bot_random::defender::DefenderBot::new(comm_north, Situation::new(Side::North, hand_north, contract));
-
-
-
-    thread::scope(|s|{
-        s.spawn(||{
-           simple_overseer.run().unwrap();
-            //println!("{:?}", x);
-        });
-        s.spawn(||{
-            bot_east.run().unwrap();
-        });
-        s.spawn(||{
-            bot_south.run().unwrap();
-            //error!("South result: {:?}", &rs);
-        });
-        s.spawn(||{
-            bot_west.run().unwrap();
-        });
-        s.spawn(||{
-            bot_north.run().unwrap();
-        });
-    })
-
-
-}
-
 fn basic_sim_with_bot_tcp(){
     let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
     let deal = ContractStd::new(contract.clone());
@@ -245,7 +173,6 @@ fn test_std_tcp(){
 #[allow(dead_code)]
 fn basic_sim_with_bot(){
     let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
-    let deal = ContractStd::new(contract.clone());
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let (comm_env_north, comm_north) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, CommError>::new_pair();
     let (comm_env_east, comm_east) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, CommError>::new_pair();
@@ -256,7 +183,7 @@ fn basic_sim_with_bot(){
 
 
     let initial_contract = ContractStd::new(contract);
-    let mut simple_overseer = RoundRobinContractEnvStd::new(
+    let simple_overseer = RoundRobinContractEnvStd::new(
         comm_assotiation, 
         EnvStatePhase2Std::new(initial_contract.clone()));
 
@@ -293,7 +220,7 @@ fn basic_sim_with_bot(){
     (AgentStatePhase2Std::new(
         Side::South, 
         hand_south, 
-        initial_contract.clone()), comm_south);
+        initial_contract), comm_south);
     //let mut bot_south = brydz_bot_random::defender::DefenderBot::new(comm_south, Situation::new(Side::South, hand_south, contract.clone()));
     //let mut bot_west = DummyBot::new(comm_west, Situation::new(Side::West, hand_west, contract.clone()));
     //let mut bot_north = brydz_bot_random::defender::DefenderBot::new(comm_north, Situation::new(Side::North, hand_north, contract));
@@ -334,16 +261,5 @@ fn main(){
     setup_logger().unwrap();
     
     println!("Hello!");
-    //basic_sim_with_bot2();
-    //basic_sim_with_bot3();
-    //basic_sim_with_bot_tokio();
-    //basic_sim_with_bot_tokio_tcp();
-    //basic_sim_with_box();
-    //let rt = tokio::runtime::Runtime::new().unwrap();
-    //rt.block_on(async {basic_sim_with_bot_tcp().await});
-    //test_tcp();
-    //test_std_tcp();
-    //basic_sim_with_bot_tcp();
-    //basic_sim_with_bot3();
     basic_sim_with_bot();
 }
