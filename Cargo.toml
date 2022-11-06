@@ -9,7 +9,7 @@ edition = "2021"
 #brydz_core = {path = "../brydz_core", features = ["world", "protocol", "async", "speedy"]}
 #brydz_core = {path = "../brydz_core", features = [ "async", "speedy"]}
 brydz_framework = {path = "../brydz_framework", features = ["speedy"] }
-brydz_bot_random = {path = "../brydz_bot_random" }
+#brydz_bot_random = {path = "../brydz_bot_random" }
 fern = "0.6.1"
 log = "0.4.17"
 chrono = "0.4.22"
