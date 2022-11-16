@@ -3,19 +3,19 @@ use std::thread;
 use brydz_framework::brydz_core::deal::fair_bridge_deal;
 use brydz_framework::error::comm::CommError;
 use brydz_framework::world::agent::bot::{SimpleRandomBot2PhaseStd, DummyBotPhase2Std};
-use brydz_framework::world::agent::state::AgentStatePhase2Std;
-use brydz_framework::world::environment::{RoundRobinContractEnvStd, EnvStatePhase2Std};
+use brydz_framework::world::agent::state::AgentStatePhase2;
+use brydz_framework::world::environment::{RoundRobinContractEnvStd, EnvStatePhase2};
 
 
 use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::Trump;
-use brydz_framework::brydz_core::contract::{ContractSpec, ContractStd};
-use brydz_framework::brydz_core::deal::hand::{StackHandStd};
-use brydz_framework::brydz_core::karty::suits::SuitStd::Spades;
+use brydz_framework::brydz_core::contract::{ContractSpec, Contract};
+use brydz_framework::brydz_core::karty::suits::Suit::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
 use brydz_framework::protocol::{ServerDealMessageStd, ClientDealMessageStd};
 use brydz_framework::world::agent::{ AutomaticAgentPhase2};
 use brydz_framework::world::comm::{SyncComm};
+use karty::hand::StackHand;
 
 fn setup_logger() -> Result<(), fern::InitError> {
     fern::Dispatch::new()
@@ -182,10 +182,10 @@ fn basic_sim_with_bot(){
     let comm_assotiation = SideAssociated::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
 
 
-    let initial_contract = ContractStd::new(contract);
+    let initial_contract = Contract::new(contract);
     let simple_overseer = RoundRobinContractEnvStd::new(
-        comm_assotiation, 
-        EnvStatePhase2Std::new(initial_contract.clone()));
+        comm_assotiation,
+        EnvStatePhase2::new(initial_contract.clone()));
 
     //let (n_tx, n_rx) = comm_north._decompose();
     //let (s_tx, s_rx) = comm_south._decompose();
@@ -198,26 +198,26 @@ fn basic_sim_with_bot(){
     //let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
     //let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
 
-    let card_deal = fair_bridge_deal::<StackHandStd>();
+    let card_deal = fair_bridge_deal::<StackHand>();
     let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
     
     let mut bot_east = SimpleRandomBot2PhaseStd::new
-    (AgentStatePhase2Std::new(
+    (AgentStatePhase2::new(
         Side::East, 
         hand_east, 
         initial_contract.clone()), comm_east);
     let mut bot_west = DummyBotPhase2Std::new
-    (AgentStatePhase2Std::new(
+    (AgentStatePhase2::new(
         Side::West, 
         hand_west, 
         initial_contract.clone()), comm_west);
     let mut bot_north = SimpleRandomBot2PhaseStd::new
-    (AgentStatePhase2Std::new(
+    (AgentStatePhase2::new(
         Side::North, 
         hand_north, 
         initial_contract.clone()), comm_north);
     let mut bot_south = SimpleRandomBot2PhaseStd::new
-    (AgentStatePhase2Std::new(
+    (AgentStatePhase2::new(
         Side::South, 
         hand_south, 
         initial_contract), comm_south);
