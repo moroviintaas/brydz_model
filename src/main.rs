@@ -2,18 +2,17 @@
 use std::thread;
 use log::info;
 use brydz_framework::brydz_core::deal::fair_bridge_deal;
-use brydz_framework::error::comm::CommError;
 use brydz_framework::world::agent::bot::{SimpleRandomBot2PhaseStd, DummyBotPhase2Std};
 use brydz_framework::world::agent::state::AgentStatePhase2;
 use brydz_framework::world::environment::{RoundRobinContractEnvStd, EnvStatePhase2};
 
 
 use brydz_framework::brydz_core::bidding::Bid;
-use brydz_framework::brydz_core::cards::trump::Trump;
+use brydz_framework::brydz_core::cards::trump::TrumpGen;
 use brydz_framework::brydz_core::contract::{ContractSpec, Contract};
 use brydz_framework::brydz_core::karty::suits::Suit::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
-use brydz_framework::error::{BridgeError, BridgeErrorGen};
+use brydz_framework::error::{BridgeError};
 use brydz_framework::protocol::{ServerDealMessageStd, ClientDealMessageStd};
 use brydz_framework::world::agent::{ AutomaticAgentPhase2};
 use brydz_framework::world::comm::{SyncComm};
@@ -175,7 +174,7 @@ fn test_std_tcp(){
 
 #[allow(dead_code)]
 fn basic_sim_with_bot(){
-    let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
+    let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let (comm_env_north, comm_north) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, BridgeError>::new_pair();
     let (comm_env_east, comm_east) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, BridgeError>::new_pair();
@@ -252,7 +251,7 @@ fn basic_sim_with_bot(){
 }
 
 fn basic_sim_with_bot_tcp(){
-    let contract = ContractSpec::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap());
+    let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let tcp_listener = std::net::TcpListener::bind("127.0.0.1:8420").unwrap();
 
@@ -295,7 +294,7 @@ fn basic_sim_with_bot_tcp(){
             let comm_east = TcpComm::new(stream_east_c);
             let comm_south = TcpComm::new(stream_south_c);
             let comm_west = TcpComm::new(stream_west_c);
-            
+
             let card_deal = fair_bridge_deal::<StackHand>();
             let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
 
