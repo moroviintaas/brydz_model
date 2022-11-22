@@ -11,7 +11,7 @@ use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::TrumpGen;
 use brydz_framework::brydz_core::contract::{ContractSpec, Contract};
 use brydz_framework::brydz_core::karty::suits::Suit::Spades;
-use brydz_framework::brydz_core::player::side::{Side, SideAssociated};
+use brydz_framework::brydz_core::player::side::{Side, SideMap};
 use brydz_framework::error::{BridgeError};
 use brydz_framework::protocol::{ServerDealMessageStd, ClientDealMessageStd};
 use brydz_framework::world::agent::{ AutomaticAgentPhase2};
@@ -181,7 +181,7 @@ fn basic_sim_with_bot(){
     let (comm_env_west, comm_west) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, BridgeError>::new_pair();
     let (comm_env_south, comm_south) = SyncComm::<ServerDealMessageStd, ClientDealMessageStd, BridgeError>::new_pair();
 
-    let comm_assotiation = SideAssociated::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
+    let comm_assotiation = SideMap::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
 
 
     let initial_contract = Contract::new(contract);
@@ -270,7 +270,7 @@ fn basic_sim_with_bot_tcp(){
             info!("South connected");
             let (west_stream, _) = tcp_listener.accept().unwrap();
             info!("West connected");
-            let comm_assotiation = SideAssociated::new(TcpComm::new(north_stream), TcpComm::new(east_stream), TcpComm::new(south_stream), TcpComm::new(west_stream));
+            let comm_assotiation = SideMap::new(TcpComm::new(north_stream), TcpComm::new(east_stream), TcpComm::new(south_stream), TcpComm::new(west_stream));
             let simple_overseer = RoundRobinContractEnvStd::new(
             comm_assotiation,
                 EnvStatePhase2::new(initial_contract_env.clone()));
