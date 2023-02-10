@@ -9,7 +9,7 @@ use brydz_framework::world::environment::{RoundRobinContractEnvStd, EnvStatePhas
 
 use brydz_framework::brydz_core::bidding::Bid;
 use brydz_framework::brydz_core::cards::trump::TrumpGen;
-use brydz_framework::brydz_core::contract::{ContractSpec, Contract};
+use brydz_framework::brydz_core::contract::{ContractSpec, ContractT};
 use brydz_framework::brydz_core::karty::suits::Suit::Spades;
 use brydz_framework::brydz_core::player::side::{Side, SideMap};
 use brydz_framework::error::{BridgeError};
@@ -184,7 +184,7 @@ fn basic_sim_with_bot(){
     let comm_assotiation = SideMap::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
 
 
-    let initial_contract = Contract::new(contract);
+    let initial_contract = ContractT::try_new(contract).unwrap();
     let simple_overseer = RoundRobinContractEnvStd::new(
         comm_assotiation,
         EnvStatePhase2::new(initial_contract.clone()));
@@ -255,7 +255,7 @@ fn basic_sim_with_bot_tcp(){
     //let mut simple_overseer = SimpleOverseer::new(contract);
     let tcp_listener = std::net::TcpListener::bind("127.0.0.1:8420").unwrap();
 
-    let initial_contract = Contract::new(contract);
+    let initial_contract = ContractT::try_new(contract).unwrap();
     let initial_contract_env = initial_contract.clone();
 
 
