@@ -11,7 +11,7 @@ use brydz_core::tur::comm::ContractEnvSyncComm;
 use brydz_core::tur::env::ContractEnv;
 use brydz_core::tur::spec::ContractProtocolSpec;
 use brydz_core::tur::state::{ContractDummyState, ContractAgentStateMin, ContractEnvStateMin};
-use karty::hand::{StackHand};
+use karty::hand::{CardSet};
 use karty::suits::Suit::Spades;
 use tur::automatons::policy::RandomPolicy;
 use tur::automatons::rr::{AgentRR, EnvironmentRR};
@@ -50,7 +50,7 @@ fn tur_sim(){
     let env_initial_state = ContractEnvStateMin::new(initial_contract.clone(), None);
     let mut simple_env = ContractEnv::new(env_initial_state, comm_assotiation);
 
-    let card_deal = fair_bridge_deal::<StackHand>();
+    let card_deal = fair_bridge_deal::<CardSet>();
     let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
 
     let initial_state_east = ContractAgentStateMin::new(East, hand_east, initial_contract.clone(), None);
@@ -135,7 +135,7 @@ fn tur_sim_tcp(){
             let comm_south = TcpCommSim::new(stream_south_c);
             let comm_west = TcpCommSim::new(stream_west_c);
 
-            let card_deal = fair_bridge_deal::<StackHand>();
+            let card_deal = fair_bridge_deal::<CardSet>();
             let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
 
             let initial_state_east = ContractAgentStateMin::new(East, hand_east, initial_contract.clone(), None);
