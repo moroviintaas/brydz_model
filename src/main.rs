@@ -56,7 +56,7 @@ fn tur_sim(){
     let initial_state_east = ContractAgentStateMin::new(East, hand_east, initial_contract.clone(), None);
     let initial_state_south = ContractAgentStateMin::new(South, hand_south, initial_contract.clone(), None);
     let initial_state_west = ContractDummyState::new(West, hand_west, initial_contract.clone());
-    let initial_state_north = ContractAgentStateMin::new(North, hand_north, initial_contract.clone(), None);
+    let initial_state_north = ContractAgentStateMin::new(North, hand_north, initial_contract, None);
 
 
     let random_policy = RandomPolicy::<ContractAgentStateMin>::new();
