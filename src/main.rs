@@ -11,13 +11,16 @@ use brydz_core::tur::comm::ContractEnvSyncComm;
 use brydz_core::tur::env::ContractEnv;
 use brydz_core::tur::spec::ContractProtocolSpec;
 use brydz_core::tur::state::{ContractDummyState, ContractAgentStateMin, ContractEnvStateMin};
+use brydz_simulator::settings::{ContractConfig, PlayerCfg};
+use brydz_simulator::settings::Connection::Local;
 use karty::hand::{CardSet};
-use karty::suits::Suit::Spades;
+use karty::suits::Suit::{Spades};
 use tur::automatons::policy::RandomPolicy;
 use tur::automatons::rr::{AgentRR, EnvironmentRR};
 use tur::error::CommError;
 use tur::protocol::{AgentMessage, EnvMessage};
 use tur_net_ext::tcp::TcpCommK1;
+use std::str::FromStr;
 
 fn setup_logger() -> Result<(), fern::InitError> {
     fern::Dispatch::new()
@@ -36,7 +39,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
         .apply()?;
     Ok(())
 }
-
+#[allow(unused)]
 fn tur_sim(){
     let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
@@ -89,7 +92,7 @@ fn tur_sim(){
     })
 
 }
-
+#[allow(unused)]
 fn tur_sim_tcp(){
     let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     type TcpCommSim = TcpCommK1<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError>;
@@ -178,10 +181,27 @@ fn tur_sim_tcp(){
 
 }
 
+fn serialize_settings_toml(){
+    let sim_conf = ContractConfig::new_raw(
+        PlayerCfg::new(String::from_str("AQT32.JT94.76.QT").unwrap(), Local),
+        PlayerCfg::new(String::from_str("J97.Q875.AQT94.K").unwrap(), Local),
+        PlayerCfg::new(String::from_str("K8.AK32.82.J9532").unwrap(), Local),
+        PlayerCfg::new(String::from_str("654.6.KJ53.A8764").unwrap(), Local),
+        String::from_str("2S").unwrap(),
+
+
+    );
+
+    let toml = toml::to_string(&sim_conf).unwrap();
+    println!("{}", toml);
+}
+
 fn main() {
     setup_logger().unwrap();
 
+    serialize_settings_toml();
 
-    tur_sim();
-    tur_sim_tcp();
+
+    //tur_sim();
+    //tur_sim_tcp();
 }
