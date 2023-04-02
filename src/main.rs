@@ -6,21 +6,21 @@ use brydz_core::contract::{Contract, ContractSpec};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
-use brydz_core::tur::agent::ContractAgent;
-use brydz_core::tur::comm::ContractEnvSyncComm;
-use brydz_core::tur::env::ContractEnv;
-use brydz_core::tur::spec::ContractProtocolSpec;
-use brydz_core::tur::state::{ContractDummyState, ContractAgentStateMin, ContractEnvStateMin};
+use brydz_core::sztorm::agent::ContractAgent;
+use brydz_core::sztorm::comm::ContractEnvSyncComm;
+use brydz_core::sztorm::env::ContractEnv;
+use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::state::{ContractDummyState, ContractAgentStateMin, ContractEnvStateMin};
 use brydz_simulator::settings::{ContractConfig, PlayerCfg};
 use brydz_simulator::settings::Connection::Local;
 use karty::hand::{CardSet};
 use karty::suits::Suit::{Spades};
-use tur::automatons::policy::RandomPolicy;
-use tur::automatons::rr::{AgentRR, EnvironmentRR};
-use tur::error::CommError;
-use tur::protocol::{AgentMessage, EnvMessage};
-use tur_net_ext::tcp::TcpCommK1;
+use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
+use sztorm::error::CommError;
+use sztorm::protocol::{AgentMessage, EnvMessage};
+use sztorm_net_ext::tcp::TcpCommK1;
 use std::str::FromStr;
+use sztorm::RandomPolicy;
 
 fn setup_logger() -> Result<(), fern::InitError> {
     fern::Dispatch::new()
