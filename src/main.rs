@@ -2,7 +2,7 @@ use std::thread;
 use log::info;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
-use brydz_core::contract::{Contract, ContractSpec};
+use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
@@ -41,7 +41,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
 }
 #[allow(unused)]
 fn tur_sim(){
-    let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
+    let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
     let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
@@ -94,7 +94,7 @@ fn tur_sim(){
 }
 #[allow(unused)]
 fn tur_sim_tcp(){
-    let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
+    let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     type TcpCommSim = TcpCommK1<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError>;
     type TcpCommSimEnv = TcpCommK1<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError>;
     /*let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
