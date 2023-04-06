@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 karty = {path = "../karty"}
-brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_derive"]}
+brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_dedicate"]}
 sztorm = {path = "../sztorm", features= ["speedy"]}
 log = "0.4.17"
 fern = "0.6.1"
@@ -16,4 +16,6 @@ sztorm_net_ext = {path = "../sztorm_net_ext"}
 config = "0.13.3"
 serde = {version = "1.0.158", featueres = ["derive"]}
 toml = "0.7.3"
-clap = "4.2.1"
+clap = {version = "4.2.1", features = ["derive"]}
+thiserror = "1.0.40"
+rand = "0.8.5"
