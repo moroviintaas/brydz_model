@@ -17,7 +17,6 @@ use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::tcp::TcpCommK1;
-use std::str::FromStr;
 use sztorm::{AgentGen, RandomPolicy};
 
 pub fn tur_sim(){

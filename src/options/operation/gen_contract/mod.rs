@@ -1,27 +1,34 @@
 mod deal;
 mod subtrump;
 mod force_declarer;
+mod choice_doubling;
 
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 pub use deal::*;
 pub use subtrump::*;
 pub use force_declarer::*;
 
 use clap::Args;
-use rand::Rng;
+use std::io::Write;
+use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
+use rand::seq::SliceRandom;
+use brydz_core::bidding::{Bid, Doubling};
 use brydz_core::cards::trump::{Trump, TrumpGen};
 use brydz_core::contract::ContractParameters;
-use brydz_core::player::side::{Side, SIDES};
+use brydz_core::deal::fair_bridge_deal;
+use brydz_core::player::side::{Side};
+use brydz_core::ron::ser::{PrettyConfig, to_string_pretty};
+use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use crate::SimContractParams;
+use crate::{DistributionTemplate, SimContractParams};
 use crate::error::BrydzSimError;
 use crate::error::GenError::LowerBoundOverUpper;
-use crate::options::hand_info::HandInfoVariants;
+use crate::options::operation::gen_contract::choice_doubling::ChoiceDoubling;
 
 #[derive(Args)]
-pub struct GenContract {
+pub struct GenContractOptions {
     #[arg(short = 'g', long = "game_count", help = "Number of game parameters to generate", default_value = "1")]
     pub game_count: u16,
     #[arg(short = 'm', long = "method", value_enum,  help = "Probability method of distribution cards", default_value_t = DealMethod::Fair)]
@@ -34,6 +41,7 @@ pub struct GenContract {
     pub output_file: Option<PathBuf>,
     #[arg(short = 'p', long = "probability_file", help = "Path to file with probabilities of cards")]
     pub probability_file: Option<PathBuf>,
+    /*
     #[arg(short = 'n', long = "north_type", help = "Type of North's hand information set", default_value_t = HandInfoVariants::Simple)]
     pub north_hand_type: HandInfoVariants,
     #[arg(short = 'e', long = "east_type", help = "Type of East's hand information set", default_value_t = HandInfoVariants::Simple)]
@@ -42,15 +50,19 @@ pub struct GenContract {
     pub south_hand_type: HandInfoVariants,
     #[arg(short = 'w', long = "west_type", help = "Type of West's hand information set", default_value_t = HandInfoVariants::Simple)]
     pub west_hand_type: HandInfoVariants,
+
+     */
     #[arg(short = 't', long = "trump_limit", help = "Subset of possible trumps", default_value_t = Subtrump::All, rename_all = "snake_case")]
     pub trump_limit: Subtrump,
     #[arg(short = 'f', long = "force_declarer", help = "Force one side to be declarer", default_value_t = ForceDeclarer::No, value_enum)]
-    pub force_declarer: ForceDeclarer
+    pub force_declarer: ForceDeclarer,
+    #[arg(short = 'd', long = "doubling", help = "Force one side to be declarer", default_value_t = ChoiceDoubling::No, value_enum)]
+    pub choice_doubling: ChoiceDoubling,
 
 
 }
 
-fn generate_single_contract(params: &GenContract, rng: &mut ThreadRng) -> Result<(), BrydzSimError>{
+fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) -> Result<SimContractParams, BrydzSimError>{
 
     if params.min_contract > params.max_contract {
         return Err(BrydzSimError::Gen(LowerBoundOverUpper {lower: params.min_contract, upper: params.max_contract }))
@@ -69,26 +81,55 @@ fn generate_single_contract(params: &GenContract, rng: &mut ThreadRng) -> Result
         _ => Side::try_from(&params.force_declarer).unwrap(),
     };
 
-    //let contract_params = ContractParameters::new(contract_declarer)
 
 
+    let doubling = match params.choice_doubling{
+        ChoiceDoubling::Any => *[Doubling::None, Doubling::Redouble, Doubling::Redouble].choose(rng).unwrap(),
+        ChoiceDoubling::No => Doubling::None,
+        ChoiceDoubling::Double => Doubling::Double,
+        ChoiceDoubling::Redouble => Doubling::Redouble,
+    };
+    let contract_parameters = ContractParameters::new_d(contract_declarer,
+                                        Bid::init(trump, contract_value).unwrap(),
+                                        doubling);
 
-    match params.deal_method{
-        DealMethod::Fair => {
-            //let deal
-        }
-    }
-    todo!();
-    Ok(())
+
+    let (template, cards) = match params.deal_method{
+        DealMethod::Fair => (DistributionTemplate::Simple, fair_bridge_deal::<CardSet>()),
+
+    };
+
+    Ok(SimContractParams::new(contract_parameters, template, cards))
+
+
 }
 
-pub fn generate_contracts(params: &GenContract) -> Result<(), BrydzSimError>{
+pub fn generate_contracts(params: &GenContractOptions) -> Result<Vec<SimContractParams>, BrydzSimError>{
     let repeat = params.game_count as usize;
+    let mut rng = thread_rng();
     let mut game_params: Vec<SimContractParams> = Vec::with_capacity(repeat);
     for _ in 0..repeat{
-
+        game_params.push(generate_single_contract(params, &mut rng)?);
     }
+    Ok(game_params)
 
+}
 
-    todo!()
+pub fn gen2(gen_options: &GenContractOptions) -> Result<(), BrydzSimError>{
+    let my_config = PrettyConfig::new()
+        .depth_limit(4)
+        // definitely superior (okay, just joking)
+        .indentor("\t".to_owned());
+    let contracts = generate_contracts(gen_options).unwrap();
+
+    match &gen_options.output_file{
+        None => {
+            println!("{}", to_string_pretty(&contracts, my_config).unwrap())
+        }
+        Some(file) => {
+            let mut output = std::fs::File::create(file).unwrap();
+            write!(output, "{}", to_string_pretty(&contracts, my_config).unwrap()).unwrap()
+        }
+    };
+    Ok(())
 }

@@ -1,5 +1,5 @@
-mod contract_params;
-mod card_distribution;
+mod sim_contract_params;
+mod distribution_template;
 
-pub use card_distribution::*;
-pub use contract_params::*;
+pub use distribution_template::*;
+pub use sim_contract_params::*;

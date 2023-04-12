@@ -8,7 +8,7 @@ pub use clap::Subcommand;
 #[derive(Subcommand)]
 pub enum Operation {
 
-    Gen2(GenContract),
+    Gen2(GenContractOptions),
     TestLocal,
     TestTcp,
 }

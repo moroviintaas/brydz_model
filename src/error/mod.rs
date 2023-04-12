@@ -1,6 +1,5 @@
 mod gen;
 
-use thiserror::Error;
 pub use gen::*;
 
 #[derive(Debug, Clone, thiserror::Error)]

@@ -1,31 +1,13 @@
-use std::thread;
-use log::info;
-use brydz_core::bidding::Bid;
-use brydz_core::cards::trump::TrumpGen;
-use brydz_core::contract::{Contract, ContractParametersGen};
-use brydz_core::deal::fair_bridge_deal;
-use brydz_core::player::side::{Side, SideMap};
-use brydz_core::player::side::Side::*;
-use brydz_core::sztorm::agent::ContractAgent;
-use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin};
 use brydz_simulator::settings::{ContractConfig, PlayerCfg};
 use brydz_simulator::settings::Connection::Local;
-use karty::hand::{CardSet};
-use karty::suits::Suit::{Spades};
-use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
-use sztorm::error::CommError;
-use sztorm::protocol::{AgentMessage, EnvMessage};
-use sztorm_net_ext::tcp::TcpCommK1;
 use std::str::FromStr;
-use sztorm::{AgentGen, RandomPolicy};
 
 
 use clap::Parser;
 use brydz_simulator::options;
-use brydz_simulator::options::operation::{generate_contracts, Operation};
+use brydz_simulator::options::operation::{Operation};
+use brydz_simulator::options::operation::gen2;
+
 
 //use crate::options::operation::{GenContract, Operation};
 //mod error;
@@ -33,7 +15,7 @@ use brydz_simulator::options::operation::{generate_contracts, Operation};
 //mod error;
 
 
-
+#[allow(dead_code)]
 fn serialize_settings_toml(){
     let sim_conf = ContractConfig::new_raw(
         PlayerCfg::new(String::from_str("AQT32.JT94.76.QT").unwrap(), Local),
@@ -53,18 +35,36 @@ fn main() {
 
     let cli = options::Cli::parse();
     options::setup_logger(cli.log_level).unwrap();
-    serialize_settings_toml();
-    match &cli.command{
-        Operation::Gen2(distribute) => {
-            generate_contracts(distribute);
-        }
+    //serialize_settings_toml();
+    let result = match &cli.command{
+        Operation::Gen2(gen_options) => gen2(gen_options),
+        /* {
+            let my_config = PrettyConfig::new()
+                .depth_limit(4)
+                // definitely superior (okay, just joking)
+                .indentor("\t".to_owned());
+            let contracts = generate_contracts(gen_options).unwrap();
+
+            match &gen_options.output_file{
+                None => {
+                    println!("{}", to_string_pretty(&contracts, my_config).unwrap())
+                }
+                Some(file) => {
+                    let mut output = std::fs::File::create(file).unwrap();
+                    write!(output, "{}", to_string_pretty(&contracts, my_config).unwrap()).unwrap()
+                }
+            };
+
+            //println!("{}", toml::to_string(&contracts).unwrap());
+        }*/
         Operation::TestLocal =>{
-            options::operation::test_ops::tur_sim();
+            Ok(options::operation::test_ops::tur_sim())
         }
         Operation::TestTcp => {
-            options::operation::test_ops::tur_sim_tcp();
+            Ok(options::operation::test_ops::tur_sim_tcp())
         }
-    }
+    };
+    result.unwrap()
 
 
 
