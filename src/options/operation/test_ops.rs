@@ -13,7 +13,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin};
 use karty::hand::{CardSet};
 use karty::suits::Suit::{Spades};
-use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
+use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::tcp::TcpCommK1;
@@ -44,10 +44,10 @@ pub fn tur_sim(){
     let random_policy = RandomPolicy::<ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractDummyState>::new();
 
-    let mut agent_east = AgentGen::new(initial_state_east, comm_east, random_policy.clone() );
-    let mut agent_south = AgentGen::new(initial_state_south, comm_south, random_policy.clone() );
-    let mut agent_west = AgentGen::new(initial_state_west, comm_west, policy_dummy);
-    let mut agent_north = AgentGen::new(initial_state_north, comm_north, random_policy );
+    let mut agent_east = AgentGen::new(East, initial_state_east, comm_east, random_policy.clone() );
+    let mut agent_south = AgentGen::new(South, initial_state_south, comm_south, random_policy.clone() );
+    let mut agent_west = AgentGen::new(West, initial_state_west, comm_west, policy_dummy);
+    let mut agent_north = AgentGen::new(North, initial_state_north, comm_north, random_policy );
 
     thread::scope(|s|{
         s.spawn(||{
