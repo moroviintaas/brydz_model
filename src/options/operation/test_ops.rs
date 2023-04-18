@@ -41,8 +41,8 @@ pub fn tur_sim(){
     let initial_state_north = ContractAgentInfoSetSimple::new(North, hand_north, initial_contract, None);
 
 
-    let random_policy = RandomPolicy::<ContractAgentInfoSetSimple>::new();
-    let policy_dummy = RandomPolicy::<ContractDummyState>::new();
+    let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
+    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
     let mut agent_east = AgentGen::new(East, initial_state_east, comm_east, random_policy.clone() );
     let mut agent_south = AgentGen::new(South, initial_state_south, comm_south, random_policy.clone() );
@@ -126,8 +126,8 @@ pub fn tur_sim_tcp(){
             let initial_state_north = ContractAgentInfoSetSimple::new(North, hand_north, initial_contract.clone(), None);
 
 
-            let random_policy = RandomPolicy::<ContractAgentInfoSetSimple>::new();
-            let policy_dummy = RandomPolicy::<ContractDummyState>::new();
+            let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
+            let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
             let mut agent_east = ContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
             let mut agent_south = ContractAgent::new(initial_state_south, comm_south, random_policy.clone() );
