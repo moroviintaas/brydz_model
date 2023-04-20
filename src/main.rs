@@ -4,9 +4,12 @@ use std::str::FromStr;
 
 
 use clap::Parser;
+use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::options;
 use brydz_simulator::options::operation::{Operation};
 use brydz_simulator::options::operation::gen2;
+use sztorm::error::SztormError;
 
 
 //use crate::options::operation::{GenContract, Operation};
@@ -62,6 +65,12 @@ fn main() {
         }
         Operation::TestTcp => {
             Ok(options::operation::test_ops::tur_sim_tcp())
+        }
+        Operation::TestGeneric => {
+            match options::operation::test_ops::test_generic_model(){
+                Ok(_) => Ok(()),
+                Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
+            }
         }
     };
     result.unwrap()

@@ -10,14 +10,17 @@ use brydz_core::sztorm::agent::ContractAgent;
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin};
+use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin, ContractStateUpdate};
 use karty::hand::{CardSet};
 use karty::suits::Suit::{Spades};
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
-use sztorm::error::CommError;
+use sztorm::automatons::rr::{AgentAuto, EnvironmentRR, RoundRobinModelBuilder};
+use sztorm::error::{CommError, SztormError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::tcp::TcpCommK1;
 use sztorm::{AgentGen, RandomPolicy};
+use brydz_core::sztorm::state::ContractState;
+use sztorm::EnvironmentState;
+use sztorm::State;
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
@@ -74,8 +77,8 @@ pub fn tur_sim(){
 
 pub fn tur_sim_tcp(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
-    type TcpCommSim = TcpCommK1<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError>;
-    type TcpCommSimEnv = TcpCommK1<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError>;
+    type TcpCommSim = TcpCommK1<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
+    type TcpCommSimEnv = TcpCommK1<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
     /*let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = TcpCommSim::new_pair();
     let (comm_env_east, comm_east) = TcpCommSim::new_pair();
@@ -158,4 +161,51 @@ pub fn tur_sim_tcp(){
     });
 
 
+}
+
+pub fn test_generic_model() -> Result<(), SztormError<ContractProtocolSpec>>{
+    let contract_params = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
+    let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
+    let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
+    let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
+    let (comm_env_south, comm_south) = ContractEnvSyncComm::new_pair();
+
+    let card_deal = fair_bridge_deal::<CardSet>();
+    let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
+    let initial_contract = Contract::new(contract_params);
+
+    let initial_state_east = ContractAgentInfoSetSimple::new(East, hand_east, initial_contract.clone(), None);
+    let initial_state_south = ContractAgentInfoSetSimple::new(South, hand_south, initial_contract.clone(), None);
+    let initial_state_west = ContractDummyState::new(West, hand_west, initial_contract.clone());
+    let initial_state_north = ContractAgentInfoSetSimple::new(North, hand_north, initial_contract.clone(), None);
+
+    let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
+    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+
+    let mut agent_east = AgentGen::new(East, initial_state_east, comm_east, random_policy.clone() );
+    let mut agent_south = AgentGen::new(South, initial_state_south, comm_south, random_policy.clone() );
+    let mut agent_west = AgentGen::new(West, initial_state_west, comm_west, policy_dummy);
+    let mut agent_north = AgentGen::new(North, initial_state_north, comm_north, random_policy );
+
+
+    let mut model = RoundRobinModelBuilder::new()
+        .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
+        .with_env_action_process_fn(|state, agent_id, action|{
+            let state_update =
+            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
+                ContractStateUpdate::new(state.dummy_side(), action)
+            } else {
+                ContractStateUpdate::new(agent_id.to_owned(), action)
+            };
+            state.update(state_update)?;
+            Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
+        })?
+        .with_local_agent(Box::new(agent_east), Box::new(comm_env_east))?
+        .with_local_agent(Box::new(agent_south), Box::new(comm_env_south))?
+        .with_local_agent(Box::new(agent_west), Box::new(comm_env_west))?
+        .with_local_agent(Box::new(agent_north), Box::new(comm_env_north))?
+        .build()?;
+
+    model.play().unwrap();
+    Ok(())
 }

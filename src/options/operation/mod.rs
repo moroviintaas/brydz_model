@@ -11,4 +11,5 @@ pub enum Operation {
     Gen2(GenContractOptions),
     TestLocal,
     TestTcp,
+    TestGeneric
 }
