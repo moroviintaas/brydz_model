@@ -40,7 +40,7 @@ fn main() {
     options::setup_logger(cli.log_level).unwrap();
     //serialize_settings_toml();
     let result = match &cli.command{
-        Operation::Gen2(gen_options) => gen2(gen_options),
+        Operation::ContractGen(gen_options) => gen2(gen_options),
         /* {
             let my_config = PrettyConfig::new()
                 .depth_limit(4)
@@ -60,6 +60,7 @@ fn main() {
 
             //println!("{}", toml::to_string(&contracts).unwrap());
         }*/
+        Operation::ContractSim(options) => {todo!()}//sim2(options)}
         Operation::TestLocal =>{
             Ok(options::operation::test_ops::tur_sim())
         }
@@ -72,6 +73,7 @@ fn main() {
                 Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
             }
         }
+
     };
     result.unwrap()
 

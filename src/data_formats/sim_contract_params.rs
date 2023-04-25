@@ -19,4 +19,11 @@ impl SimContractParams{
                cards: SideMap<CardSet>) -> Self{
         Self{parameters, distribution_template, cards}
     }
+
+    pub fn cards(&self) -> &SideMap<CardSet>{
+        &self.cards
+    }
+    pub fn parameters(&self) -> &ContractParameters{
+        &self.parameters
+    }
 }
