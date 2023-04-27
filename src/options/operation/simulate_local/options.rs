@@ -1,6 +1,8 @@
+use std::fs;
 use std::path::PathBuf;
 use clap::Args;
 use crate::error::BrydzSimError;
+use crate::SimContractParams;
 
 #[derive(Args)]
 pub struct SimContractOptions{
@@ -15,5 +17,16 @@ pub struct SimContractOptions{
 
 
 pub(crate) fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError>{
-    todo!()
+    match &gen_options.input_file{
+        None => {todo!()}
+        Some(f) => {
+            let games_str = fs::read_to_string(f).unwrap();
+            let games: Vec<SimContractParams> = ron::de::from_str(&games_str).unwrap();
+
+            for g in games{
+
+            }
+        }
+    }
+    Ok(())
 }

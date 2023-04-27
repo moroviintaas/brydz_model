@@ -4,7 +4,7 @@ use karty::hand::CardSet;
 use crate::DistributionTemplate;
 
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone,) ]
 pub struct SimContractParams {
     parameters: ContractParameters,
     //info_sets: SideMap<DistributionTemplate>

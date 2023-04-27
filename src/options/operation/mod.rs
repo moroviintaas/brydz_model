@@ -1,17 +1,17 @@
 mod gen_contract;
 pub mod test_ops;
-mod simulate;
+mod simulate_local;
 
 
 pub use gen_contract::*;
 pub use clap::Subcommand;
-pub use simulate::*;
+pub use simulate_local::*;
 
 #[derive(Subcommand)]
 pub enum Operation {
 
     ContractGen(GenContractOptions),
-    ContractSim(SimContractOptions),
+    LocalSimContract(SimContractOptions),
     TestLocal,
     TestTcp,
     TestGeneric
