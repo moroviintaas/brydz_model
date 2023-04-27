@@ -35,3 +35,9 @@ impl From<SztormError<ContractProtocolSpec>> for BrydzSimError{
         Self::Sztorm(value)
     }
 }
+
+impl From<SetupError<ContractProtocolSpec>> for BrydzSimError{
+    fn from(value: SetupError<ContractProtocolSpec>) -> Self {
+        Sztorm(SztormError::Setup(value))
+    }
+}

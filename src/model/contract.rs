@@ -2,14 +2,15 @@ use brydz_core::contract::{Contract, ContractParameters};
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
+use brydz_core::sztorm::env::ContractProcessor;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAction, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, ContractState, ContractStateUpdate};
 use sztorm::automatons::rr::{RoundRobinModel, RoundRobinModelBuilder};
-use sztorm::{ActionProcessingFunction, AgentGen, EnvCommEndpoint, EnvironmentState, RandomPolicy, State};
+use sztorm::{ActionProcessor, AgentGen, EnvCommEndpoint, EnvironmentState, RandomPolicy, State};
 use sztorm::error::{CommError, SetupError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm1024, ComplexComm2048};
-use crate::error::SimulationError;
+use crate::error::{BrydzSimError, SimulationError};
 use crate::SimContractParams;
 /*
 pub(crate) fn contract_process_action(mut state: ContractEnvStateMin, agent_id: Side, action: ContractAction)
@@ -26,9 +27,8 @@ pub(crate) fn contract_process_action(mut state: ContractEnvStateMin, agent_id: 
 */
 pub(crate) type LocalModelContract<ProcessAction> =
 RoundRobinModel<ContractProtocolSpec, ContractEnvStateMin, ProcessAction, ComplexComm1024<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>>;
-/*
-pub fn generate_local_model<ProcessAction: ActionProcessingFunction<ContractProtocolSpec, ContractEnvStateMin>
->(params: &SimContractParams) -> Result<LocalModelContract<ProcessAction>, SimulationError>{
+
+pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract<ContractProcessor>, BrydzSimError>{
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
     let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
@@ -66,16 +66,7 @@ pub fn generate_local_model<ProcessAction: ActionProcessingFunction<ContractProt
 
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .with_env_action_process_fn(|state, agent_id, action|{
-            let state_update =
-            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
-                ContractStateUpdate::new(state.dummy_side(), action)
-            } else {
-                ContractStateUpdate::new(agent_id.to_owned(), action)
-            };
-            state.update(state_update)?;
-            Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
-        })?
+        .with_env_action_process_fn(ContractProcessor{})?
         .with_local_agent(Box::new(agent_declarer), ComplexComm1024::StdSync(comm_env_declarer))?
         .with_local_agent(Box::new(agent_def1), ComplexComm1024::StdSync(comm_env_def1))?
         .with_local_agent(Box::new(agent_dummy), ComplexComm1024::StdSync(comm_env_dummy))?
@@ -86,5 +77,5 @@ pub fn generate_local_model<ProcessAction: ActionProcessingFunction<ContractProt
     Ok(model)
 }
 
- */
+
 

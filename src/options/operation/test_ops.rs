@@ -8,7 +8,7 @@ use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::ContractAgent;
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::env::ContractEnv;
+use brydz_core::sztorm::env::{ContractEnv, ContractProcessor};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin, ContractStateUpdate};
 use karty::hand::{CardSet};
@@ -22,6 +22,8 @@ use sztorm::{AgentGen, RandomPolicy};
 use brydz_core::sztorm::state::ContractState;
 use sztorm::EnvironmentState;
 use sztorm::State;
+
+
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
@@ -219,16 +221,7 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractProtocolSpec>>{
 
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .with_env_action_process_fn(|state, agent_id, action|{
-            let state_update =
-            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
-                ContractStateUpdate::new(state.dummy_side(), action)
-            } else {
-                ContractStateUpdate::new(agent_id.to_owned(), action)
-            };
-            state.update(state_update)?;
-            Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
-        })?
+        .with_env_action_process_fn(ContractProcessor{})?
         .with_local_agent(Box::new(agent_east), ComplexComm2048::StdSync(comm_env_east))?
         //.with_local_agent(Box::new(agent_south), agent_comm_south)?
         .with_local_agent(Box::new(agent_west), ComplexComm2048::StdSync(comm_env_west))?
