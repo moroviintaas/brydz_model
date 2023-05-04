@@ -64,10 +64,12 @@ fn main() {
             sim2(options)
         }//sim2(options)}
         Operation::TestLocal =>{
-            Ok(options::operation::test_ops::tur_sim())
+            options::operation::test_ops::tur_sim();
+            Ok(())
         }
         Operation::TestTcp => {
-            Ok(options::operation::test_ops::tur_sim_tcp())
+            options::operation::test_ops::tur_sim_tcp();
+            Ok(())
         }
         Operation::TestGeneric => {
             match options::operation::test_ops::test_generic_model(){

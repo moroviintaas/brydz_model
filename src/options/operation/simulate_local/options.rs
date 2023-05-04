@@ -15,8 +15,8 @@ pub struct SimContractOptions{
 }
 
 
-
-pub(crate) fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError>{
+#[allow(dead_code)]
+pub fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError>{
     match &gen_options.input_file{
         None => {todo!()}
         Some(f) => {
