@@ -1,16 +1,16 @@
-use brydz_core::contract::{Contract, ContractParameters};
-use brydz_core::player::side::{Side, SideMap};
-use brydz_core::player::side::Side::*;
+use brydz_core::contract::{Contract};
+use brydz_core::player::side::{SideMap};
+
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::ContractProcessor;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{ContractAction, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, ContractState, ContractStateUpdate};
+use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use sztorm::automatons::rr::{RoundRobinModel, RoundRobinModelBuilder};
-use sztorm::{ActionProcessor, AgentGen, EnvCommEndpoint, EnvironmentState, RandomPolicy, State};
-use sztorm::error::{CommError, SetupError};
+use sztorm::{AgentGen, RandomPolicy};
+use sztorm::error::{CommError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
-use sztorm_net_ext::{ComplexComm1024, ComplexComm2048};
-use crate::error::{BrydzSimError, SimulationError};
+use sztorm_net_ext::{ComplexComm1024};
+use crate::error::{BrydzSimError};
 use crate::SimContractParams;
 /*
 pub(crate) fn contract_process_action(mut state: ContractEnvStateMin, agent_id: Side, action: ContractAction)
@@ -59,12 +59,12 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
     let (comm_declarer, comm_def1, comm_dummy, comm_def2) = agent_comm_map.destruct_start_with(declarer);
     let (comm_env_declarer, comm_env_def1, comm_env_dummy, comm_env_def2) = env_comm_map.destruct_start_with(declarer);
 
-    let mut agent_declarer = AgentGen::new(declarer, initial_state_declarer, comm_declarer, random_policy.clone() );
-    let mut agent_def1 = AgentGen::new(def1, initial_state_def1, comm_def1, random_policy.clone() );
-    let mut agent_dummy = AgentGen::new(dummy, initial_state_dummy, comm_dummy, policy_dummy);
-    let mut agent_def2 = AgentGen::new(def2, initial_state_def2, comm_def2, random_policy );
+    let agent_declarer = AgentGen::new(declarer, initial_state_declarer, comm_declarer, random_policy.clone() );
+    let agent_def1 = AgentGen::new(def1, initial_state_def1, comm_def1, random_policy.clone() );
+    let agent_dummy = AgentGen::new(dummy, initial_state_dummy, comm_dummy, policy_dummy);
+    let agent_def2 = AgentGen::new(def2, initial_state_def2, comm_def2, random_policy );
 
-    let mut model = RoundRobinModelBuilder::new()
+    let model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
         .with_env_action_process_fn(ContractProcessor{})?
         .with_local_agent(Box::new(agent_declarer), ComplexComm1024::StdSync(comm_env_declarer))?

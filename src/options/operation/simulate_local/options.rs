@@ -23,7 +23,7 @@ pub(crate) fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError
             let games_str = fs::read_to_string(f).unwrap();
             let games: Vec<SimContractParams> = ron::de::from_str(&games_str).unwrap();
 
-            for g in games{
+            for _g in games{
 
             }
         }

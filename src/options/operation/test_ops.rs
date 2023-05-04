@@ -1,4 +1,4 @@
-use std::thread::{self, spawn};
+use std::thread::{self};
 use log::info;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
@@ -10,7 +10,7 @@ use brydz_core::sztorm::agent::ContractAgent;
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::{ContractEnv, ContractProcessor};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin, ContractStateUpdate};
+use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin};
 use karty::hand::{CardSet};
 use karty::suits::Suit::{Spades};
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR, RoundRobinModelBuilder};
@@ -19,9 +19,9 @@ use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm, ComplexComm2048};
 use sztorm_net_ext::tcp::{TcpCommK1, TcpCommK2};
 use sztorm::{AgentGen, RandomPolicy};
-use brydz_core::sztorm::state::ContractState;
-use sztorm::EnvironmentState;
-use sztorm::State;
+
+
+
 
 
 
@@ -174,7 +174,7 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractProtocolSpec>>{
     
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
     let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
-    let (comm_env_south, comm_south) = ContractEnvSyncComm::new_pair();
+    let (_comm_env_south, _comm_south) = ContractEnvSyncComm::new_pair();
 
     let tcp_listener = std::net::TcpListener::bind("127.0.0.1:8420").unwrap();
     let (t, r) = std::sync::mpsc::channel();
@@ -213,10 +213,10 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractProtocolSpec>>{
     let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
-    let mut agent_east = AgentGen::new(East, initial_state_east, comm_east, random_policy.clone() );
+    let agent_east = AgentGen::new(East, initial_state_east, comm_east, random_policy.clone() );
     let mut agent_south = AgentGen::new(South, initial_state_south, agent_comm_south, random_policy.clone() );
-    let mut agent_west = AgentGen::new(West, initial_state_west, comm_west, policy_dummy);
-    let mut agent_north = AgentGen::new(North, initial_state_north, comm_north, random_policy );
+    let agent_west = AgentGen::new(West, initial_state_west, comm_west, policy_dummy);
+    let agent_north = AgentGen::new(North, initial_state_north, comm_north, random_policy );
 
 
     let mut model = RoundRobinModelBuilder::new()

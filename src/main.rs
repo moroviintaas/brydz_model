@@ -4,12 +4,12 @@ use std::str::FromStr;
 
 
 use clap::Parser;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::options;
 use brydz_simulator::options::operation::{Operation, sim2};
 use brydz_simulator::options::operation::gen2;
-use sztorm::error::SztormError;
+
 
 
 //use crate::options::operation::{GenContract, Operation};
