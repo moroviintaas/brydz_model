@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 karty = {path = "../karty"}
-brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_dedicate", "serde_ron"]}
+brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_dedicate", "serde_ron", "dl"]}
 sztorm = {path = "../sztorm", features= ["speedy"]}
 log = "0.4.17"
 fern = "0.6.1"
@@ -20,3 +20,5 @@ clap = {version = "4.2.1", features = ["derive"]}
 thiserror = "1.0.40"
 rand = "0.8.5"
 ron = "0.8.0"
+tensorflow = "0.20.0"
+tch = "0.11.0"

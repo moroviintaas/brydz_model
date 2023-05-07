@@ -1,10 +1,12 @@
+use std::path::PathBuf;
 use log::LevelFilter;
 
 //#[derive(Args)]
 //pub struct ArgLogLevel(LevelFilter);
 
-pub fn setup_logger(log_level: LevelFilter) -> Result<(), fern::InitError> {
-    fern::Dispatch::new()
+pub fn setup_logger(log_level: LevelFilter, log_file: &Option<PathBuf>) -> Result<(), fern::InitError> {
+    let mut dispatch  = fern::Dispatch::new()
+
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{}[{}][{}] {}",
@@ -14,9 +16,15 @@ pub fn setup_logger(log_level: LevelFilter) -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(log_level)
-        .chain(std::io::stdout())
-        .chain(fern::log_file("output.log")?)
+        .level(log_level);
+
+        match log_file{
+            None => dispatch.chain(std::io::stdout()),
+            Some(f) => dispatch.chain(fern::log_file(f)?)
+        }
+
+        //.chain(std::io::stdout())
+        //.chain(fern::log_file("output.log")?)
         .apply()?;
     Ok(())
 }

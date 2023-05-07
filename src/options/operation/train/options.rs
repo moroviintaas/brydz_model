@@ -1,0 +1,29 @@
+use clap::Args;
+use std::path::PathBuf;
+
+
+
+
+
+#[derive(Args)]
+pub struct TrainOptions{
+
+    #[arg(short = 'd', long = "declarer_save", help = "Declarer VarStore save file")]
+    pub declarer_save: Option<PathBuf>,
+    #[arg(short = 'w', long = "whist_save", help = "Whist VarStore save file")]
+    pub whist_save: Option<PathBuf>,
+    #[arg(short = 'o', long = "offside_save", help = "Offside VarStore save file")]
+    pub offside_save: Option<PathBuf>,
+
+    #[arg(short = 'D', long = "declarer_load", help = "Declarer VarStore load file")]
+    pub declarer_load: Option<PathBuf>,
+    #[arg(short = 'W', long = "whist_load", help = "Whist VarStore load file")]
+    pub whist_load: Option<PathBuf>,
+    #[arg(short = 'O', long = "offside_load", help = "Offside VarStore load file")]
+    pub offside_load: Option<PathBuf>,
+
+    #[arg(short = 'e', long = "epochs", help = "Number of epochs", default_value = "100")]
+    pub epochs: u32,
+
+
+}

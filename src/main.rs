@@ -7,7 +7,7 @@ use clap::Parser;
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::options;
-use brydz_simulator::options::operation::{Operation, sim2};
+use brydz_simulator::options::operation::{Operation, sim2, train_session};
 use brydz_simulator::options::operation::gen2;
 
 
@@ -34,32 +34,14 @@ fn serialize_settings_toml(){
     println!("{}", toml);
 }
 
-fn main() {
+fn main() -> Result<(), BrydzSimError> {
 
     let cli = options::Cli::parse();
-    options::setup_logger(cli.log_level).unwrap();
+    options::setup_logger(cli.log_level, &cli.log_file).unwrap();
     //serialize_settings_toml();
     let result = match &cli.command{
         Operation::ContractGen(gen_options) => gen2(gen_options),
-        /* {
-            let my_config = PrettyConfig::new()
-                .depth_limit(4)
-                // definitely superior (okay, just joking)
-                .indentor("\t".to_owned());
-            let contracts = generate_contracts(gen_options).unwrap();
 
-            match &gen_options.output_file{
-                None => {
-                    println!("{}", to_string_pretty(&contracts, my_config).unwrap())
-                }
-                Some(file) => {
-                    let mut output = std::fs::File::create(file).unwrap();
-                    write!(output, "{}", to_string_pretty(&contracts, my_config).unwrap()).unwrap()
-                }
-            };
-
-            //println!("{}", toml::to_string(&contracts).unwrap());
-        }*/
         Operation::LocalSimContract(options) => {
             sim2(options)
         }//sim2(options)}
@@ -76,10 +58,17 @@ fn main() {
                 Ok(_) => Ok(()),
                 Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
             }
+        },
+        Operation::TestRunNN => {
+            options::operation::test_ops::test_with_untrained_network()?;
+            Ok(())
+        }
+        Operation::Train(train_params) => {
+            train_session(train_params)
         }
 
     };
-    result.unwrap()
+    result
 
 
 

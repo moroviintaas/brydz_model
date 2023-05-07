@@ -62,6 +62,8 @@ pub struct GenContractOptions {
 
 }
 
+//pub fn random_contract_with_declarer(rng: &mut ThreadRng) -> Result<SimContractParams>
+
 fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) -> Result<SimContractParams, BrydzSimError>{
 
     if params.min_contract > params.max_contract {
