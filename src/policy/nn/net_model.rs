@@ -1,15 +1,22 @@
+use std::cell::{Cell, RefCell};
+use std::slice::SliceIndex;
 use std::sync::Mutex;
 use log::debug;
+use rand::thread_rng;
 use tch::{Device, nn, Tensor};
 use tch::nn::VarStore;
 use brydz_core::error::BridgeCoreError;
+use brydz_core::meta::HAND_SIZE;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAction, ContractAgentInfoSetSimple};
 use sztorm::{InformationSet, Policy, QFunction};
+use sztorm::protocol::ProtocolSpecification;
+use smallvec::SmallVec;
+use rand::prelude::SliceRandom;
 
 type Model = Box<dyn Fn(&Tensor) -> Tensor + Send>;
 const HIDDEN_LAYER_1_SIZE: i64 = 512;
-const CONTRACT_STATE_SIZE: i64 = 221;
+const CONTRACT_STATE_SIZE: i64 = 222;
 const CONTRACT_ACTION_SIZE: i64 = 2;
 const CONTRACT_Q_INPUT_SIZE: i64 = CONTRACT_STATE_SIZE + CONTRACT_ACTION_SIZE;
 
@@ -73,7 +80,7 @@ impl Policy<ContractProtocolSpec> for ContractQNetSimple{
             q_input[(CONTRACT_Q_INPUT_SIZE-CONTRACT_ACTION_SIZE) as usize +1] = action_array[1];
             let tensor = Tensor::from(&q_input[..]);
 
-            let v:Vec<f32> = (self.model)(&tensor).get(0).into();
+            let v:Vec<f32> = tch::no_grad(||{(&self.model)(&tensor)}).get(0).into();
 
             let current_q = v[0];
             debug!("Action {} checked with q value: {}", action, current_q);
@@ -96,5 +103,67 @@ impl Policy<ContractProtocolSpec> for ContractQNetSimple{
         /*state.available_actions().into_iter().fold((None, f32::MIN), |acc, x|{
 
         })*/
+    }
+}
+
+pub struct EEPolicy<IntPolicy: Policy<ContractProtocolSpec>>{
+    start_exploiting: u64,
+    exploiting_policy: IntPolicy,
+    step_counter: u64,
+}
+
+impl<IntPolicy: Policy<ContractProtocolSpec>> EEPolicy<IntPolicy>{
+    pub fn new(policy: IntPolicy) -> Self{
+        Self{exploiting_policy: policy, start_exploiting: 0, step_counter: 0}
+    }
+    pub fn exploiting_policy_mut(&mut self) -> &mut IntPolicy{
+        &mut self.exploiting_policy
+    }
+    pub fn exploitation_start(&self) -> u64{
+        self.start_exploiting
+    }
+    pub fn set_exploiting_start(&mut self, start: u64){
+        self.start_exploiting = start
+    }
+    pub fn exploiting_start(&self) -> u64{
+        self.start_exploiting
+    }
+    pub fn reset_step_counter(&mut self){
+        self.step_counter = 0;
+    }
+    pub fn get_step_counter(&self) -> u64{
+        self.step_counter
+    }
+}
+
+impl<IntPolicy: Policy<ContractProtocolSpec>> Policy<ContractProtocolSpec> for EEPolicy<IntPolicy>{
+    type StateType = IntPolicy::StateType;
+
+    fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
+        //self.step_counter.set(self.step_counter.get() + 1);
+        if self.step_counter >= self.start_exploiting{
+
+            self.exploiting_policy.select_action(state)
+        } else{
+            let mut rng = thread_rng();
+            let available_actions: SmallVec<[ContractAction; HAND_SIZE]> = state.available_actions().into_iter().collect();
+            let action = available_actions.choose(&mut rng);
+            action.map(|a| a.to_owned())
+        }
+
+
+    }
+
+    fn select_action_mut(&mut self, state: &Self::StateType) -> Option<ContractAction> {
+        self.step_counter += 1;
+        if self.step_counter > self.start_exploiting{
+
+            self.exploiting_policy.select_action(state)
+        } else{
+            let mut rng = thread_rng();
+            let available_actions: SmallVec<[ContractAction; HAND_SIZE]> = state.available_actions().into_iter().collect();
+            let action = available_actions.choose(&mut rng);
+            action.map(|a| a.to_owned())
+        }
     }
 }

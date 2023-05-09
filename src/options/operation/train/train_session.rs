@@ -1,14 +1,17 @@
+use std::cmp::{max, min};
 use std::path::PathBuf;
 use std::thread;
 use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
+use rand_distr::Geometric;
 use tch::Device;
 use tch::nn::VarStore;
 use brydz_core::bidding::{Bid, Doubling};
 use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractMechanics, ContractParameters, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
+use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::ContractAgent;
@@ -20,11 +23,12 @@ use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
 use karty::suits::Suit::Spades;
-use sztorm::{DistinctAgent, EnvCommEndpoint, RandomPolicy, SingleQPolicyGen};
+use sztorm::{DistinctAgent, EnvCommEndpoint, PolicyAgent, RandomPolicy, SingleQPolicyGen};
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR, RoundRobinModel};
-use crate::ContractQNetSimple;
+use crate::{ContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;
+use rand_distr::Distribution;
 
 fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
     Ok(match path{
@@ -37,16 +41,24 @@ fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
     })
 }
 
-type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, ContractQNetSimple>;
+type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<ContractQNetSimple>>;
 type DummyAgent  = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 pub fn train_on_single_game(ready_env: &mut SimpleEnv,
-        ready_declarer: &mut SimpleQnetAgent,
-        ready_whist: &mut SimpleQnetAgent,
-        ready_offside: &mut SimpleQnetAgent,
-        ready_dummy: &mut DummyAgent) -> Result<(), BrydzSimError>{
+                            ready_declarer: &mut SimpleQnetAgent,
+                            ready_whist: &mut SimpleQnetAgent,
+                            ready_offside: &mut SimpleQnetAgent,
+                            ready_dummy: &mut DummyAgent, rng: &mut ThreadRng, geo: &mut Geometric) -> Result<(), BrydzSimError>{
 
+
+    let step_start_explore = min(geo.sample(rng), HAND_SIZE as u64);
+
+    //ready_declarer.policy_mut().set_exploiting_start(step_start_explore*2);
+    &mut ready_declarer.policy_mut().set_exploiting_start(step_start_explore*2);
+
+    ready_whist.policy_mut().set_exploiting_start(step_start_explore);
+    ready_offside.policy_mut().set_exploiting_start(step_start_explore);
 
     thread::scope(|s|{
         s.spawn(||{
@@ -69,6 +81,12 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
         });
     });
 
+    println!("{:?}", ready_declarer.trace().iter().map(|(s,a,r)|(r)).collect::<Vec<_>>());
+    println!("{:?}", ready_whist.trace().iter().map(|(s,a,r)|(r)).collect::<Vec<_>>());
+    println!("{:?}", ready_offside.trace().iter().map(|(s,a,r)|(r)).collect::<Vec<_>>());
+
+    println!("{:?}", ready_declarer.policy().get_step_counter());
+    println!("{:?}", ready_declarer.policy().exploitation_start());
     todo!();
     Ok(())
 }
@@ -100,10 +118,11 @@ fn renew_world(contract_params: ContractParameters, cards: SideMap<CardSet>,
 
 pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
     let mut rng = thread_rng();
+    let mut geo = Geometric::new(0.25).unwrap();
 
-    let policy_declarer = ContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?);
-    let policy_whist = ContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?);
-    let policy_offside = ContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?);
+    let policy_declarer = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?));
+    let policy_whist = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?));
+    let policy_offside = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?));
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
 
@@ -131,7 +150,7 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
     let mut env = SimpleEnv::new(env_state, comm_association);
 
     for e in 0..train_options.epochs{
-        train_on_single_game( &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy)?;
+        train_on_single_game( &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &mut rng, &mut geo)?;
         let contract_params = random_contract_params(North, &mut rng);
         renew_world(contract_params, fair_bridge_deal(), &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy)?;
 
