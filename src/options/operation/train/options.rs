@@ -22,8 +22,14 @@ pub struct TrainOptions{
     #[arg(short = 'O', long = "offside_load", help = "Offside VarStore load file")]
     pub offside_load: Option<PathBuf>,
 
-    #[arg(short = 'e', long = "epochs", help = "Number of epochs", default_value = "100")]
+    #[arg(short = 'e', long = "epochs", help = "Number of epochs", default_value = "10")]
     pub epochs: u32,
+
+    #[arg(short = 'g', long = "games", help = "games iin epoch", default_value = "100")]
+    pub games: u32,
+
+    #[arg(short = 't', long = "tests", help = "test_set_number", default_value = "100")]
+    pub tests_set_size: u32,
 
 
 }

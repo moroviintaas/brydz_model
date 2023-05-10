@@ -244,7 +244,7 @@ pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolS
 
     let vs_east = VarStore::new(tch::Device::Cpu);
 
-    let policy_east = ContractQNetSimple::new(vs_east);
+    let policy_east = ContractQNetSimple::new(vs_east, 0.25);
 
     type TcpCommSim = TcpCommK2<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
     type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;

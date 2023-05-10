@@ -4,7 +4,7 @@ use std::sync::Mutex;
 use log::debug;
 use rand::thread_rng;
 use tch::{Device, nn, Tensor};
-use tch::nn::VarStore;
+use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
 use brydz_core::error::BridgeCoreError;
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
@@ -38,14 +38,24 @@ pub struct ContractQNetSimple {
     pub model: Model,
     pub var_store: VarStore,
     pub device: Device,
+    optimiser: Optimizer,
 
 }
 
 impl ContractQNetSimple {
-    pub fn new(var_store: VarStore) -> Self{
+    pub fn new(var_store: VarStore, learning_rate: f64) -> Self{
+        let optimiser = Adam::default().build(&var_store, learning_rate).unwrap();
         Self{model: q_func_contract(&var_store.root(), CONTRACT_Q_INPUT_SIZE,),
         device: var_store.root().device(),
-        var_store}
+        var_store,
+        optimiser}
+    }
+
+    pub fn optimizer(&self) -> &Optimizer{
+        &self.optimiser
+    }
+    pub fn optimizer_mut(&mut self) -> &mut Optimizer{
+        &mut self.optimiser
     }
 }/*
 impl QFunction<ContractProtocolSpec> for ContractQNetSimple{
@@ -110,6 +120,7 @@ pub struct EEPolicy<IntPolicy: Policy<ContractProtocolSpec>>{
     start_exploiting: u64,
     exploiting_policy: IntPolicy,
     step_counter: u64,
+
 }
 
 impl<IntPolicy: Policy<ContractProtocolSpec>> EEPolicy<IntPolicy>{
@@ -133,6 +144,12 @@ impl<IntPolicy: Policy<ContractProtocolSpec>> EEPolicy<IntPolicy>{
     }
     pub fn get_step_counter(&self) -> u64{
         self.step_counter
+    }
+    pub fn internal_policy(&self) -> &IntPolicy{
+        &self.exploiting_policy
+    }
+    pub fn internal_policy_mut(&mut self) -> &mut IntPolicy{
+        &mut self.exploiting_policy
     }
 }
 
