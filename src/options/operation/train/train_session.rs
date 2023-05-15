@@ -1,5 +1,4 @@
-use std::cmp::{max, min};
-use std::ops::Range;
+use std::cmp::{min};
 use std::path::PathBuf;
 use std::thread;
 use rand::{Rng, thread_rng};
@@ -10,28 +9,26 @@ use tch::Device;
 use tch::nn::VarStore;
 use brydz_core::bidding::{Bid, Doubling};
 use brydz_core::cards::trump::TrumpGen;
-use brydz_core::contract::{Contract, ContractMechanics, ContractParameters, ContractParametersGen};
+use brydz_core::contract::{Contract, ContractMechanics, ContractParameters};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::ContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
-use brydz_core::sztorm::env::{ContractEnv, ContractProcessor};
+use brydz_core::sztorm::env::{ContractEnv};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use karty::suits::Suit::Spades;
-use sztorm::{DistinctAgent, EnvCommEndpoint, PolicyAgent, RandomPolicy, SingleQPolicyGen, StatefulEnvironment};
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR, RoundRobinModel};
+use sztorm::{DistinctAgent, PolicyAgent, RandomPolicy,  StatefulEnvironment};
+use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
 use crate::{ContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
 use tch::Kind::Float;
-use tensorflow::AttrType::Tensor;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 use crate::model::single_play;
 
@@ -62,7 +59,7 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
     let step_start_explore = min(geo.sample(rng), HAND_SIZE as u64);
 
     //ready_declarer.policy_mut().set_exploiting_start(step_start_explore*2);
-    &mut ready_declarer.policy_mut().set_exploiting_start(step_start_explore*2);
+    let _ = &mut ready_declarer.policy_mut().set_exploiting_start(step_start_explore*2);
 
     ready_whist.policy_mut().set_exploiting_start(step_start_explore);
     ready_offside.policy_mut().set_exploiting_start(step_start_explore);
@@ -132,7 +129,7 @@ fn run_test_set(env: &mut SimpleEnv,
                             whist: &mut SimpleQnetAgent,
                             offside: &mut SimpleQnetAgent,
                             dummy: &mut DummyAgent,
-                            test_params: &[(ContractParameters, SideMap<CardSet>)])-> Result<(SideMap<f64>), BrydzSimError>{
+                            test_params: &[(ContractParameters, SideMap<CardSet>)])-> Result<SideMap<f64>, BrydzSimError>{
     let mut sum_north_south = 0.0;
     let mut sum_east_west =0.0;
     for (param, cards) in test_params{
@@ -182,7 +179,7 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
     let declarer_side = North;
 
     let mut test_set = Vec::with_capacity(train_options.tests_set_size as usize);
-    for i in 0..train_options.tests_set_size{
+    for _i in 0..train_options.tests_set_size{
         let card_set = fair_bridge_deal::<CardSet>();
         let parameters = random_contract_params(declarer_side, &mut rng);
         test_set.push((parameters, card_set));
@@ -233,7 +230,7 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
 
     for e in 0..train_options.epochs{
 
-        for g in 0..train_options.games{
+        for _g in 0..train_options.games{
             let contract_params = random_contract_params(North, &mut rng);
             renew_world(contract_params, fair_bridge_deal(), &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy)?;
             train_on_single_game( &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &mut rng, &mut geo)?;

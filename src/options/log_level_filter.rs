@@ -5,7 +5,7 @@ use log::LevelFilter;
 //pub struct ArgLogLevel(LevelFilter);
 
 pub fn setup_logger(log_level: LevelFilter, log_file: &Option<PathBuf>) -> Result<(), fern::InitError> {
-    let mut dispatch  = fern::Dispatch::new()
+    let dispatch  = fern::Dispatch::new()
 
         .format(|out, message, record| {
             out.finish(format_args!(

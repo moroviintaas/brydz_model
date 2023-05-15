@@ -3,7 +3,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
 use crate::options::operation::{DummyAgent, SimpleEnv};
 
-pub(crate) fn single_play<D: AgentAuto<ContractProtocolSpec> + Send,
+pub fn single_play<D: AgentAuto<ContractProtocolSpec> + Send,
 WHIST: AgentAuto<ContractProtocolSpec>+ Send,
 OFFSIDE: AgentAuto<ContractProtocolSpec>+ Send>(ready_env: &mut SimpleEnv,
                    ready_declarer: &mut D,

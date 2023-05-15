@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use std::thread::{self};
 use log::info;
 use tch::nn::VarStore;
@@ -246,8 +245,8 @@ pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolS
 
     let policy_east = ContractQNetSimple::new(vs_east, 0.25);
 
-    type TcpCommSim = TcpCommK2<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
-    type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
+    //type TcpCommSim = TcpCommK2<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
+    //type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
     let contract_params = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
 
