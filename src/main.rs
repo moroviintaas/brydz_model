@@ -39,7 +39,7 @@ fn main() -> Result<(), BrydzSimError> {
     let cli = options::Cli::parse();
     options::setup_logger(cli.log_level, &cli.log_file).unwrap();
     //serialize_settings_toml();
-    let result = match &cli.command{
+    match &cli.command{
         Operation::ContractGen(gen_options) => gen2(gen_options),
 
         Operation::LocalSimContract(options) => {
@@ -67,8 +67,7 @@ fn main() -> Result<(), BrydzSimError> {
             train_session(train_params)
         }
 
-    };
-    result
+    }
 
 
 

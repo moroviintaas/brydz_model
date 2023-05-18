@@ -23,8 +23,7 @@ fn q_func_contract(p: &nn::Path, input_tensor_size: i64) -> Model {
         .add(nn::linear(p/"h1", HIDDEN_LAYER_1_SIZE, 1, Default::default()));
     let device = p.device();
     Box::new(move |xs|{
-        let xs = xs.to_device(device).apply(&seq);
-        xs
+        xs.to_device(device).apply(&seq)
     } )
 
 }
@@ -85,7 +84,7 @@ impl Policy<ContractProtocolSpec> for ContractQNetSimple{
             q_input[(CONTRACT_Q_INPUT_SIZE-CONTRACT_ACTION_SIZE) as usize +1] = action_array[1];
             let tensor = Tensor::from(&q_input[..]);
 
-            let v:Vec<f32> = tch::no_grad(||{(&self.model)(&tensor)}).get(0).into();
+            let v:Vec<f32> = tch::no_grad(||{(self.model)(&tensor)}).get(0).into();
 
             let current_q = v[0];
             debug!("Action {} checked with q value: {}", action, current_q);
