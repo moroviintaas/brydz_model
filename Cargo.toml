@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-karty = {path = "../karty"}
+karty = {path = "../karty", features = ["fuzzy"]}
 brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_dedicate", "serde_ron", "dl"]}
 sztorm = {path = "../sztorm", features= ["speedy"]}
 log = "0.4.17"

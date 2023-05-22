@@ -1,10 +1,12 @@
 use std::thread::{self};
-use log::info;
+use log::{info, LevelFilter};
+use rand::{Rng, thread_rng};
+use rand::distributions::Standard;
 use tch::nn::VarStore;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
-use brydz_core::deal::fair_bridge_deal;
+use brydz_core::deal::{BiasedDistribution, fair_bridge_deal};
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::ContractAgent;
@@ -12,6 +14,7 @@ use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::{ContractEnv, ContractProcessor};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractDummyState, ContractAgentInfoSetSimple, ContractEnvStateMin};
+use karty::cards::ACE_SPADES;
 use karty::hand::{CardSet};
 use karty::suits::Suit::{Spades};
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR, RoundRobinModelBuilder};
@@ -21,6 +24,7 @@ use sztorm_net_ext::{ComplexComm, ComplexComm2048};
 use sztorm_net_ext::tcp::{TcpCommK1, TcpCommK2};
 use sztorm::{AgentGen, RandomPolicy};
 use crate::ContractQNetSimple;
+use crate::options::setup_logger;
 
 
 pub fn tur_sim(){
@@ -293,4 +297,29 @@ pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolS
     model.play().unwrap();
 
     Ok(())
+}
+
+pub fn test_sample_biased_distribution_parameters() -> Result<(), SztormError<ContractProtocolSpec>>{
+    //setup_logger(LevelFilter::Debug, &None).unwrap();
+
+    let mut trng = thread_rng();
+    let tries = 100;
+    let mut ace_spades_north = Vec::with_capacity(tries);
+    for i in 0..tries{
+        let sample: BiasedDistribution = trng.gen();
+        //println!("{:?}", ron::to_string(&sample));
+        print!("\r{:3}/100",i+1);
+        ace_spades_north.push(f32::try_from(sample[North][&ACE_SPADES]).unwrap());
+
+    }
+
+    let sum = ace_spades_north.iter().map(|n| *n as f64).sum::<f64>();
+    let count = ace_spades_north.len();
+
+    println!("\rMean of probabilities that north has Ace Spades: {}", sum/(count as f64));
+
+
+
+    Ok(())
+
 }

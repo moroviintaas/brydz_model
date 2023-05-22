@@ -9,7 +9,7 @@ use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::options;
 use brydz_simulator::options::operation::{Operation, sim2, train_session};
 use brydz_simulator::options::operation::gen2;
-
+use brydz_simulator::options::operation::test_ops::test_sample_biased_distribution_parameters;
 
 
 //use crate::options::operation::{GenContract, Operation};
@@ -65,6 +65,9 @@ fn main() -> Result<(), BrydzSimError> {
         }
         Operation::Train(train_params) => {
             train_session(train_params)
+        },
+        Operation::TestBiasedParams => {
+            Ok(test_sample_biased_distribution_parameters()?)
         }
 
     }

@@ -18,5 +18,6 @@ pub enum Operation {
     TestTcp,
     TestGeneric,
     TestRunNN,
+    TestBiasedParams,
     Train(TrainOptions),
 }
