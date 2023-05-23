@@ -1,12 +1,11 @@
 use std::thread::{self};
-use log::{info, LevelFilter};
+use log::{info};
 use rand::{Rng, thread_rng};
-use rand::distributions::Standard;
 use tch::nn::VarStore;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
-use brydz_core::deal::{BiasedDistribution, fair_bridge_deal};
+use brydz_core::deal::{BiasedHandDistribution, fair_bridge_deal};
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::ContractAgent;
@@ -24,7 +23,6 @@ use sztorm_net_ext::{ComplexComm, ComplexComm2048};
 use sztorm_net_ext::tcp::{TcpCommK1, TcpCommK2};
 use sztorm::{AgentGen, RandomPolicy};
 use crate::ContractQNetSimple;
-use crate::options::setup_logger;
 
 
 pub fn tur_sim(){
@@ -306,7 +304,7 @@ pub fn test_sample_biased_distribution_parameters() -> Result<(), SztormError<Co
     let tries = 100;
     let mut ace_spades_north = Vec::with_capacity(tries);
     for i in 0..tries{
-        let sample: BiasedDistribution = trng.gen();
+        let sample: BiasedHandDistribution = trng.gen();
         //println!("{:?}", ron::to_string(&sample));
         print!("\r{:3}/100",i+1);
         ace_spades_north.push(f32::try_from(sample[North][&ACE_SPADES]).unwrap());
