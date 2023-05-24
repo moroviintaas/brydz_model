@@ -54,7 +54,7 @@ pub struct GenContractOptions {
      */
     #[arg(short = 't', long = "trump_limit", help = "Subset of possible trumps", default_value_t = Subtrump::All, rename_all = "snake_case")]
     pub trump_limit: Subtrump,
-    #[arg(short = 'f', long = "force_declarer", help = "Force one side to be declarer", default_value_t = ForceDeclarer::No, value_enum)]
+    #[arg(short = 'f', long = "force_declarer", help = "Force one side to be declarer", default_value_t = ForceDeclarer::DontForce, value_enum)]
     pub force_declarer: ForceDeclarer,
     #[arg(short = 'd', long = "doubling", help = "Force one side to be declarer", default_value_t = ChoiceDoubling::No, value_enum)]
     pub choice_doubling: ChoiceDoubling,
@@ -79,7 +79,7 @@ fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) ->
         Subtrump::NoTrump => Trump::NoTrump
     };
     let contract_declarer: Side = match params.force_declarer {
-        ForceDeclarer::No => Side::random(rng),
+        ForceDeclarer::DontForce => Side::random(rng),
         _ => Side::try_from(&params.force_declarer).unwrap(),
     };
 

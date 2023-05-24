@@ -237,7 +237,7 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
         }
 
         println!("Epoch {}", e+1);
-        //test declarer
+        //test_op declarer
         std::mem::swap(whist.policy_mut(), &mut policy_whist_ref);
         std::mem::swap(offside.policy_mut(), &mut policy_offside_ref);
         let test_results = run_test_set(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;

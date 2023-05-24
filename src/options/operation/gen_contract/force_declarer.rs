@@ -5,11 +5,11 @@ use crate::error::GenError::ConvForceDeclarerNoToSide;
 
 #[derive(ValueEnum, Clone, Debug)]
 pub enum ForceDeclarer{
-    No,
-    North,
-    East,
-    South,
-    West
+    DontForce,
+    ForceNorth,
+    ForceEast,
+    ForceSouth,
+    ForceWest
 }
 
 impl TryFrom<&ForceDeclarer> for Side{
@@ -17,11 +17,11 @@ impl TryFrom<&ForceDeclarer> for Side{
 
     fn try_from(value: &ForceDeclarer) -> Result<Self, Self::Error> {
         match value{
-            ForceDeclarer::No => Err(BrydzSimError::Gen(ConvForceDeclarerNoToSide)),
-            ForceDeclarer::North => Ok(Side::North),
-            ForceDeclarer::East => Ok(Side::East),
-            ForceDeclarer::South => Ok(Side::South),
-            ForceDeclarer::West => Ok(Side::West)
+            ForceDeclarer::DontForce => Err(BrydzSimError::Gen(ConvForceDeclarerNoToSide)),
+            ForceDeclarer::ForceNorth => Ok(Side::North),
+            ForceDeclarer::ForceEast => Ok(Side::East),
+            ForceDeclarer::ForceSouth => Ok(Side::South),
+            ForceDeclarer::ForceWest => Ok(Side::West)
         }
     }
 }

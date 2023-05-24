@@ -9,7 +9,7 @@ use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::options;
 use brydz_simulator::options::operation::{Operation, sim2, train_session};
 use brydz_simulator::options::operation::gen2;
-use brydz_simulator::options::operation::test_ops::test_sample_biased_distribution_parameters;
+use brydz_simulator::options::operation::test_op::{test_sample_biased_deal, test_sample_biased_distribution_parameters, TestCommands};
 
 
 //use crate::options::operation::{GenContract, Operation};
@@ -45,31 +45,40 @@ fn main() -> Result<(), BrydzSimError> {
         Operation::LocalSimContract(options) => {
             sim2(options)
         }//sim2(options)}
-        Operation::TestLocal =>{
-            options::operation::test_ops::tur_sim();
-            Ok(())
-        }
-        Operation::TestTcp => {
-            options::operation::test_ops::tur_sim_tcp();
-            Ok(())
-        }
-        Operation::TestGeneric => {
-            match options::operation::test_ops::test_generic_model(){
-                Ok(_) => Ok(()),
-                Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
-            }
-        },
-        Operation::TestRunNN => {
-            options::operation::test_ops::test_with_untrained_network()?;
-            Ok(())
-        }
+
         Operation::Train(train_params) => {
             train_session(train_params)
         },
-        Operation::TestBiasedParams => {
-            Ok(test_sample_biased_distribution_parameters()?)
-        }
 
+
+        Operation::Test(command) => {
+            match command{
+                TestCommands::Local =>{
+                    options::operation::test_op::tur_sim();
+                    Ok(())
+                }
+                TestCommands::Tcp => {
+                    options::operation::test_op::tur_sim_tcp();
+                    Ok(())
+                }
+                TestCommands::Generic => {
+                    match options::operation::test_op::test_generic_model(){
+                        Ok(_) => Ok(()),
+                        Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
+                    }
+                },
+                TestCommands::RunNN => {
+                    options::operation::test_op::test_with_untrained_network()?;
+                    Ok(())
+                },
+                TestCommands::BiasedParams => {
+                    Ok(test_sample_biased_distribution_parameters()?)
+                },
+                TestCommands::BiasedSample => {
+                    Ok(test_sample_biased_deal()?)
+                }
+            }
+        }
     }
 
 
