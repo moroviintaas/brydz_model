@@ -46,6 +46,7 @@ fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
 }
 
 pub(crate) type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<ContractQNetSimple>>;
+
 pub(crate) type DummyAgent  = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 pub(crate) type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 

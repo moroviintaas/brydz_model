@@ -4,16 +4,24 @@ use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{ContractAction, ContractAgentInfoSetSimple};
+use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction, ContractAgentInfoSetSimple};
 use sztorm::{InformationSet, Policy};
 use smallvec::SmallVec;
 use rand::prelude::SliceRandom;
 
 type Model = Box<dyn Fn(&Tensor) -> Tensor + Send>;
-const HIDDEN_LAYER_1_SIZE: i64 = 512;
+const HIDDEN_LAYER_1_SIZE: i64 = 1024;
+//const HIDDEN_LAYER_2_SIZE: i64 = 1024;
 const CONTRACT_STATE_SIZE: i64 = 222;
 const CONTRACT_ACTION_SIZE: i64 = 2;
+
 const CONTRACT_Q_INPUT_SIZE: i64 = CONTRACT_STATE_SIZE + CONTRACT_ACTION_SIZE;
+
+
+const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
+const CONTRACT_ACTION_SPARSE_SIZE: i64 = 53;
+const CONTRACT_Q_INPUT_STATE_HIST_SPARSE: i64 = CONTRACT_STATE_HISTORY_SIZE + CONTRACT_ACTION_SPARSE_SIZE;
+
 
 
 
@@ -38,7 +46,7 @@ pub struct ContractQNetSimple {
 
 impl ContractQNetSimple {
     pub fn new(var_store: VarStore, learning_rate: f64) -> Self{
-        let optimiser = Adam::default().build(&var_store, learning_rate).unwrap();
+        let optimiser = Adam::default().build(&var_store, learning_rate).expect("Error building ContractQnetSimple");
         Self{model: q_func_contract(&var_store.root(), CONTRACT_Q_INPUT_SIZE,),
         device: var_store.root().device(),
         var_store,
@@ -110,6 +118,69 @@ impl Policy<ContractProtocolSpec> for ContractQNetSimple{
     }
 }
 
+pub struct ContractQNet {
+    pub model: Model,
+    pub var_store: VarStore,
+    pub device: Device,
+    optimiser: Optimizer,
+
+}
+
+impl ContractQNet {
+    pub fn new(var_store: VarStore, learning_rate: f64) -> Self{
+        let optimiser = Adam::default().build(&var_store, learning_rate).expect("Error building optimiser for QnetStateHist");
+        Self{model: q_func_contract(&var_store.root(), CONTRACT_Q_INPUT_STATE_HIST_SPARSE,),
+        device: var_store.root().device(),
+        var_store,
+        optimiser}
+    }
+
+    pub fn optimizer(&self) -> &Optimizer{
+        &self.optimiser
+    }
+    pub fn optimizer_mut(&mut self) -> &mut Optimizer{
+        &mut self.optimiser
+    }
+}
+
+impl Policy<ContractProtocolSpec> for ContractQNet{
+    type StateType = ContractAgentInfoSetSimple;
+
+    fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
+        let in_array_state = state.state_history_tensor().f_flatten(0,1).unwrap();
+        let mut current_best_action = None;
+        let mut q_max: f32 = f32::MIN;
+
+        for action in state.available_actions().into_iter(){
+            let action_tensor = Tensor::of_slice(&action.sparse_representation());
+            let input_tensor = Tensor::cat(&[&in_array_state, &action_tensor], 0);
+
+            //let tensor = Tensor::from(&q_input[..]);
+
+            let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).into();
+
+            let current_q = v[0];
+            debug!("Action {} checked with q value: {}", action, current_q);
+            match current_best_action{
+                None=>{
+                    current_best_action = Some(action);
+                    q_max = current_q;
+
+                },
+                Some(_) => {
+                    if current_q > q_max{
+                        q_max = current_q;
+                        current_best_action = Some(action);
+                    }
+                }
+            }
+
+        }
+        current_best_action
+
+    }
+}
+
 pub struct EEPolicy<IntPolicy: Policy<ContractProtocolSpec>>{
     start_exploiting: u64,
     exploiting_policy: IntPolicy,
@@ -178,3 +249,4 @@ impl<IntPolicy: Policy<ContractProtocolSpec>> Policy<ContractProtocolSpec> for E
         }
     }
 }
+
