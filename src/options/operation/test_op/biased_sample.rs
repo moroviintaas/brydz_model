@@ -16,7 +16,7 @@ pub fn test_sample_biased_deal_crossing() -> Result<(), SztormError<ContractProt
     let proba_ace_spades = distribution.card_probabilities(&ACE_SPADES);
     let proba_ace_spades_north = f32::from(proba_ace_spades[&North]);
     
-    for i in 0..tries{
+    for _ in 0..tries{
         match  distribution.sample_deal_crossing(&mut trng){
             Ok(card_deal) => {
                 match card_deal[&North].contains(&ACE_SPADES){
@@ -54,7 +54,7 @@ pub fn test_sample_biased_deal_single() -> Result<(), SztormError<ContractProtoc
     let proba_ace_spades = distribution.card_probabilities(&ACE_SPADES);
     let proba_ace_spades_north = f32::from(proba_ace_spades[&North]);
 
-    for i in 0..tries{
+    for _ in 0..tries{
         match  distribution.sample_deal_single_try(&mut trng){
             Ok(card_deal) => {
                 match card_deal[&North].contains(&ACE_SPADES){
