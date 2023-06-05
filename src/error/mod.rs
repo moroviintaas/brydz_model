@@ -2,7 +2,7 @@ mod gen;
 mod simulation;
 
 use tch::TchError;
-use tensorflow::{SaveModelError, Status};
+//use tensorflow::{SaveModelError, Status};
 use brydz_core::error::BridgeCoreError;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 pub use gen::*;
@@ -22,10 +22,10 @@ pub enum BrydzSimError{
     //Game(BridgeCoreError),
     #[error("Error in Sztorm framework: {0}")]
     Sztorm(SztormError<ContractProtocolSpec>),
-    #[error("Tensorflow Error {0}")]
-    TensorflowStatus(Status),
-    #[error("SaveModel Error {0}")]
-    SaveModel(SaveModelError),
+    //#[error("Tensorflow Error {0}")]
+    //TensorflowStatus(Status),
+    //#[error("SaveModel Error {0}")]
+    //SaveModel(SaveModelError),
     #[error("LoadModel Error {0}")]
     Tch(TchError),
 
@@ -49,12 +49,14 @@ impl From<SetupError<ContractProtocolSpec>> for BrydzSimError{
         Sztorm(SztormError::Setup(value))
     }
 }
-
+/*
 impl From<tensorflow::Status> for BrydzSimError{
     fn from(value: Status) -> Self {
         Self::TensorflowStatus(value)
     }
 }
+
+ */
 impl From<TchError> for BrydzSimError{
     fn from(value: TchError) -> Self {
         Self::Tch(value)

@@ -24,7 +24,7 @@ use karty::random::RandomSymbol;
 use karty::suits::Suit;
 use sztorm::{DistinctAgent, PolicyAgent, RandomPolicy,  StatefulEnvironment};
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
-use crate::{ContractQNetSimple, EEPolicy};
+use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
@@ -45,7 +45,7 @@ fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
     })
 }
 
-pub(crate) type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<ContractQNetSimple>>;
+pub(crate) type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
 
 pub(crate) type DummyAgent  = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 pub(crate) type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
@@ -189,13 +189,13 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
 
     let mut geo = Geometric::new(0.25).unwrap();
 
-    let mut policy_declarer_ref = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE));
-    let mut policy_whist_ref = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE));
-    let mut policy_offside_ref = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE));
+    let mut policy_declarer_ref = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE));
+    let mut policy_whist_ref = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE));
+    let mut policy_offside_ref = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE));
 
-    let policy_declarer = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE));
-    let policy_whist = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE));
-    let policy_offside = EEPolicy::new(ContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE));
+    let policy_declarer = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE));
+    let policy_whist = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE));
+    let policy_offside = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE));
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
 

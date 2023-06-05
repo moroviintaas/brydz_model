@@ -14,13 +14,13 @@ use sztorm::{AgentGen, RandomPolicy};
 use sztorm::automatons::rr::RoundRobinModelBuilder;
 use sztorm::error::SztormError;
 use sztorm_net_ext::ComplexComm2048;
-use crate::ContractQNetSimple;
+use crate::SyntheticContractQNetSimple;
 
 pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolSpec>>{
 
     let vs_east = VarStore::new(tch::Device::Cpu);
 
-    let policy_east = ContractQNetSimple::new(vs_east, 0.25);
+    let policy_east = SyntheticContractQNetSimple::new(vs_east, 0.25);
 
     //type TcpCommSim = TcpCommK2<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
     //type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;

@@ -8,8 +8,9 @@ use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction, Contrac
 use sztorm::{InformationSet, Policy};
 use smallvec::SmallVec;
 use rand::prelude::SliceRandom;
+use crate::policy::nn::Model;
 
-type Model = Box<dyn Fn(&Tensor) -> Tensor + Send>;
+
 const HIDDEN_LAYER_1_SIZE: i64 = 1024;
 //const HIDDEN_LAYER_2_SIZE: i64 = 1024;
 const CONTRACT_STATE_SIZE: i64 = 222;
@@ -18,9 +19,6 @@ const CONTRACT_ACTION_SIZE: i64 = 2;
 const CONTRACT_Q_INPUT_SIZE: i64 = CONTRACT_STATE_SIZE + CONTRACT_ACTION_SIZE;
 
 
-const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
-const CONTRACT_ACTION_SPARSE_SIZE: i64 = 53;
-const CONTRACT_Q_INPUT_STATE_HIST_SPARSE: i64 = CONTRACT_STATE_HISTORY_SIZE + CONTRACT_ACTION_SPARSE_SIZE;
 
 
 
@@ -36,7 +34,7 @@ fn q_func_contract(p: &nn::Path, input_tensor_size: i64) -> Model {
 
 }
 
-pub struct ContractQNetSimple {
+pub struct SyntheticContractQNetSimple {
     pub model: Model,
     pub var_store: VarStore,
     pub device: Device,
@@ -44,7 +42,7 @@ pub struct ContractQNetSimple {
 
 }
 
-impl ContractQNetSimple {
+impl SyntheticContractQNetSimple {
     pub fn new(var_store: VarStore, learning_rate: f64) -> Self{
         let optimiser = Adam::default().build(&var_store, learning_rate).expect("Error building ContractQnetSimple");
         Self{model: q_func_contract(&var_store.root(), CONTRACT_Q_INPUT_SIZE,),
@@ -74,7 +72,7 @@ impl QFunction<ContractProtocolSpec> for ContractQNetSimple{
 
 
 
-impl Policy<ContractProtocolSpec> for ContractQNetSimple{
+impl Policy<ContractProtocolSpec> for SyntheticContractQNetSimple {
     type StateType = ContractAgentInfoSetSimple;
 
     fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
@@ -126,6 +124,7 @@ pub struct ContractQNet {
 
 }
 
+/*
 impl ContractQNet {
     pub fn new(var_store: VarStore, learning_rate: f64) -> Self{
         let optimiser = Adam::default().build(&var_store, learning_rate).expect("Error building optimiser for QnetStateHist");
@@ -181,72 +180,7 @@ impl Policy<ContractProtocolSpec> for ContractQNet{
     }
 }
 
-pub struct EEPolicy<IntPolicy: Policy<ContractProtocolSpec>>{
-    start_exploiting: u64,
-    exploiting_policy: IntPolicy,
-    step_counter: u64,
-
-}
-
-impl<IntPolicy: Policy<ContractProtocolSpec>> EEPolicy<IntPolicy>{
-    pub fn new(policy: IntPolicy) -> Self{
-        Self{exploiting_policy: policy, start_exploiting: 0, step_counter: 0}
-    }
-    pub fn exploiting_policy_mut(&mut self) -> &mut IntPolicy{
-        &mut self.exploiting_policy
-    }
-    pub fn exploitation_start(&self) -> u64{
-        self.start_exploiting
-    }
-    pub fn set_exploiting_start(&mut self, start: u64){
-        self.start_exploiting = start
-    }
-    pub fn exploiting_start(&self) -> u64{
-        self.start_exploiting
-    }
-    pub fn reset_step_counter(&mut self){
-        self.step_counter = 0;
-    }
-    pub fn get_step_counter(&self) -> u64{
-        self.step_counter
-    }
-    pub fn internal_policy(&self) -> &IntPolicy{
-        &self.exploiting_policy
-    }
-    pub fn internal_policy_mut(&mut self) -> &mut IntPolicy{
-        &mut self.exploiting_policy
-    }
-}
-
-impl<IntPolicy: Policy<ContractProtocolSpec>> Policy<ContractProtocolSpec> for EEPolicy<IntPolicy>{
-    type StateType = IntPolicy::StateType;
-
-    fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
-        //self.step_counter.set(self.step_counter.get() + 1);
-        if self.step_counter >= self.start_exploiting{
-
-            self.exploiting_policy.select_action(state)
-        } else{
-            let mut rng = thread_rng();
-            let available_actions: SmallVec<[ContractAction; HAND_SIZE]> = state.available_actions().into_iter().collect();
-            let action = available_actions.choose(&mut rng);
-            action.map(|a| a.to_owned())
-        }
+ */
 
 
-    }
-
-    fn select_action_mut(&mut self, state: &Self::StateType) -> Option<ContractAction> {
-        self.step_counter += 1;
-        if self.step_counter > self.start_exploiting{
-
-            self.exploiting_policy.select_action(state)
-        } else{
-            let mut rng = thread_rng();
-            let available_actions: SmallVec<[ContractAction; HAND_SIZE]> = state.available_actions().into_iter().collect();
-            let action = available_actions.choose(&mut rng);
-            action.map(|a| a.to_owned())
-        }
-    }
-}
 
