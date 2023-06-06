@@ -4,10 +4,12 @@ use std::str::FromStr;
 
 
 use clap::Parser;
+use tch::nn;
+use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
 
 use brydz_simulator::error::BrydzSimError;
-use brydz_simulator::options;
-use brydz_simulator::options::operation::{Operation, sim2, train_session};
+use brydz_simulator::{CONTRACT_Q_INPUT_STATE_HIST_SPARSE, options};
+use brydz_simulator::options::operation::{Operation, sim2, train_session, /*train_session2*/};
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::test_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, TestCommands};
 
@@ -48,6 +50,14 @@ fn main() -> Result<(), BrydzSimError> {
 
         Operation::Train(train_params) => {
             train_session(train_params)
+            /*
+            train_session2::<ContractAgentInfoSetSimple>(train_params, |vs|{
+                nn::seq()
+                    .add(nn::linear(vs/"i", CONTRACT_Q_INPUT_STATE_HIST_SPARSE, 1024, Default::default()))
+                    .add(nn::linear(vs/"i", 1024, 1, Default::default()))
+            })
+
+             */
         },
 
 

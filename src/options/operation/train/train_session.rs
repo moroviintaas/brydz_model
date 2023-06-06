@@ -34,7 +34,7 @@ use crate::model::single_play;
 
 const LEARNING_RATE: f64 = 1e-4;
 
-fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
+pub(crate) fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSimError>{
     Ok(match path{
         None => VarStore::new(Device::cuda_if_available()),
         Some(path) => {
@@ -145,7 +145,7 @@ fn run_test_set(env: &mut SimpleEnv,
     Ok(SideMap::new(sum_north_south, sum_east_west, sum_north_south, sum_east_west))
 }
 
-fn random_contract_params(declarer: Side, rng: &mut ThreadRng) -> ContractParameters{
+pub(crate) fn random_contract_params(declarer: Side, rng: &mut ThreadRng) -> ContractParameters{
     let contract_value = rng.gen_range(1..=7);
     let trump = TrumpGen::<Suit>::random(rng);
     let doubling = *[Doubling::None, Doubling::Redouble, Doubling::Redouble].choose(rng).unwrap();

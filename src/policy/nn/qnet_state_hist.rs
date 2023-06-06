@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 use log::debug;
 use tch::{Device, Tensor};
-use tch::nn::{Adam, Optimizer, OptimizerConfig, Sequential, VarStore};
+use tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction};
 use sztorm::{InformationSet, Policy};
@@ -11,8 +11,9 @@ use crate::{SyntheticContractQNetSimple, tch_model};
 
 const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
 const CONTRACT_ACTION_SPARSE_SIZE: i64 = 53;
-const CONTRACT_Q_INPUT_STATE_HIST_SPARSE: i64 = CONTRACT_STATE_HISTORY_SIZE + CONTRACT_ACTION_SPARSE_SIZE;
+pub const CONTRACT_Q_INPUT_STATE_HIST_SPARSE: i64 = CONTRACT_STATE_HISTORY_SIZE + CONTRACT_ACTION_SPARSE_SIZE;
 
+pub trait SequentialBuilder: Fn(&Path) -> Sequential{}
 
 pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>>{
     model: Model,
@@ -23,11 +24,11 @@ pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<
 }
 
 impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>> ContractStateHistQPolicy<S>{
-    pub fn new(var_store: VarStore, learning_rate: f64, sequential: Sequential) -> Self{
+    pub fn new(var_store: VarStore, learning_rate: f64, seq_build: Box<dyn Fn(&Path) -> Sequential>) -> Self{
         let optimizer = Adam::default().build(&var_store, learning_rate)
             .expect("Error creating optimiser");
         Self{
-            model: tch_model(&var_store.root(), sequential),
+            model: tch_model(&var_store.root(), seq_build(&var_store.root())),
             device: var_store.root().device(),
             var_store,
             optimizer,
