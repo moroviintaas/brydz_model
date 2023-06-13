@@ -9,7 +9,7 @@ use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{CONTRACT_Q_INPUT_STATE_HIST_SPARSE, options};
-use brydz_simulator::options::operation::{Operation, SequentialB, sim2, train_session, train_session2};
+use brydz_simulator::options::operation::{Operation, SequentialB, sim2,  train_session2};
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::test_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, TestCommands};
 

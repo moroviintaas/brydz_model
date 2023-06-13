@@ -6,7 +6,6 @@ use rand::prelude::ThreadRng;
 use rand::thread_rng;
 use rand_distr::Geometric;
 use tch::Kind::Float;
-use tch::nn::{Path, Sequential};
 use tch::Tensor;
 use brydz_core::contract::{Contract, ContractMechanics, ContractParameters};
 use brydz_core::deal::fair_bridge_deal;
@@ -22,11 +21,11 @@ use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSim
 use karty::hand::CardSet;
 use sztorm::{InformationSet, PolicyAgent, RandomPolicy, StatefulEnvironment};
 use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
-use crate::{ContractStateHistQPolicy, EEPolicy, SequentialBuilder, single_play};
+use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::DistinctAgent;
 
-use crate::options::operation::{load_var_store, random_contract_params, SequentialB, SequentialGen, TrainOptions};
+use crate::options::operation::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
 const LEARNING_RATE: f64 = 1e-4;
 

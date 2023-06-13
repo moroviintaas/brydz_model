@@ -1,13 +1,9 @@
 use log::debug;
-use rand::thread_rng;
 use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
-use brydz_core::meta::HAND_SIZE;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction, ContractAgentInfoSetSimple};
+use brydz_core::sztorm::state::{ ContractAction, ContractAgentInfoSetSimple};
 use sztorm::{InformationSet, Policy};
-use smallvec::SmallVec;
-use rand::prelude::SliceRandom;
 use crate::policy::nn::Model;
 
 
@@ -115,6 +111,7 @@ impl Policy<ContractProtocolSpec> for SyntheticContractQNetSimple {
         })*/
     }
 }
+
 
 pub struct ContractQNet {
     pub model: Model,

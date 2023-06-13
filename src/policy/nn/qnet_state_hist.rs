@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use std::marker::PhantomData;
 use log::debug;
 use tch::{Device, Tensor};
@@ -7,7 +6,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction};
 use sztorm::{InformationSet, Policy};
 use crate::policy::nn::Model;
-use crate::{SyntheticContractQNetSimple, tch_model};
+use crate::{tch_model};
 use crate::options::operation::{SequentialB, SequentialGen};
 
 const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
@@ -65,7 +64,7 @@ Policy<ContractProtocolSpec> for ContractStateHistQPolicy<S>
             let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).into();
 
             let current_q = v[0];
-            //debug!("Action {:?} checked with q value: {}", action, current_q);
+            debug!("Action {:?} checked with q value: {}", action, current_q);
             match current_best_action{
                 None=>{
                     current_best_action = Some(action);
