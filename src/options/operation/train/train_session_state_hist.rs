@@ -8,7 +8,7 @@ use rand_distr::Geometric;
 use tch::Kind::Float;
 use tch::Tensor;
 use brydz_core::contract::{Contract, ContractMechanics, ContractParameters};
-use brydz_core::deal::fair_bridge_deal;
+use brydz_core::deal::{BiasedHandDistribution, fair_bridge_deal};
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 use brydz_core::player::side::Side::{East, North, South, West};
@@ -133,9 +133,29 @@ fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(con
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.replace_state(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None));
-    whist.replace_state(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None));
-    offside.replace_state(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None));
+    declarer.replace_state(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, Default::default()));
+    whist.replace_state(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, Default::default()));
+    offside.replace_state(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, Default::default()));
+    dummy.replace_state(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reset_trace();
+    whist.reset_trace();
+    offside.reset_trace();
+
+
+    Ok(())
+
+}
+
+fn renew_world2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(contract_params: ContractParameters, cards: SideMap<CardSet>,
+               env: &mut SimpleEnv2,
+               declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
+               dummy: &mut DummyAgent2, distribution_assumption: BiasedHandDistribution) -> Result<(), BrydzSimError>{
+    let contract = Contract::new(contract_params);
+    let dummy_side = contract.dummy();
+    env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
+    declarer.replace_state(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.replace_state(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.replace_state(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, distribution_assumption));
     dummy.replace_state(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
     declarer.reset_trace();
     whist.reset_trace();
