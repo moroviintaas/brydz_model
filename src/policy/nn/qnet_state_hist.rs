@@ -8,6 +8,7 @@ use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction};
 use sztorm::{InformationSet, Policy};
 use crate::policy::nn::Model;
 use crate::{SyntheticContractQNetSimple, tch_model};
+use crate::options::operation::{SequentialB, SequentialGen};
 
 const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
 const CONTRACT_ACTION_SPARSE_SIZE: i64 = 53;
@@ -24,11 +25,11 @@ pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<
 }
 
 impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>> ContractStateHistQPolicy<S>{
-    pub fn new(var_store: VarStore, learning_rate: f64, seq_build: Box<dyn Fn(&Path) -> Sequential>) -> Self{
+    pub fn new(var_store: VarStore, learning_rate: f64, seq_gen: &SequentialB) -> Self{
         let optimizer = Adam::default().build(&var_store, learning_rate)
             .expect("Error creating optimiser");
         Self{
-            model: tch_model(&var_store.root(), seq_build(&var_store.root())),
+            model: tch_model(&var_store.root(), seq_gen.build_sequential(&var_store.root())),
             device: var_store.root().device(),
             var_store,
             optimizer,
@@ -64,7 +65,7 @@ Policy<ContractProtocolSpec> for ContractStateHistQPolicy<S>
             let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).into();
 
             let current_q = v[0];
-            debug!("Action {:?} checked with q value: {}", action, current_q);
+            //debug!("Action {:?} checked with q value: {}", action, current_q);
             match current_best_action{
                 None=>{
                     current_best_action = Some(action);

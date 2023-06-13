@@ -26,13 +26,15 @@ use crate::{ContractStateHistQPolicy, EEPolicy, SequentialBuilder, single_play};
 use crate::error::BrydzSimError;
 use sztorm::DistinctAgent;
 
-use crate::options::operation::{load_var_store, random_contract_params, TrainOptions};
+use crate::options::operation::{load_var_store, random_contract_params, SequentialB, SequentialGen, TrainOptions};
 
 const LEARNING_RATE: f64 = 1e-4;
 
 pub(crate) type QNetStateHistAgent<St> = ContractAgent<St, ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
 pub(crate) type DummyAgent2 = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
+
+
 
 pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardType=u32> + BuildStateHistoryTensor + Send>(
     ready_env: &mut SimpleEnv2,
@@ -144,14 +146,15 @@ fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(con
     Ok(())
 
 }
-/*
+
 pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHistoryTensor + Send>(
     train_options: &TrainOptions,
-    sequential_gen: Box<dyn Fn(&Path)-> Sequential  + 'static>) -> Result<(), BrydzSimError>{
+    sequential_gen: &SequentialB) -> Result<(), BrydzSimError>{
     let mut rng = thread_rng();
     //let test_set: Vec<(ContractParameters, SideMap<CardSet>)> = Range::new(0..train_options.tests_set_size)
     //   .map().collect
     let declarer_side = North;
+
 
     let mut test_set = Vec::with_capacity(train_options.tests_set_size as usize);
     for _i in 0..train_options.tests_set_size{
@@ -163,13 +166,13 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
 
     let mut geo = Geometric::new(0.25).unwrap();
 
-    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
-    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
-    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
+    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
 
-    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
-    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
-    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, Box::new(sequential_gen)));
+    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
 
@@ -233,4 +236,3 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
     Ok(())
 }
 
- */
