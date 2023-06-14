@@ -2,6 +2,7 @@ mod deal;
 mod subtrump;
 mod force_declarer;
 mod choice_doubling;
+use rand::distributions::{Distribution};
 
 use std::path::{PathBuf};
 pub use deal::*;
@@ -11,12 +12,13 @@ pub use force_declarer::*;
 use clap::Args;
 use std::io::Write;
 use rand::{Rng, thread_rng};
+use rand::distributions::Standard;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 use brydz_core::bidding::{Bid, Doubling};
 use brydz_core::cards::trump::{Trump, TrumpGen};
 use brydz_core::contract::ContractParameters;
-use brydz_core::deal::fair_bridge_deal;
+use brydz_core::deal::{BiasedHandDistribution, fair_bridge_deal};
 use brydz_core::player::side::{Side};
 use brydz_core::ron::ser::{PrettyConfig, to_string_pretty};
 use karty::hand::CardSet;
@@ -99,6 +101,12 @@ fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) ->
     let (template, cards) = match params.deal_method{
         DealMethod::Fair => (DistributionTemplate::Simple, fair_bridge_deal::<CardSet>()),
 
+        DealMethod::Biased => {
+            let mut rng = thread_rng();
+            let mut distribution: BiasedHandDistribution = rng.gen();
+            let cards = distribution.sample(&mut rng);
+            (DistributionTemplate::Suspect(distribution), cards)
+        }
     };
 
     Ok(SimContractParams::new(contract_parameters, template, cards))

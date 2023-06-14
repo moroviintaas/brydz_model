@@ -5,7 +5,7 @@ use clap::ValueEnum;
 #[derive(Clone, Debug)]
 pub enum DealMethod {
     Fair,
-    //Biased
+    Biased
 }
 /*
 impl Display for DealMethod{

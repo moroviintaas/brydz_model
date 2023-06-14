@@ -1,9 +1,9 @@
 use std::cmp::min;
 use std::thread;
 use log::debug;
-use rand::distributions::Distribution;
+use rand::distributions::{Distribution, Standard};
 use rand::prelude::ThreadRng;
-use rand::thread_rng;
+use rand::{Rng, thread_rng};
 use rand_distr::Geometric;
 use tch::Kind::Float;
 use tch::Tensor;
@@ -126,6 +126,34 @@ fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(
     Ok(SideMap::new(sum_north_south, sum_east_west, sum_north_south, sum_east_west))
 }
 
+fn run_test_set2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(
+    env: &mut SimpleEnv2,
+    declarer: &mut QNetStateHistAgent<St>,
+    whist: &mut QNetStateHistAgent<St>,
+    offside: &mut QNetStateHistAgent<St>,
+    dummy: &mut DummyAgent2,
+    test_params: &[(ContractParameters, SideMap<CardSet>)])-> Result<SideMap<f64>, BrydzSimError>{
+
+
+    //let card_distribution: BiasedHandDistribution = thread_rng().gen();
+    let mut sum_north_south = 0.0;
+    let mut sum_east_west =0.0;
+    for (param, cards) in test_params{
+        renew_world2_with_assumption(
+            param.to_owned(),
+            cards.to_owned(), env, declarer, whist, offside, dummy,
+            BiasedHandDistribution::default())?;
+        single_play(env, declarer, whist, offside, dummy);
+        sum_north_south += env.state().contract().total_tricks_taken_axis(NorthSouth) as f64;
+        sum_east_west += env.state().contract().total_tricks_taken_axis(EastWest) as f64;
+    }
+    sum_north_south /= test_params.len() as f64;
+    sum_east_west /= test_params.len() as f64;
+
+    Ok(SideMap::new(sum_north_south, sum_east_west, sum_north_south, sum_east_west))
+}
+
+
 fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
@@ -244,6 +272,101 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
 
         std::mem::swap(declarer.policy_mut(), &mut policy_declarer_ref);
         let test_results = run_test_set2(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;
+        println!("\nDefenders vs reference declarer:\n\tDeclarer:\t{}\n\tDefenders:\t{}", test_results[&North], test_results[&East]);
+        std::mem::swap(whist.policy_mut(), &mut policy_declarer_ref);
+
+
+
+
+    }
+
+    Ok(())
+}
+
+
+pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> + BuildStateHistoryTensor + Send>(
+    train_options: &TrainOptions,
+    sequential_gen: &SequentialB) -> Result<(), BrydzSimError>{
+    let mut rng = thread_rng();
+    //let test_set: Vec<(ContractParameters, SideMap<CardSet>)> = Range::new(0..train_options.tests_set_size)
+    //   .map().collect
+    let declarer_side = North;
+    let card_distribution: BiasedHandDistribution = rng.gen();
+
+    let mut test_set = Vec::with_capacity(train_options.tests_set_size as usize);
+    for _i in 0..train_options.tests_set_size{
+        let card_set = card_distribution.sample(&mut rng);
+        let parameters = random_contract_params(declarer_side, &mut rng);
+        test_set.push((parameters, card_set));
+    }
+
+
+    let mut geo = Geometric::new(0.25).unwrap();
+
+
+
+    let card_deal = card_distribution.sample(&mut rng);
+
+    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+
+    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+
+
+
+    let contract = Contract::new(random_contract_params(declarer_side, &mut rng));
+
+    let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
+    let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
+    let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
+    let (comm_env_south, comm_south) = ContractEnvSyncComm::new_pair();
+    let comm_association = SideMap::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
+
+    //let card_deal = fair_bridge_deal::<CardSet>();
+    let initial_state_declarer = ContractAgentInfoSetSimple::new(declarer_side, card_deal[&North], contract.clone(), None);
+    let initial_state_whist = ContractAgentInfoSetSimple::new(declarer_side.next(), card_deal[&East], contract.clone(), None);
+    let initial_state_offside = ContractAgentInfoSetSimple::new(declarer_side.prev(), card_deal[&West], contract.clone(), None);
+    let initial_state_dummy = ContractDummyState::new(declarer_side.partner(), card_deal[&South], contract.clone());
+    let env_state = ContractEnvStateMin::new(contract, None);
+
+    let mut declarer = QNetStateHistAgent::new(initial_state_declarer, comm_north, policy_declarer);
+    let mut whist = QNetStateHistAgent::new(initial_state_whist, comm_east, policy_whist);
+    let mut offside = QNetStateHistAgent::new(initial_state_offside, comm_west, policy_offside);
+    let mut dummy = DummyAgent2::new(initial_state_dummy, comm_south, policy_dummy);
+
+    let mut env = SimpleEnv2::new(env_state, comm_association);
+
+    // Before training
+
+    let test_results = run_test_set2_with_assumption(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;
+    println!("Test set run before training:\n\tDeclarer:\t{:}\n\tDefenders:\t{}", test_results[&North], test_results[&East]);
+    //info!()
+
+
+    for e in 0..train_options.epochs{
+
+        for _g in 0..train_options.games{
+            let card_distribution: BiasedHandDistribution = rng.gen();
+            let contract_params = random_contract_params(North, &mut rng);
+            renew_world2_with_assumption(contract_params, card_distribution.sample(&mut rng), &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, card_distribution.clone())?;
+            train_episode_state_hist( &mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &mut rng, &mut geo)?;
+        }
+
+        println!("Epoch {}", e+1);
+        //test_op declarer
+        std::mem::swap(whist.policy_mut(), &mut policy_whist_ref);
+        std::mem::swap(offside.policy_mut(), &mut policy_offside_ref);
+        let test_results = run_test_set2_with_assumption(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;
+        println!("\nDeclarer vs reference defenders:\n\tDeclarer:\t{}\n\tDefenders:\t{}", test_results[&North], test_results[&East]);
+        std::mem::swap(whist.policy_mut(), &mut policy_whist_ref);
+        std::mem::swap(offside.policy_mut(), &mut policy_offside_ref);
+
+        std::mem::swap(declarer.policy_mut(), &mut policy_declarer_ref);
+        let test_results = run_test_set2_with_assumption(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;
         println!("\nDefenders vs reference declarer:\n\tDeclarer:\t{}\n\tDefenders:\t{}", test_results[&North], test_results[&East]);
         std::mem::swap(whist.policy_mut(), &mut policy_declarer_ref);
 
