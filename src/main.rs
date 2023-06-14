@@ -9,7 +9,7 @@ use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{CONTRACT_Q_INPUT_STATE_HIST_SPARSE, options};
-use brydz_simulator::options::operation::{Operation, SequentialB, sim2,  train_session2};
+use brydz_simulator::options::operation::{Operation, SequentialB, sim2, train_session2, train_session2_with_assumption};
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::test_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, TestCommands};
 
@@ -51,7 +51,7 @@ fn main() -> Result<(), BrydzSimError> {
         Operation::Train(train_params) => {
             //train_session(train_params)
 
-            train_session2::<ContractAgentInfoSetSimple>(
+            train_session2_with_assumption::<ContractAgentInfoSetSimple>(
                 train_params,
                 &SequentialB::new(Box::new(|p | {
                     nn::seq().add(nn::linear(p/"i", CONTRACT_Q_INPUT_STATE_HIST_SPARSE, 1024, Default::default()))

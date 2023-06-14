@@ -132,17 +132,17 @@ fn run_test_set2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryT
     whist: &mut QNetStateHistAgent<St>,
     offside: &mut QNetStateHistAgent<St>,
     dummy: &mut DummyAgent2,
-    test_params: &[(ContractParameters, SideMap<CardSet>)])-> Result<SideMap<f64>, BrydzSimError>{
+    test_params: &[(ContractParameters, SideMap<CardSet>, BiasedHandDistribution)])-> Result<SideMap<f64>, BrydzSimError>{
 
 
     //let card_distribution: BiasedHandDistribution = thread_rng().gen();
     let mut sum_north_south = 0.0;
     let mut sum_east_west =0.0;
-    for (param, cards) in test_params{
+    for (param, cards, biased_card_distribution) in test_params{
         renew_world2_with_assumption(
             param.to_owned(),
             cards.to_owned(), env, declarer, whist, offside, dummy,
-            BiasedHandDistribution::default())?;
+            biased_card_distribution.clone())?;
         single_play(env, declarer, whist, offside, dummy);
         sum_north_south += env.state().contract().total_tricks_taken_axis(NorthSouth) as f64;
         sum_east_west += env.state().contract().total_tricks_taken_axis(EastWest) as f64;
@@ -291,13 +291,14 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> +
     //let test_set: Vec<(ContractParameters, SideMap<CardSet>)> = Range::new(0..train_options.tests_set_size)
     //   .map().collect
     let declarer_side = North;
-    let card_distribution: BiasedHandDistribution = rng.gen();
+
 
     let mut test_set = Vec::with_capacity(train_options.tests_set_size as usize);
     for _i in 0..train_options.tests_set_size{
+        let card_distribution: BiasedHandDistribution = rng.gen();
         let card_set = card_distribution.sample(&mut rng);
         let parameters = random_contract_params(declarer_side, &mut rng);
-        test_set.push((parameters, card_set));
+        test_set.push((parameters, card_set, card_distribution.clone()));
     }
 
 
@@ -305,7 +306,7 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> +
 
 
 
-    let card_deal = card_distribution.sample(&mut rng);
+    let card_deal = fair_bridge_deal();//card_distribution.sample(&mut rng);
 
     let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
     let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
