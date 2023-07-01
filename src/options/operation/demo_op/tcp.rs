@@ -11,10 +11,10 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
+use sztorm::automatons::rr::{EnvironmentRR};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
-use sztorm::RandomPolicy;
+use sztorm::{AgentAuto, RandomPolicy};
 use sztorm_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){

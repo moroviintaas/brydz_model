@@ -22,8 +22,8 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use sztorm::{DistinctAgent, PolicyAgent, RandomPolicy,  StatefulEnvironment};
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
+use sztorm::{AgentAuto, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment};
+use sztorm::automatons::rr::{EnvironmentRR};
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;

@@ -1,6 +1,7 @@
 use std::thread;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
+use sztorm::AgentAuto;
+use sztorm::automatons::rr::{EnvironmentRR};
 use crate::options::operation::{DummyAgent, SimpleEnv};
 
 pub fn single_play<D: AgentAuto<ContractProtocolSpec> + Send,
