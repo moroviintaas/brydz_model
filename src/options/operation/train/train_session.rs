@@ -88,11 +88,11 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
-        for i in (agent.policy().exploitation_start() as usize.. agent.trace().len()).rev(){
-            let (state, action, reward ) =  &agent.trace()[i];
-            accumulated_reward += *reward as f32;
-            let t = tch::Tensor::from(state);
-            let ta = tch::Tensor::from(action);
+        for i in (agent.policy().exploitation_start() as usize.. agent.game_trace().trace().len()).rev(){
+            let (ref state, ref action, ref reward ) =  &agent.game_trace().trace()[i].borrowed_tuple();
+            accumulated_reward += **reward as f32;
+            let t = tch::Tensor::from(*state);
+            let ta = tch::Tensor::from(*action);
             let input = tch::Tensor::cat(&[t,ta], 0);
 
             //let optimiser = agent.policy_mut().internal_policy_mut().optimizer_mut();
@@ -160,13 +160,13 @@ fn renew_world(contract_params: ContractParameters, cards: SideMap<CardSet>,
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.replace_state(ContractAgentInfoSetSimple::new(*declarer.id(), cards[declarer.id()], contract.clone(), None));
-    whist.replace_state(ContractAgentInfoSetSimple::new(*whist.id(), cards[whist.id()], contract.clone(), None));
-    offside.replace_state(ContractAgentInfoSetSimple::new(*offside.id(), cards[offside.id()], contract.clone(), None));
-    dummy.replace_state(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
-    declarer.reset_trace();
-    whist.reset_trace();
-    offside.reset_trace();
+    declarer.reset_state_and_trace(ContractAgentInfoSetSimple::new(*declarer.id(), cards[declarer.id()], contract.clone(), None));
+    whist.reset_state_and_trace(ContractAgentInfoSetSimple::new(*whist.id(), cards[whist.id()], contract.clone(), None));
+    offside.reset_state_and_trace(ContractAgentInfoSetSimple::new(*offside.id(), cards[offside.id()], contract.clone(), None));
+    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    //declarer.reset_trace();
+    //whist.reset_trace();
+    //offside.reset_trace();
 
 
     Ok(())

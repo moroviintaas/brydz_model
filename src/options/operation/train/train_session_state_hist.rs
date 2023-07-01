@@ -74,10 +74,10 @@ pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardT
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
-        for i in (agent.policy().exploitation_start() as usize.. agent.trace().len()).rev(){
-            let (state, action, reward ) =  &agent.trace()[i];
+        for i in (agent.policy().exploitation_start() as usize.. agent.game_trace().trace().len()).rev(){
+            let (state, action, reward ) =  &agent.game_trace().trace()[i].borrowed_tuple();
             //accumulated_reward += &Into::<f32>::into(reward);
-            accumulated_reward += *reward as f32;//f32::from(reward);
+            accumulated_reward += **reward as f32;//f32::from(reward);
             debug!("Applying train vector for {} (accumulated reward: {})", agent.id(), accumulated_reward);
             let t = state.state_history_tensor().f_flatten(0,1).unwrap();
             let ta = Tensor::of_slice(&action.sparse_representation());
@@ -161,13 +161,10 @@ fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(con
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.replace_state(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, Default::default()));
-    whist.replace_state(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, Default::default()));
-    offside.replace_state(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, Default::default()));
-    dummy.replace_state(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
-    declarer.reset_trace();
-    whist.reset_trace();
-    offside.reset_trace();
+    declarer.reset_state_and_trace(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, Default::default()));
+    whist.reset_state_and_trace(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, Default::default()));
+    offside.reset_state_and_trace(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, Default::default()));
+    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())
@@ -181,13 +178,10 @@ fn renew_world2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTe
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.replace_state(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, distribution_assumption.clone()));
-    whist.replace_state(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, distribution_assumption.clone()));
-    offside.replace_state(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, distribution_assumption));
-    dummy.replace_state(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
-    declarer.reset_trace();
-    whist.reset_trace();
-    offside.reset_trace();
+    declarer.reset_state_and_trace(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.reset_state_and_trace(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.reset_state_and_trace(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, distribution_assumption));
+    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())
