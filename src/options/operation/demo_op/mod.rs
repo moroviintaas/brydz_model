@@ -15,7 +15,7 @@ pub use biased_params::*;
 pub use biased_sample::*;
 
 #[derive(Subcommand)]
-pub enum TestCommands{
+pub enum DemoCommands {
     Local,
     Tcp,
     Generic,

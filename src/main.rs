@@ -9,9 +9,9 @@ use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{CONTRACT_Q_INPUT_STATE_HIST_SPARSE, options};
-use brydz_simulator::options::operation::{Operation, SequentialB, sim2, train_session2, train_session2_with_assumption};
+use brydz_simulator::options::operation::{Operation, SequentialB, sim2,  train_session2_with_assumption};
 use brydz_simulator::options::operation::gen2;
-use brydz_simulator::options::operation::test_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, TestCommands};
+use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
 
 
 //use crate::options::operation::{GenContract, Operation};
@@ -65,30 +65,30 @@ fn main() -> Result<(), BrydzSimError> {
         },
 
 
-        Operation::Test(command) => {
+        Operation::Demo(command) => {
             match command{
-                TestCommands::Local =>{
-                    options::operation::test_op::tur_sim();
+                DemoCommands::Local =>{
+                    options::operation::demo_op::tur_sim();
                     Ok(())
                 }
-                TestCommands::Tcp => {
-                    options::operation::test_op::tur_sim_tcp();
+                DemoCommands::Tcp => {
+                    options::operation::demo_op::tur_sim_tcp();
                     Ok(())
                 }
-                TestCommands::Generic => {
-                    match options::operation::test_op::test_generic_model(){
+                DemoCommands::Generic => {
+                    match options::operation::demo_op::test_generic_model(){
                         Ok(_) => Ok(()),
                         Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
                     }
                 },
-                TestCommands::RunNN => {
-                    options::operation::test_op::test_with_untrained_network()?;
+                DemoCommands::RunNN => {
+                    options::operation::demo_op::test_with_untrained_network()?;
                     Ok(())
                 },
-                TestCommands::BiasedParams => {
+                DemoCommands::BiasedParams => {
                     Ok(test_sample_biased_distribution_parameters()?)
                 },
-                TestCommands::BiasedSample => {
+                DemoCommands::BiasedSample => {
                     test_sample_biased_deal_crossing()?;
                     test_sample_biased_deal_single()?;
                     Ok(())

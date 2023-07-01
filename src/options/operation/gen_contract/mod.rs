@@ -12,7 +12,6 @@ pub use force_declarer::*;
 use clap::Args;
 use std::io::Write;
 use rand::{Rng, thread_rng};
-use rand::distributions::Standard;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 use brydz_core::bidding::{Bid, Doubling};
@@ -103,7 +102,7 @@ fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) ->
 
         DealMethod::Biased => {
             let mut rng = thread_rng();
-            let mut distribution: BiasedHandDistribution = rng.gen();
+            let distribution: BiasedHandDistribution = rng.gen();
             let cards = distribution.sample(&mut rng);
             (DistributionTemplate::Suspect(distribution), cards)
         }

@@ -1,7 +1,7 @@
 use std::cmp::min;
 use std::thread;
 use log::debug;
-use rand::distributions::{Distribution, Standard};
+use rand::distributions::{Distribution};
 use rand::prelude::ThreadRng;
 use rand::{Rng, thread_rng};
 use rand_distr::Geometric;
@@ -262,7 +262,7 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
         }
 
         println!("Epoch {}", e+1);
-        //test_op declarer
+        //demo_op declarer
         std::mem::swap(whist.policy_mut(), &mut policy_whist_ref);
         std::mem::swap(offside.policy_mut(), &mut policy_offside_ref);
         let test_results = run_test_set2(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;
@@ -358,7 +358,7 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> +
         }
 
         println!("Epoch {}", e+1);
-        //test_op declarer
+        //demo_op declarer
         std::mem::swap(whist.policy_mut(), &mut policy_whist_ref);
         std::mem::swap(offside.policy_mut(), &mut policy_offside_ref);
         let test_results = run_test_set2_with_assumption(&mut env, &mut declarer, &mut whist, &mut offside, &mut dummy, &test_set)?;

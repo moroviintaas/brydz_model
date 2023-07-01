@@ -41,6 +41,8 @@ impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>> Contract
     pub fn model(&self) -> &Model{
         &self.model
     }
+    pub fn var_store(&self) -> &VarStore {&self.var_store}
+    pub fn device(&self) -> &Device {&self.device}
 }
 
 
