@@ -86,7 +86,7 @@ impl Policy<ContractProtocolSpec> for SyntheticContractQNetSimple {
             q_input[(CONTRACT_Q_INPUT_SIZE-CONTRACT_ACTION_SIZE) as usize +1] = action_array[1];
             let tensor = Tensor::from(&q_input[..]);
 
-            let v:Vec<f32> = tch::no_grad(||{(self.model)(&tensor)}).get(0).into();
+            let v:Vec<f32> = tch::no_grad(||{(self.model)(&tensor)}).get(0).try_into().unwrap();
 
             let current_q = v[0];
             debug!("Action {} checked with q value: {}", action, current_q);

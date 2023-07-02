@@ -58,12 +58,12 @@ Policy<ContractProtocolSpec> for ContractStateHistQPolicy<S>
         let mut q_max: f32 = f32::MIN;
 
         for action in state.available_actions().into_iter(){
-            let action_tensor = Tensor::of_slice(&action.sparse_representation());
+            let action_tensor = Tensor::from_slice(&action.sparse_representation());
             let input_tensor = Tensor::cat(&[&in_array_state, &action_tensor], 0);
 
             //let tensor = Tensor::from(&q_input[..]);
 
-            let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).into();
+            let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).try_into().unwrap();
 
             let current_q = v[0];
             debug!("Action {:?} checked with q value: {}", action, current_q);

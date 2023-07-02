@@ -97,7 +97,7 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
 
             //let optimiser = agent.policy_mut().internal_policy_mut().optimizer_mut();
             let q = (agent.policy_mut().internal_policy_mut().model)(&input);
-            let q_from_net = tch::Tensor::of_slice(&[accumulated_reward]);
+            let q_from_net = tch::Tensor::from_slice(&[accumulated_reward]);
 
             //println!("{q:} {q_from_net:}");
             let diff = &q-&q_from_net;

@@ -80,12 +80,12 @@ pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardT
             accumulated_reward += **reward as f32;//f32::from(reward);
             debug!("Applying train vector for {} (accumulated reward: {})", agent.id(), accumulated_reward);
             let t = state.state_history_tensor().f_flatten(0,1).unwrap();
-            let ta = Tensor::of_slice(&action.sparse_representation());
+            let ta = Tensor::from_slice(&action.sparse_representation());
             let input = tch::Tensor::cat(&[t,ta], 0);
 
             //let optimiser = agent.policy_mut().internal_policy_mut().optimizer_mut();
             let q = (agent.policy_mut().internal_policy_mut().model())(&input);
-            let q_from_net = tch::Tensor::of_slice(&[accumulated_reward]);
+            let q_from_net = tch::Tensor::from_slice(&[accumulated_reward]);
 
             //println!("{q:} {q_from_net:}");
             let diff = &q-&q_from_net;
