@@ -22,7 +22,7 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use sztorm::{AgentAuto, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment};
+use sztorm::{AgentAuto, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
 use sztorm::automatons::rr::{EnvironmentRR};
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
@@ -88,8 +88,8 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
-        for i in (agent.policy().exploitation_start() as usize.. agent.game_trace().trace().len()).rev(){
-            let (ref state, ref action, ref reward ) =  &agent.game_trace().trace()[i].borrowed_tuple();
+        for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().trace().len()).rev(){
+            let (ref state, ref action, ref reward ) =  &agent.game_trajectory().trace()[i].borrowed_tuple();
             accumulated_reward += **reward as f32;
             let t = tch::Tensor::from(*state);
             let ta = tch::Tensor::from(*action);
