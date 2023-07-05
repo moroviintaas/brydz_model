@@ -43,7 +43,7 @@ pub fn tur_sim_tcp(){
 
             let env_initial_state = ContractEnvStateMin::new(initial_contract.clone(),None);
             let mut simple_env = ContractEnv::new(env_initial_state, comm_assotiation);
-            simple_env.env_run_rr().unwrap();
+            simple_env.run_rr().unwrap();
         });
 
 

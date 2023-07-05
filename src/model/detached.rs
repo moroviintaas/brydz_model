@@ -14,7 +14,7 @@ OFFSIDE: AgentAuto<ContractProtocolSpec>+ Send>(ready_env: &mut SimpleEnv,
 
     thread::scope(|s|{
         s.spawn(||{
-            ready_env.env_run_rr().unwrap();
+            ready_env.run_rr().unwrap();
         });
         s.spawn(||{
             ready_declarer.run_rr().unwrap();

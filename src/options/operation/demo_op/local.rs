@@ -45,7 +45,7 @@ pub fn tur_sim(){
 
     thread::scope(|s|{
         s.spawn(||{
-            simple_env.env_run_rr().unwrap();
+            simple_env.run_rr().unwrap();
         });
         s.spawn(||{
             agent_east.run_rr().unwrap();
