@@ -10,7 +10,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AgentAuto, AgentGen, RandomPolicy};
+use sztorm::{AutomaticAgent, AgentGen, RandomPolicy};
 use sztorm::automatons::rr::{RoundRobinModelBuilder};
 use sztorm::error::{CommError, SztormError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
@@ -85,7 +85,7 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractProtocolSpec>>{
 
 
     thread::spawn(move || {
-        agent_south.run_rr().unwrap();
+        agent_south.run().unwrap();
     });
     model.play().unwrap();
 

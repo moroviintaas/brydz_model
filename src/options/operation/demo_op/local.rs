@@ -10,7 +10,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AgentAuto, AgentGen, RandomPolicy};
+use sztorm::{AutomaticAgent, AgentGen, RandomPolicy};
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 
 pub fn tur_sim(){
@@ -48,19 +48,19 @@ pub fn tur_sim(){
             simple_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
-            agent_east.run_rr().unwrap();
+            agent_east.run().unwrap();
         });
 
         s.spawn(||{
-            agent_south.run_rr().unwrap();
+            agent_south.run().unwrap();
         });
 
         s.spawn(||{
-            agent_west.run_rr().unwrap();
+            agent_west.run().unwrap();
         });
 
         s.spawn(||{
-            agent_north.run_rr().unwrap();
+            agent_north.run().unwrap();
         });
     })
 

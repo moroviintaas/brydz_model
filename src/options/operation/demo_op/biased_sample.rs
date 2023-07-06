@@ -33,7 +33,7 @@ pub fn test_sample_biased_deal_crossing() -> Result<(), SztormError<ContractProt
 
     }
 
-    let sum = ace_spades_north.iter().map(|n| *n as f64).sum::<f64>();
+    let sum = ace_spades_north.iter().copied().sum::<f64>();
     let count = ace_spades_north.len();
 
     println!("Expected probability: {}", proba_ace_spades_north);
@@ -71,7 +71,7 @@ pub fn test_sample_biased_deal_single() -> Result<(), SztormError<ContractProtoc
 
     }
 
-    let sum = ace_spades_north.iter().map(|n| *n as f64).sum::<f64>();
+    let sum = ace_spades_north.iter().copied().sum::<f64>();
     let count = ace_spades_north.len();
 
     println!("Expected probability: {}", proba_ace_spades_north);

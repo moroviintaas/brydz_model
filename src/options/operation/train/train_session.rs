@@ -22,7 +22,7 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use sztorm::{AgentAuto, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
+use sztorm::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
@@ -70,26 +70,26 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
             ready_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
-            ready_declarer.run_rr().unwrap();
+            ready_declarer.run().unwrap();
         });
 
         s.spawn(||{
-            ready_whist.run_rr().unwrap();
+            ready_whist.run().unwrap();
         });
 
         s.spawn(||{
-            ready_offside.run_rr().unwrap();
+            ready_offside.run().unwrap();
         });
 
         s.spawn(||{
-            ready_dummy.run_rr().unwrap();
+            ready_dummy.run().unwrap();
         });
     });
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
         for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().trace().len()).rev(){
-            let (ref state, ref action, ref reward ) =  &agent.game_trajectory().trace()[i].borrowed_tuple();
+            let (state, action, reward ) =  &agent.game_trajectory().trace()[i].borrowed_tuple();
             accumulated_reward += **reward as f32;
             let t = tch::Tensor::from(*state);
             let ta = tch::Tensor::from(*action);

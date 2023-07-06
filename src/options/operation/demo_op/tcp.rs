@@ -14,7 +14,7 @@ use karty::suits::Suit::Spades;
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
-use sztorm::{AgentAuto, RandomPolicy};
+use sztorm::{AutomaticAgent, RandomPolicy};
 use sztorm_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){
@@ -81,19 +81,19 @@ pub fn tur_sim_tcp(){
 
             thread::scope(|s|{
                 s.spawn(||{
-                    agent_east.run_rr().unwrap();
+                    agent_east.run().unwrap();
                 });
 
                 s.spawn(||{
-                    agent_south.run_rr().unwrap();
+                    agent_south.run().unwrap();
                 });
 
                 s.spawn(||{
-                    agent_west.run_rr().unwrap();
+                    agent_west.run().unwrap();
                 });
 
                 s.spawn(||{
-                    agent_north.run_rr().unwrap();
+                    agent_north.run().unwrap();
                 });
             })
 

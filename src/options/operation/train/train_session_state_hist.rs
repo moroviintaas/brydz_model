@@ -19,7 +19,7 @@ use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet};
 use karty::hand::CardSet;
-use sztorm::{AgentAuto, InformationSet, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
+use sztorm::{AutomaticAgent, InformationSet, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
@@ -56,19 +56,19 @@ pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardT
             ready_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
-            ready_declarer.run_rr().unwrap();
+            ready_declarer.run().unwrap();
         });
 
         s.spawn(||{
-            ready_whist.run_rr().unwrap();
+            ready_whist.run().unwrap();
         });
 
         s.spawn(||{
-            ready_offside.run_rr().unwrap();
+            ready_offside.run().unwrap();
         });
 
         s.spawn(||{
-            ready_dummy.run_rr().unwrap();
+            ready_dummy.run().unwrap();
         });
     });
 
@@ -171,6 +171,7 @@ fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(con
 
 }
 
+#[allow(clippy::too_many_arguments)]
 fn renew_world2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
@@ -207,13 +208,13 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
 
     let mut geo = Geometric::new(0.25).unwrap();
 
-    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
 
-    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
 
@@ -302,13 +303,13 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> +
 
     let card_deal = fair_bridge_deal();//card_distribution.sample(&mut rng);
 
-    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let mut policy_declarer_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let mut policy_whist_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let mut policy_offside_ref = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
 
-    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, &sequential_gen));
-    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, &sequential_gen));
+    let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
+    let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
 
