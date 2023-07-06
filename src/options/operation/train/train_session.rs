@@ -23,7 +23,7 @@ use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
 use sztorm::{AgentAuto, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;
@@ -67,7 +67,7 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
 
     thread::scope(|s|{
         s.spawn(||{
-            ready_env.run_rr().unwrap();
+            ready_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
             ready_declarer.run_rr().unwrap();

@@ -20,7 +20,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet};
 use karty::hand::CardSet;
 use sztorm::{AgentAuto, InformationSet, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::DistinctAgent;
@@ -53,7 +53,7 @@ pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardT
 
     thread::scope(|s|{
         s.spawn(||{
-            ready_env.run_rr().unwrap();
+            ready_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
             ready_declarer.run_rr().unwrap();

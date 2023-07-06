@@ -11,7 +11,7 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm::{AgentAuto, RandomPolicy};
@@ -43,7 +43,7 @@ pub fn tur_sim_tcp(){
 
             let env_initial_state = ContractEnvStateMin::new(initial_contract.clone(),None);
             let mut simple_env = ContractEnv::new(env_initial_state, comm_assotiation);
-            simple_env.run_rr().unwrap();
+            simple_env.run_round_robin_uni_rewards().unwrap();
         });
 
 

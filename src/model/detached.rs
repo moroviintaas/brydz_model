@@ -1,7 +1,7 @@
 use std::thread;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use sztorm::AgentAuto;
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::options::operation::{DummyAgent, SimpleEnv};
 
 pub fn single_play<D: AgentAuto<ContractProtocolSpec> + Send,
@@ -14,7 +14,7 @@ OFFSIDE: AgentAuto<ContractProtocolSpec>+ Send>(ready_env: &mut SimpleEnv,
 
     thread::scope(|s|{
         s.spawn(||{
-            ready_env.run_rr().unwrap();
+            ready_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
             ready_declarer.run_rr().unwrap();

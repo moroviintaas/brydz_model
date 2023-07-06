@@ -11,7 +11,7 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
 use sztorm::{AgentAuto, AgentGen, RandomPolicy};
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
@@ -45,7 +45,7 @@ pub fn tur_sim(){
 
     thread::scope(|s|{
         s.spawn(||{
-            simple_env.run_rr().unwrap();
+            simple_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
             agent_east.run_rr().unwrap();
