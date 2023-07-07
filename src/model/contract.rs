@@ -5,8 +5,8 @@ use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::ContractProcessor;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
-use sztorm::automatons::rr::{RoundRobinModel, RoundRobinModelBuilder};
-use sztorm::{AgentGen, RandomPolicy};
+use sztorm::agent::{AgentGen, RandomPolicy};
+use sztorm::env::{RoundRobinModel, RoundRobinModelBuilder};
 use sztorm::error::{CommError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm1024};
@@ -26,7 +26,14 @@ pub(crate) fn contract_process_action(mut state: ContractEnvStateMin, agent_id: 
 }
 */
 pub(crate) type LocalModelContract<ProcessAction> =
-RoundRobinModel<ContractProtocolSpec, ContractEnvStateMin, ProcessAction, ComplexComm1024<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>>;
+RoundRobinModel<
+    ContractProtocolSpec,
+    ContractEnvStateMin,
+    ProcessAction,
+    ComplexComm1024<
+        EnvMessage<ContractProtocolSpec>,
+        AgentMessage<ContractProtocolSpec>,
+        CommError<ContractProtocolSpec>>>;
 
 pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract<ContractProcessor>, BrydzSimError>{
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();

@@ -10,8 +10,8 @@ use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AutomaticAgent, AgentGen, RandomPolicy};
-use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
+use sztorm::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use sztorm::env::RoundRobinUniversalEnvironment;
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());

@@ -1,7 +1,7 @@
 use std::thread;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use sztorm::AutomaticAgent;
-use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
+use sztorm::agent::AutomaticAgent;
+use sztorm::env::RoundRobinUniversalEnvironment;
 use crate::options::operation::{DummyAgent, SimpleEnv};
 
 pub fn single_play<D: AutomaticAgent<ContractProtocolSpec> + Send,

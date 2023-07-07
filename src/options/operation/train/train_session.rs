@@ -22,14 +22,14 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
 use karty::suits::Suit;
-use sztorm::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, StatefulEnvironment, TracingAgent};
-use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
 use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
 use tch::Kind::Float;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
+use sztorm::agent::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, TracingAgent};
+use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::model::single_play;
 
 const LEARNING_RATE: f64 = 1e-4;
