@@ -13,7 +13,7 @@ use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 use brydz_core::player::side::Side::{East, North, South, West};
 use brydz_core::player::side::SideMap;
-use brydz_core::sztorm::agent::ContractAgent;
+use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
@@ -23,19 +23,19 @@ use sztorm::agent::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, Tr
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 
 use crate::options::operation::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
 const LEARNING_RATE: f64 = 1e-4;
 
-pub(crate) type QNetStateHistAgent<St> = ContractAgent<St, ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
-pub(crate) type DummyAgent2 = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
+pub(crate) type QNetStateHistAgent<St> = TracingContractAgent<St, ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
+pub(crate) type DummyAgent2 = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 
 
-pub fn train_episode_state_hist<St: InformationSet<ContractProtocolSpec, RewardType=u32> + BuildStateHistoryTensor + Send>(
+pub fn train_episode_state_hist<St: ScoringInformationSet<ContractProtocolSpec, RewardType=u32> + BuildStateHistoryTensor + Send>(
     ready_env: &mut SimpleEnv2,
     ready_declarer: &mut QNetStateHistAgent<St>,
     ready_whist: &mut QNetStateHistAgent<St>,

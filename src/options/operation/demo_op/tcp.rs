@@ -5,7 +5,7 @@ use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
-use brydz_core::sztorm::agent::ContractAgent;
+use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
@@ -74,10 +74,10 @@ pub fn tur_sim_tcp(){
             let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
             let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
-            let mut agent_east = ContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
-            let mut agent_south = ContractAgent::new(initial_state_south, comm_south, random_policy.clone() );
-            let mut agent_west = ContractAgent::new(initial_state_west, comm_west, policy_dummy);
-            let mut agent_north = ContractAgent::new(initial_state_north, comm_north, random_policy );
+            let mut agent_east = TracingContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
+            let mut agent_south = TracingContractAgent::new(initial_state_south, comm_south, random_policy.clone() );
+            let mut agent_west = TracingContractAgent::new(initial_state_west, comm_west, policy_dummy);
+            let mut agent_north = TracingContractAgent::new(initial_state_north, comm_north, random_policy );
 
             thread::scope(|s|{
                 s.spawn(||{

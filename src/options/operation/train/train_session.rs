@@ -14,7 +14,7 @@ use brydz_core::deal::fair_bridge_deal;
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
-use brydz_core::sztorm::agent::ContractAgent;
+use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::{ContractEnv};
 use brydz_core::sztorm::spec::ContractProtocolSpec;
@@ -45,9 +45,9 @@ pub(crate) fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSi
     })
 }
 
-pub(crate) type SimpleQnetAgent = ContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
+pub(crate) type SimpleQnetAgent = TracingContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
 
-pub(crate) type DummyAgent  = ContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
+pub(crate) type DummyAgent  = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
 pub(crate) type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 pub fn train_on_single_game(ready_env: &mut SimpleEnv,
