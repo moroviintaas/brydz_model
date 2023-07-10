@@ -160,9 +160,9 @@ fn renew_world(contract_params: ContractParameters, cards: SideMap<CardSet>,
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(ContractAgentInfoSetSimple::new(*declarer.id(), cards[declarer.id()], contract.clone(), None));
-    whist.reset_state_and_trace(ContractAgentInfoSetSimple::new(*whist.id(), cards[whist.id()], contract.clone(), None));
-    offside.reset_state_and_trace(ContractAgentInfoSetSimple::new(*offside.id(), cards[offside.id()], contract.clone(), None));
+    declarer.reset_state_and_trace(ContractAgentInfoSetSimple::new(declarer.id(), cards[&declarer.id()], contract.clone(), None));
+    whist.reset_state_and_trace(ContractAgentInfoSetSimple::new(whist.id(), cards[&whist.id()], contract.clone(), None));
+    offside.reset_state_and_trace(ContractAgentInfoSetSimple::new(offside.id(), cards[&offside.id()], contract.clone(), None));
     dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
     //declarer.reset_trace();
     //whist.reset_trace();

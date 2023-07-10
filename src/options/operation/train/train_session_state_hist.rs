@@ -17,7 +17,7 @@ use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractProtocolSpec;
-use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet};
+use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
 use sztorm::agent::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, TracingAgent};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
@@ -35,7 +35,11 @@ pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncCom
 
 
 
-pub fn train_episode_state_hist<St: ScoringInformationSet<ContractProtocolSpec, RewardType=u32> + BuildStateHistoryTensor + Send>(
+pub fn train_episode_state_hist<
+    St: ScoringInformationSet<ContractProtocolSpec,
+        RewardType=u32> + BuildStateHistoryTensor
+    + StateWithSide
+    + Send>(
     ready_env: &mut SimpleEnv2,
     ready_declarer: &mut QNetStateHistAgent<St>,
     ready_whist: &mut QNetStateHistAgent<St>,
@@ -103,7 +107,7 @@ pub fn train_episode_state_hist<St: ScoringInformationSet<ContractProtocolSpec, 
 
 }
 
-fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(
+fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -126,7 +130,8 @@ fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(
     Ok(SideMap::new(sum_north_south, sum_east_west, sum_north_south, sum_east_west))
 }
 
-fn run_test_set2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(
+fn run_test_set2_with_assumption<
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -154,16 +159,18 @@ fn run_test_set2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryT
 }
 
 
-fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(contract_params: ContractParameters, cards: SideMap<CardSet>,
+fn renew_world2<
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send
+>(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
                dummy: &mut DummyAgent2) -> Result<(), BrydzSimError>{
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, Default::default()));
-    whist.reset_state_and_trace(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, Default::default()));
-    offside.reset_state_and_trace(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, Default::default()));
+    declarer.reset_state_and_trace(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
+    whist.reset_state_and_trace(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
+    offside.reset_state_and_trace(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
     dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
@@ -172,16 +179,18 @@ fn renew_world2<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(con
 }
 
 #[allow(clippy::too_many_arguments)]
-fn renew_world2_with_assumption<St: CreatedContractInfoSet + BuildStateHistoryTensor + Send>(contract_params: ContractParameters, cards: SideMap<CardSet>,
+fn renew_world2_with_assumption<
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send
+>(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
                dummy: &mut DummyAgent2, distribution_assumption: BiasedHandDistribution) -> Result<(), BrydzSimError>{
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(St::create_new(*declarer.id(), cards[declarer.id()], contract.clone(), None, distribution_assumption.clone()));
-    whist.reset_state_and_trace(St::create_new(*whist.id(), cards[whist.id()], contract.clone(), None, distribution_assumption.clone()));
-    offside.reset_state_and_trace(St::create_new(*offside.id(), cards[offside.id()], contract.clone(), None, distribution_assumption));
+    declarer.reset_state_and_trace(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.reset_state_and_trace(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.reset_state_and_trace(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
     dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
