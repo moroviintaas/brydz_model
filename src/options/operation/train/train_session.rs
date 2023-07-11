@@ -28,7 +28,7 @@ use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
 use tch::Kind::Float;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
-use sztorm::agent::{AutomaticAgent, DistinctAgent, PolicyAgent, RandomPolicy, TracingAgent};
+use sztorm::agent::{Agent, AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent};
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::model::single_play;
 
