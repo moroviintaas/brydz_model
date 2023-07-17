@@ -1,7 +1,7 @@
 use log::debug;
 use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ ContractAction, ContractAgentInfoSetSimple};
 use sztorm::agent::Policy;
 use sztorm::state::agent::InformationSet;
@@ -54,22 +54,12 @@ impl SyntheticContractQNetSimple {
     pub fn optimizer_mut(&mut self) -> &mut Optimizer{
         &mut self.optimiser
     }
-}/*
-impl QFunction<ContractProtocolSpec> for ContractQNetSimple{
-    type StateType = ContractAgentInfoSetSimple;
-    type QValue = f32;
-
-    fn q_value(&self, state: &Self::StateType, action: &ContractAction) -> Result<Self::QValue, BridgeCoreError> {
-        let in_array_state:[f32; CONTRACT_STATE_SIZE as usize] = state.into();
-        let in_array_action: [f32; CONTRACT_ACTION_SIZE as usize] = action.into();
-        let mut vec = Vec::from(in_array_state).append(&mut Vec::from(in_array_action));
-    }
-}*/
+}
 
 
 
 
-impl Policy<ContractProtocolSpec> for SyntheticContractQNetSimple {
+impl Policy<ContractDP> for SyntheticContractQNetSimple {
     type StateType = ContractAgentInfoSetSimple;
 
     fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
@@ -112,15 +102,6 @@ impl Policy<ContractProtocolSpec> for SyntheticContractQNetSimple {
         })*/
     }
 }
-
-/*
-pub struct ContractQNet {
-    pub model: Model,
-    pub var_store: VarStore,
-    pub device: Device,
-    optimiser: Optimizer,
-
-}*/
 
 
 

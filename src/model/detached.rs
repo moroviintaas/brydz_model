@@ -1,16 +1,16 @@
 use std::thread;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use sztorm::agent::AutomaticAgent;
 use sztorm::env::RoundRobinUniversalEnvironment;
 use crate::options::operation::{DummyAgent, SimpleEnv};
 
-pub fn single_play<D: AutomaticAgent<ContractProtocolSpec> + Send,
-WHIST: AutomaticAgent<ContractProtocolSpec>+ Send,
-OFFSIDE: AutomaticAgent<ContractProtocolSpec>+ Send>(ready_env: &mut SimpleEnv,
-                                                     ready_declarer: &mut D,
-                                                     ready_whist: &mut WHIST,
-                                                     ready_offside: &mut OFFSIDE,
-                                                     ready_dummy: &mut DummyAgent){
+pub fn single_play<D: AutomaticAgent<ContractDP> + Send,
+WHIST: AutomaticAgent<ContractDP>+ Send,
+OFFSIDE: AutomaticAgent<ContractDP>+ Send>(ready_env: &mut SimpleEnv,
+                                           ready_declarer: &mut D,
+                                           ready_whist: &mut WHIST,
+                                           ready_offside: &mut OFFSIDE,
+                                           ready_dummy: &mut DummyAgent){
 
     thread::scope(|s|{
         s.spawn(||{

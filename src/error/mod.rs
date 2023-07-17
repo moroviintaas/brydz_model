@@ -4,7 +4,7 @@ mod simulation;
 use tch::TchError;
 //use tensorflow::{SaveModelError, Status};
 use brydz_core::error::BridgeCoreError;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 pub use gen::*;
 pub use simulation::*;
 use sztorm::error::{SetupError, SztormError};
@@ -21,7 +21,7 @@ pub enum BrydzSimError{
     //#[error("Error during playing game: {0}")]
     //Game(BridgeCoreError),
     #[error("Error in Sztorm framework: {0}")]
-    Sztorm(SztormError<ContractProtocolSpec>),
+    Sztorm(SztormError<ContractDP>),
     //#[error("Tensorflow Error {0}")]
     //TensorflowStatus(Status),
     //#[error("SaveModel Error {0}")]
@@ -38,14 +38,14 @@ impl From<BridgeCoreError> for BrydzSimError{
 }
 
 
-impl From<SztormError<ContractProtocolSpec>> for BrydzSimError{
-    fn from(value: SztormError<ContractProtocolSpec>) -> Self {
+impl From<SztormError<ContractDP>> for BrydzSimError{
+    fn from(value: SztormError<ContractDP>) -> Self {
         Self::Sztorm(value)
     }
 }
 
-impl From<SetupError<ContractProtocolSpec>> for BrydzSimError{
-    fn from(value: SetupError<ContractProtocolSpec>) -> Self {
+impl From<SetupError<ContractDP>> for BrydzSimError{
+    fn from(value: SetupError<ContractDP>) -> Self {
         Sztorm(SztormError::Setup(value))
     }
 }

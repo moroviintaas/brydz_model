@@ -1,12 +1,12 @@
 use rand::{Rng, thread_rng};
 use brydz_core::deal::BiasedHandDistribution;
 use brydz_core::player::side::Side::North;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use karty::cards::ACE_SPADES;
 use karty::hand::HandTrait;
 use sztorm::error::SztormError;
 
-pub fn test_sample_biased_deal_crossing() -> Result<(), SztormError<ContractProtocolSpec>>{
+pub fn test_sample_biased_deal_crossing() -> Result<(), SztormError<ContractDP>>{
     let mut trng = thread_rng();
     let distribution: BiasedHandDistribution = trng.gen();
     let tries = 10000;
@@ -44,7 +44,7 @@ pub fn test_sample_biased_deal_crossing() -> Result<(), SztormError<ContractProt
 
 }
 
-pub fn test_sample_biased_deal_single() -> Result<(), SztormError<ContractProtocolSpec>>{
+pub fn test_sample_biased_deal_single() -> Result<(), SztormError<ContractDP>>{
     let mut trng = thread_rng();
     let distribution: BiasedHandDistribution = trng.gen();
     let tries = 10000;

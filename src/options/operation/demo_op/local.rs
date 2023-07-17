@@ -6,7 +6,7 @@ use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
 use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
@@ -35,8 +35,8 @@ pub fn tur_sim(){
     let initial_state_north = ContractAgentInfoSetSimple::new(Side::North, hand_north, initial_contract, None);
 
 
-    let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
     let mut agent_east = AgentGen::new(Side::East, initial_state_east, comm_east, random_policy.clone() );
     let mut agent_south = AgentGen::new(Side::South, initial_state_south, comm_south, random_policy.clone() );

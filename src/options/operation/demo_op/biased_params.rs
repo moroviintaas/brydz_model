@@ -1,11 +1,11 @@
 use rand::{Rng, thread_rng};
 use brydz_core::deal::BiasedHandDistribution;
 use brydz_core::player::side::Side::North;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use karty::cards::ACE_SPADES;
 use sztorm::error::SztormError;
 
-pub fn test_sample_biased_distribution_parameters() -> Result<(), SztormError<ContractProtocolSpec>>{
+pub fn test_sample_biased_distribution_parameters() -> Result<(), SztormError<ContractDP>>{
     //setup_logger(LevelFilter::Debug, &None).unwrap();
 
     let mut trng = thread_rng();

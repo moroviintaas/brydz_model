@@ -2,8 +2,7 @@ use brydz_core::contract::{Contract};
 use brydz_core::player::side::{SideMap};
 
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::env::ContractProcessor;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use sztorm::agent::{AgentGen, RandomPolicy};
 use sztorm::env::{RoundRobinModel, RoundRobinModelBuilder};
@@ -12,30 +11,17 @@ use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm1024};
 use crate::error::{BrydzSimError};
 use crate::SimContractParams;
-/*
-pub(crate) fn contract_process_action(mut state: ContractEnvStateMin, agent_id: Side, action: ContractAction)
-                                      -> Result<Vec<(Side, ContractStateUpdate)>, SetupError<ContractProtocolSpec>>{
-    let state_update =
-            if state.is_turn_of_dummy() && Some(agent_id) == state.current_player(){
-                ContractStateUpdate::new(state.dummy_side(), action)
-            } else {
-                ContractStateUpdate::new(agent_id.to_owned(), action)
-            };
-            state.update(state_update)?;
-            Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
-}
-*/
-pub(crate) type LocalModelContract<ProcessAction> =
-RoundRobinModel<
-    ContractProtocolSpec,
-    ContractEnvStateMin,
-    ProcessAction,
-    ComplexComm1024<
-        EnvMessage<ContractProtocolSpec>,
-        AgentMessage<ContractProtocolSpec>,
-        CommError<ContractProtocolSpec>>>;
 
-pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract<ContractProcessor>, BrydzSimError>{
+pub(crate) type LocalModelContract =
+RoundRobinModel<
+    ContractDP,
+    ContractEnvStateMin,
+    ComplexComm1024<
+        EnvMessage<ContractDP>,
+        AgentMessage<ContractDP>,
+        CommError<ContractDP>>>;
+
+pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract, BrydzSimError>{
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
     let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();
@@ -60,8 +46,8 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
     let initial_state_def2 = ContractAgentInfoSetSimple::new(def2, card_deal[&def2], initial_contract.clone(), None);
 
     //policy select
-    let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
     let (comm_declarer, comm_def1, comm_dummy, comm_def2) = agent_comm_map.destruct_start_with(declarer);
     let (comm_env_declarer, comm_env_def1, comm_env_dummy, comm_env_def2) = env_comm_map.destruct_start_with(declarer);
@@ -73,7 +59,6 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
 
     let model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .with_env_action_process_fn(ContractProcessor{})?
         .with_local_agent(Box::new(agent_declarer), ComplexComm1024::StdSync(comm_env_declarer))?
         .with_local_agent(Box::new(agent_def1), ComplexComm1024::StdSync(comm_env_def1))?
         .with_local_agent(Box::new(agent_dummy), ComplexComm1024::StdSync(comm_env_dummy))?

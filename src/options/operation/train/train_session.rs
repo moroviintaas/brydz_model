@@ -17,7 +17,7 @@ use brydz_core::player::side::Side::*;
 use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::{ContractEnv};
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
@@ -47,7 +47,7 @@ pub(crate) fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSi
 
 pub(crate) type SimpleQnetAgent = TracingContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
 
-pub(crate) type DummyAgent  = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
+pub(crate) type DummyAgent  = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
 pub(crate) type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 pub fn train_on_single_game(ready_env: &mut SimpleEnv,
@@ -196,7 +196,7 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
     let policy_declarer = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE));
     let policy_whist = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE));
     let policy_offside = EEPolicy::new(SyntheticContractQNetSimple::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE));
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
 
 

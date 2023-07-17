@@ -5,8 +5,7 @@ use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::Side;
 use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::env::ContractProcessor;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
@@ -16,7 +15,7 @@ use sztorm::error::SztormError;
 use sztorm_net_ext::ComplexComm2048;
 use crate::SyntheticContractQNetSimple;
 
-pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolSpec>>{
+pub fn test_with_untrained_network() -> Result<(), SztormError<ContractDP>>{
 
     let vs_east = VarStore::new(tch::Device::Cpu);
 
@@ -43,8 +42,8 @@ pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolS
     let initial_state_west = ContractDummyState::new(Side::West, hand_west, initial_contract.clone());
     let initial_state_north = ContractAgentInfoSetSimple::new(Side::North, hand_north, initial_contract.clone(), None);
 
-    let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
     let agent_east = AgentGen::new(Side::East, initial_state_east, comm_east, policy_east);
     let agent_south = AgentGen::new(Side::South, initial_state_south, comm_south, random_policy.clone() );
@@ -54,7 +53,6 @@ pub fn test_with_untrained_network() -> Result<(), SztormError<ContractProtocolS
 
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .with_env_action_process_fn(ContractProcessor{})?
         .with_local_agent(Box::new(agent_east), ComplexComm2048::StdSync(comm_env_east))?
         .with_local_agent(Box::new(agent_south), ComplexComm2048::StdSync(comm_env_south))?
         .with_local_agent(Box::new(agent_west), ComplexComm2048::StdSync(comm_env_west))?

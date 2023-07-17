@@ -16,7 +16,7 @@ use brydz_core::player::side::SideMap;
 use brydz_core::sztorm::agent::TracingContractAgent;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
 use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent};
@@ -30,13 +30,13 @@ use crate::options::operation::{load_var_store, random_contract_params, Sequenti
 const LEARNING_RATE: f64 = 1e-4;
 
 pub(crate) type QNetStateHistAgent<St> = TracingContractAgent<St, ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
-pub(crate) type DummyAgent2 = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractProtocolSpec, ContractDummyState>>;
+pub(crate) type DummyAgent2 = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
 pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 
 
 pub fn train_episode_state_hist<
-    St: ScoringInformationSet<ContractProtocolSpec,
+    St: ScoringInformationSet<ContractDP,
         RewardType=u32> + BuildStateHistoryTensor
     + StateWithSide
     + Send>(
@@ -198,7 +198,7 @@ fn renew_world2_with_assumption<
 
 }
 
-pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHistoryTensor + Send>(
+pub fn train_session2<St: InformationSet<ContractDP> + BuildStateHistoryTensor + Send>(
     train_options: &TrainOptions,
     sequential_gen: &SequentialB) -> Result<(), BrydzSimError>{
     let mut rng = thread_rng();
@@ -224,7 +224,7 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
     let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
 
 
@@ -288,7 +288,7 @@ pub fn train_session2<St: InformationSet<ContractProtocolSpec> + BuildStateHisto
 }
 
 
-pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> + BuildStateHistoryTensor + Send>(
+pub fn train_session2_with_assumption<St: InformationSet<ContractDP> + BuildStateHistoryTensor + Send>(
     train_options: &TrainOptions,
     sequential_gen: &SequentialB) -> Result<(), BrydzSimError>{
     let mut rng = thread_rng();
@@ -319,7 +319,7 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractProtocolSpec> +
     let policy_declarer = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.declarer_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_whist = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.whist_load.as_ref())?, LEARNING_RATE, sequential_gen));
     let policy_offside = EEPolicy::new(ContractStateHistQPolicy::new(load_var_store(train_options.offside_load.as_ref())?, LEARNING_RATE, sequential_gen));
-    let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
+    let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
 
 

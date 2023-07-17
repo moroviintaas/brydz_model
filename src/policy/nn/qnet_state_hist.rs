@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 use log::debug;
 use tch::{Device, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
-use brydz_core::sztorm::spec::ContractProtocolSpec;
+use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction};
 use sztorm::agent::Policy;
 use sztorm::state::agent::InformationSet;
@@ -16,7 +16,7 @@ pub const CONTRACT_Q_INPUT_STATE_HIST_SPARSE: i64 = CONTRACT_STATE_HISTORY_SIZE 
 
 pub trait SequentialBuilder: Fn(&Path) -> Sequential{}
 
-pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>>{
+pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<ContractDP>>{
     model: Model,
     var_store: VarStore,
     device: Device,
@@ -24,7 +24,7 @@ pub struct ContractStateHistQPolicy<S: BuildStateHistoryTensor + InformationSet<
     state: PhantomData<S>,
 }
 
-impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>> ContractStateHistQPolicy<S>{
+impl<S: BuildStateHistoryTensor + InformationSet<ContractDP>> ContractStateHistQPolicy<S>{
     pub fn new(var_store: VarStore, learning_rate: f64, seq_gen: &SequentialB) -> Self{
         let optimizer = Adam::default().build(&var_store, learning_rate)
             .expect("Error creating optimiser");
@@ -47,8 +47,8 @@ impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>> Contract
 }
 
 
-impl<S: BuildStateHistoryTensor + InformationSet<ContractProtocolSpec>>
-Policy<ContractProtocolSpec> for ContractStateHistQPolicy<S>
+impl<S: BuildStateHistoryTensor + InformationSet<ContractDP>>
+Policy<ContractDP> for ContractStateHistQPolicy<S>
 //where <<S as InformationSet<ContractProtocolSpec>>::ActionIteratorType as IntoIterator>::Item: Debug
 {
     type StateType = S;
@@ -63,10 +63,12 @@ Policy<ContractProtocolSpec> for ContractStateHistQPolicy<S>
             let input_tensor = Tensor::cat(&[&in_array_state, &action_tensor], 0);
 
             //let tensor = Tensor::from(&q_input[..]);
+            debug!("state_tensor: {:?} action_tensor: {:?}, joint: {:?}", &in_array_state, &action_tensor, input_tensor);
+            let r =  tch::no_grad(||{(self.model)(&input_tensor)});
+            debug!("q_funced tensor: {:?}", r);
+            let v:Vec<f32> =r.try_into().unwrap();
 
-            let v:Vec<f32> = tch::no_grad(||{(self.model)(&input_tensor)}).get(0).try_into().unwrap();
-
-            let current_q = v[0];
+            let current_q: f32 = v[0];
             debug!("Action {:?} checked with q value: {}", action, current_q);
             match current_best_action{
                 None=>{
