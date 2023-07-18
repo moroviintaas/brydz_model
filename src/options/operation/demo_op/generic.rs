@@ -71,10 +71,10 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractDP>>{
 
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .with_local_agent(Box::new(agent_east), ComplexComm2048::StdSync(comm_env_east))?
+        .add_local_agent(Box::new(agent_east), ComplexComm2048::StdSync(comm_env_east))?
         //.with_local_agent(Box::new(agent_south), agent_comm_south)?
-        .with_local_agent(Box::new(agent_west), ComplexComm2048::StdSync(comm_env_west))?
-        .with_local_agent(Box::new(agent_north), ComplexComm2048::StdSync(comm_env_north))?
+        .add_local_agent(Box::new(agent_west), ComplexComm2048::StdSync(comm_env_west))?
+        .add_local_agent(Box::new(agent_north), ComplexComm2048::StdSync(comm_env_north))?
         .with_remote_agent(Side::South, env_comm_south)?
         .build()?;
 
