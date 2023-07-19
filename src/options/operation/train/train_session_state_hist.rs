@@ -78,8 +78,8 @@ pub fn train_episode_state_hist<
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
-        for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().trace().len()).rev(){
-            let (state, action, reward ) =  &agent.game_trajectory().trace()[i].borrowed_tuple();
+        for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().list().len()).rev(){
+            let (state, action, reward ) =  &agent.game_trajectory().list()[i].borrowed_tuple();
             //accumulated_reward += &Into::<f32>::into(reward);
             accumulated_reward += **reward as f32;//f32::from(reward);
             debug!("Applying train vector for {} (accumulated reward: {})", agent.id(), accumulated_reward);

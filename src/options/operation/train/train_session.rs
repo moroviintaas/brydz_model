@@ -88,8 +88,8 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
 
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
-        for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().trace().len()).rev(){
-            let (state, action, reward ) =  &agent.game_trajectory().trace()[i].borrowed_tuple();
+        for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().list().len()).rev(){
+            let (state, action, reward ) =  &agent.game_trajectory().list()[i].borrowed_tuple();
             accumulated_reward += **reward as f32;
             let t = tch::Tensor::from(*state);
             let ta = tch::Tensor::from(*action);
