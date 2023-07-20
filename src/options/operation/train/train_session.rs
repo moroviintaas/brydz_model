@@ -28,7 +28,7 @@ use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
 use tch::Kind::Float;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
-use sztorm::agent::{Agent, AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent};
+use sztorm::agent::{Agent, AutomaticAgent, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::model::single_play;
 
@@ -45,9 +45,9 @@ pub(crate) fn load_var_store(path: Option<&PathBuf>) -> Result<VarStore, BrydzSi
     })
 }
 
-pub(crate) type SimpleQnetAgent = TracingContractAgent<ContractAgentInfoSetSimple, ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
+pub(crate) type SimpleQnetAgent = TracingContractAgent<ContractAgentSyncComm, EEPolicy<SyntheticContractQNetSimple>>;
 
-pub(crate) type DummyAgent  = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
+pub(crate) type DummyAgent  = TracingContractAgent<ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
 pub(crate) type SimpleEnv = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 pub fn train_on_single_game(ready_env: &mut SimpleEnv,
@@ -89,10 +89,10 @@ pub fn train_on_single_game(ready_env: &mut SimpleEnv,
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
         for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().list().len()).rev(){
-            let (state, action, reward ) =  &agent.game_trajectory().list()[i].borrowed_tuple();
-            accumulated_reward += **reward as f32;
-            let t = tch::Tensor::from(*state);
-            let ta = tch::Tensor::from(*action);
+            let (state, action, reward ) =  agent.game_trajectory().list()[i].s_a_r_subjective();
+            accumulated_reward += reward as f32;
+            let t = tch::Tensor::from(state);
+            let ta = tch::Tensor::from(action);
             let input = tch::Tensor::cat(&[t,ta], 0);
 
             //let optimiser = agent.policy_mut().internal_policy_mut().optimizer_mut();
@@ -160,10 +160,10 @@ fn renew_world(contract_params: ContractParameters, cards: SideMap<CardSet>,
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(ContractAgentInfoSetSimple::new(declarer.id(), cards[&declarer.id()], contract.clone(), None));
-    whist.reset_state_and_trace(ContractAgentInfoSetSimple::new(whist.id(), cards[&whist.id()], contract.clone(), None));
-    offside.reset_state_and_trace(ContractAgentInfoSetSimple::new(offside.id(), cards[&offside.id()], contract.clone(), None));
-    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reset(ContractAgentInfoSetSimple::new(declarer.id(), cards[&declarer.id()], contract.clone(), None));
+    whist.reset(ContractAgentInfoSetSimple::new(whist.id(), cards[&whist.id()], contract.clone(), None));
+    offside.reset(ContractAgentInfoSetSimple::new(offside.id(), cards[&offside.id()], contract.clone(), None));
+    dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
     //declarer.reset_trace();
     //whist.reset_trace();
     //offside.reset_trace();
@@ -215,10 +215,10 @@ pub fn train_session(train_options: &TrainOptions) -> Result<(), BrydzSimError>{
     let initial_state_dummy = ContractDummyState::new(declarer_side.partner(), card_deal[&South], contract.clone());
     let env_state = ContractEnvStateMin::new(contract, None);
 
-    let mut declarer = SimpleQnetAgent::new(initial_state_declarer, comm_north, policy_declarer);
-    let mut whist = SimpleQnetAgent::new(initial_state_whist, comm_east, policy_whist);
-    let mut offside = SimpleQnetAgent::new(initial_state_offside, comm_west, policy_offside);
-    let mut dummy = DummyAgent::new(initial_state_dummy, comm_south, policy_dummy);
+    let mut declarer = SimpleQnetAgent::new(North, initial_state_declarer, comm_north, policy_declarer);
+    let mut whist = SimpleQnetAgent::new(East, initial_state_whist, comm_east, policy_whist);
+    let mut offside = SimpleQnetAgent::new(West, initial_state_offside, comm_west, policy_offside);
+    let mut dummy = DummyAgent::new(South , initial_state_dummy, comm_south, policy_dummy);
 
     let mut env = SimpleEnv::new(env_state, comm_association);
 

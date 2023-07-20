@@ -19,7 +19,7 @@ use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent};
+use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
@@ -29,8 +29,8 @@ use crate::options::operation::{load_var_store, random_contract_params, Sequenti
 
 const LEARNING_RATE: f64 = 1e-4;
 
-pub(crate) type QNetStateHistAgent<St> = TracingContractAgent<St, ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
-pub(crate) type DummyAgent2 = TracingContractAgent<ContractDummyState, ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
+pub(crate) type QNetStateHistAgent<St> = TracingContractAgent<ContractAgentSyncComm, EEPolicy<ContractStateHistQPolicy<St>>>;
+pub(crate) type DummyAgent2 = TracingContractAgent<ContractAgentSyncComm, RandomPolicy<ContractDP, ContractDummyState>>;
 pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncComm>;
 
 
@@ -79,9 +79,9 @@ pub fn train_episode_state_hist<
     for agent in [ready_declarer, ready_whist, ready_offside ]{
         let mut accumulated_reward = 0.0;
         for i in (agent.policy().exploitation_start() as usize.. agent.game_trajectory().list().len()).rev(){
-            let (state, action, reward ) =  &agent.game_trajectory().list()[i].borrowed_tuple();
+            let (state, action, reward ) = agent.game_trajectory().list()[i].s_a_r_subjective();
             //accumulated_reward += &Into::<f32>::into(reward);
-            accumulated_reward += **reward as f32;//f32::from(reward);
+            accumulated_reward += reward as f32;//f32::from(reward);
             debug!("Applying train vector for {} (accumulated reward: {})", agent.id(), accumulated_reward);
             let t = state.state_history_tensor().f_flatten(0,1).unwrap();
             let ta = Tensor::from_slice(&action.sparse_representation());
@@ -168,10 +168,10 @@ fn renew_world2<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
-    whist.reset_state_and_trace(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
-    offside.reset_state_and_trace(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
-    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reset(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
+    whist.reset(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
+    offside.reset(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
+    dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())
@@ -188,10 +188,10 @@ fn renew_world2_with_assumption<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset_state_and_trace(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
-    whist.reset_state_and_trace(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
-    offside.reset_state_and_trace(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
-    dummy.reset_state_and_trace(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reset(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.reset(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.reset(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
+    dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())
@@ -243,10 +243,10 @@ pub fn train_session2<St: InformationSet<ContractDP> + BuildStateHistoryTensor +
     let initial_state_dummy = ContractDummyState::new(declarer_side.partner(), card_deal[&South], contract.clone());
     let env_state = ContractEnvStateMin::new(contract, None);
 
-    let mut declarer = QNetStateHistAgent::new(initial_state_declarer, comm_north, policy_declarer);
-    let mut whist = QNetStateHistAgent::new(initial_state_whist, comm_east, policy_whist);
-    let mut offside = QNetStateHistAgent::new(initial_state_offside, comm_west, policy_offside);
-    let mut dummy = DummyAgent2::new(initial_state_dummy, comm_south, policy_dummy);
+    let mut declarer = QNetStateHistAgent::new(North, initial_state_declarer, comm_north, policy_declarer);
+    let mut whist = QNetStateHistAgent::new(East, initial_state_whist, comm_east, policy_whist);
+    let mut offside = QNetStateHistAgent::new(West, initial_state_offside, comm_west, policy_offside);
+    let mut dummy = DummyAgent2::new(South,initial_state_dummy, comm_south, policy_dummy);
 
     let mut env = SimpleEnv2::new(env_state, comm_association);
 
@@ -338,10 +338,10 @@ pub fn train_session2_with_assumption<St: InformationSet<ContractDP> + BuildStat
     let initial_state_dummy = ContractDummyState::new(declarer_side.partner(), card_deal[&South], contract.clone());
     let env_state = ContractEnvStateMin::new(contract, None);
 
-    let mut declarer = QNetStateHistAgent::new(initial_state_declarer, comm_north, policy_declarer);
-    let mut whist = QNetStateHistAgent::new(initial_state_whist, comm_east, policy_whist);
-    let mut offside = QNetStateHistAgent::new(initial_state_offside, comm_west, policy_offside);
-    let mut dummy = DummyAgent2::new(initial_state_dummy, comm_south, policy_dummy);
+    let mut declarer = QNetStateHistAgent::new(North, initial_state_declarer, comm_north, policy_declarer);
+    let mut whist = QNetStateHistAgent::new(East, initial_state_whist, comm_east, policy_whist);
+    let mut offside = QNetStateHistAgent::new(West, initial_state_offside, comm_west, policy_offside);
+    let mut dummy = DummyAgent2::new(South, initial_state_dummy, comm_south, policy_dummy);
 
     let mut env = SimpleEnv2::new(env_state, comm_association);
 
