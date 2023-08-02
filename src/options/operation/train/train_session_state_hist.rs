@@ -37,7 +37,7 @@ pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncCom
 
 pub fn train_episode_state_hist<
     St: ScoringInformationSet<ContractDP,
-        RewardType=u32> + BuildStateHistoryTensor
+        RewardType=i32> + BuildStateHistoryTensor
     + StateWithSide
     + Send>(
     ready_env: &mut SimpleEnv2,
