@@ -51,7 +51,7 @@ fn main() -> Result<(), BrydzSimError> {
         Operation::Train(train_params) => {
             //train_session(train_params)
 
-            train_session2_with_assumption::<ContractAgentInfoSetSimple>(
+            /*train_session2_with_assumption::<ContractAgentInfoSetSimple>(
                 train_params,
                 &SequentialB::new(Box::new(|p | {
                     nn::seq().add(nn::linear(p/"i", CONTRACT_Q_INPUT_STATE_HIST_SPARSE, 1024, Default::default()))
@@ -59,6 +59,10 @@ fn main() -> Result<(), BrydzSimError> {
                         .add(nn::linear(p/"h2", 1024, 1, Default::default()))
                     }                    )
                 ))
+
+             */
+
+            todo!()
 
 
 
