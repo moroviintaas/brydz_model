@@ -4,12 +4,13 @@ use std::str::FromStr;
 
 
 use clap::Parser;
-use tch::nn;
-use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
 
 use brydz_simulator::error::BrydzSimError;
-use brydz_simulator::{CONTRACT_Q_INPUT_STATE_HIST_SPARSE, options};
-use brydz_simulator::options::operation::{Operation, SequentialB, sim2,  train_session2_with_assumption};
+use brydz_simulator::{
+    options};
+use brydz_simulator::options::operation::{Operation,
+                                          sim2,
+};
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
 

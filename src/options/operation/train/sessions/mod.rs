@@ -1,7 +1,6 @@
 mod simple;
 mod contract_session;
 
-use std::path::PathBuf;
 pub use contract_session::*;
 pub use simple::*;
 use crate::options::operation::TrainOptions;
