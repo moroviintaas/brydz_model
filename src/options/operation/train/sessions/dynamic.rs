@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter, Pointer};
 use smallvec::SmallVec;
-use brydz_core::contract::Contract;
-use brydz_core::deal::BiasedHandDistribution;
+use brydz_core::contract::{Contract, ContractParameters};
+use brydz_core::deal::{BiasedHandDistribution, DescriptionDeckDeal};
 use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::side::Side;
 use brydz_core::sztorm::{
@@ -21,6 +21,7 @@ use brydz_core::sztorm::state::{ContractAction, ContractDummyState, ContractInfo
 use karty::hand::CardSet;
 use sztorm::agent::{AgentGen, AgentGenT, RandomPolicy};
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
+use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::tensor_repr::{ConvertToTensor, ConvertToTensorD, ConvStateToTensor, WayFromTensor, WayToTensor};
 
@@ -38,7 +39,8 @@ type ContractA2CAgentLocal<ISW> = AgentGenT<
     ContractAgentSyncComm>;
 */
 //trait InfoSetCompl =
-pub struct ContractA2CAgentLocalGen<ISW: WayToTensor, S: ConvertToTensor<ISW> + CreatedContractInfoSet + Debug + Display + Clone>(
+pub struct ContractA2CAgentLocalGen<ISW: WayToTensor, S: ConvertToTensor<ISW>  + ScoringInformationSet<ContractDP> +
+ConstructedState<ContractDP, (Side, ContractParameters, DescriptionDeckDeal)> +  Debug + Display + Clone>(
     pub AgentGenT<
         ContractDP,
         ActorCriticPolicy<
@@ -55,7 +57,11 @@ pub struct ContractA2CAgentLocalGen<ISW: WayToTensor, S: ConvertToTensor<ISW> + 
         ContractAgentSyncComm,
     >
 );
-pub trait ContractInfoSetTraitJoined<ISW: WayToTensor>: ConvertToTensor<ISW> + CreatedContractInfoSet + Debug + Display{}
+pub trait ContractInfoSetTraitJoined<ISW: WayToTensor>:
+ConvertToTensor<ISW>
++ ConstructedState<ContractDP, (Side, ContractParameters, DescriptionDeckDeal)>
++ ScoringInformationSet<ContractDP>
++ Debug + Display{}
 
 
 
