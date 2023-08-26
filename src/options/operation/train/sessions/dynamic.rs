@@ -38,7 +38,7 @@ type ContractA2CAgentLocal<ISW> = AgentGenT<
     ContractAgentSyncComm>;
 */
 //trait InfoSetCompl =
-pub struct ContractA2CAgentLocalGen<ISW: WayToTensor, S: ConvertToTensor<ISW> + CreatedContractInfoSet + Debug + Display>(
+pub struct ContractA2CAgentLocalGen<ISW: WayToTensor, S: ConvertToTensor<ISW> + CreatedContractInfoSet + Debug + Display + Clone>(
     pub AgentGenT<
         ContractDP,
         ActorCriticPolicy<
@@ -82,7 +82,7 @@ impl<ISW: WayToTensor, T: ContractInfoSetTraitJoined<ISW>> ContractInfoSetTraitJ
 
 
 
-pub struct DynamicContractA2CSession<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T>>{
+pub struct DynamicContractA2CSession<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone>{
     environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
     declarer: ContractA2CAgentLocalGen<ISW2T, S>,
     whist: ContractA2CAgentLocalGen<ISW2T, S>,

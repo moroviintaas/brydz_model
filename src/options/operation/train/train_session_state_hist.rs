@@ -37,7 +37,7 @@ pub(crate) type SimpleEnv2 = ContractEnv<ContractEnvStateMin, ContractEnvSyncCom
 
 pub fn train_episode_state_hist<
     St: ScoringInformationSet<ContractDP,
-        RewardType=i32> + BuildStateHistoryTensor
+        RewardType=i32> + BuildStateHistoryTensor + Clone
     + StateWithSide
     + Send>(
     ready_env: &mut SimpleEnv2,
@@ -107,7 +107,7 @@ pub fn train_episode_state_hist<
 
 }
 
-fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send>(
+fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -131,7 +131,7 @@ fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWit
 }
 
 fn run_test_set2_with_assumption<
-    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send>(
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -160,7 +160,7 @@ fn run_test_set2_with_assumption<
 
 
 fn renew_world2<
-    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
 >(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
@@ -180,7 +180,7 @@ fn renew_world2<
 
 #[allow(clippy::too_many_arguments)]
 fn renew_world2_with_assumption<
-    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
 >(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
