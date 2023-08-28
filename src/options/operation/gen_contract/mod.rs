@@ -31,7 +31,7 @@ use crate::options::operation::gen_contract::choice_doubling::ChoiceDoubling;
 #[derive(Args)]
 pub struct GenContractOptions {
     #[arg(short = 'g', long = "game_count", help = "Number of game parameters to generate", default_value = "1")]
-    pub game_count: u16,
+    pub game_count: u64,
     #[arg(short = 'm', long = "method", value_enum,  help = "Probability method of distribution cards", default_value_t = DealMethod::Fair)]
     pub deal_method: DealMethod,
     #[arg(short = 'l', long = "lower_bound", help = "Minimal contract value", value_parser = clap::value_parser!(u8).range(1..=7), default_value = "1")]
