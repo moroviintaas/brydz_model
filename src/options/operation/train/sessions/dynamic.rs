@@ -29,6 +29,7 @@ use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAction, ContractAgentInfoSetSimple, ContractDummyState, ContractInfoSet, ContractState, ContractStateConverter, CreatedContractInfoSet};
 use karty::hand::CardSet;
 use sztorm::agent::{AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, EnvRewardedAgent, Policy, RandomPolicy, ResetAgent, TracingAgent};
+use sztorm::comm::EnvCommEndpoint;
 use sztorm::env::RoundRobinUniversalEnvironment;
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
@@ -82,7 +83,7 @@ pub struct ContractTestAgentTmp<
 where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::IntoIter: ExactSizeIterator;
 
 
-pub trait ContractInfoSetTraitJoined<ISW: WayToTensor>:
+pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
 ConvertToTensor<ISW>
 + for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP>
@@ -109,7 +110,7 @@ impl Team{
 
 
 
-impl<ISW: WayToTensor, T: ContractInfoSetTraitJoined<ISW>> ContractInfoSetTraitJoined<ISW> for Box<T>{}
+impl<ISW: WayToTensor, T: ContractInfoSetForLearning<ISW>> ContractInfoSetForLearning<ISW> for Box<T>{}
 /*pub type ContractA2CAgentLocalBoxing<ISW, IS: ContractInfoSetTraitJoined<ISW>> = ContractA2CAgentLocalGen<
     ISW,
     //Box<dyn ContractInfoSetTraitJoined<
@@ -127,7 +128,7 @@ impl<ISW: WayToTensor, T: ContractInfoSetTraitJoined<ISW>> ContractInfoSetTraitJ
 
 pub struct DynamicContractA2CSession<
     ISW2T: WayToTensor,
-    S: ContractInfoSetTraitJoined<ISW2T> + Clone>
+    S: ContractInfoSetForLearning<ISW2T> + Clone>
 where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::IntoIter: ExactSizeIterator{
     environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
     declarer: ContractA2CAgentLocalGen<ISW2T, S>,
@@ -143,13 +144,74 @@ where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::I
     declarer_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     whist_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     offside_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
-
-
-
+    env_comm_test_declarer: ContractEnvSyncComm,
+    env_comm_test_whist: ContractEnvSyncComm,
+    env_comm_test_offside: ContractEnvSyncComm,
 }
 
-impl<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone> DynamicContractA2CSession<ISW2T, S>
+pub type BoxedContractA2CSession<ISW2T> = DynamicContractA2CSession<ISW2T, Box<dyn ContractInfoSetForLearning<
+    ISW2T,
+    ActionIteratorType=SmallVec<[ContractAction; HAND_SIZE]>,
+    RewardType=i32>>>;
+
+/*
+impl<
+    ISW2T: WayToTensor,
+> Default for BoxedContractA2CSession<ISW2T> {
+
+
+    fn default() -> Self {
+        let (comm_env_decl, comm_decl_env) = ContractEnvSyncComm::new_pair();
+        let (comm_env_decl, comm_decl_env) = ContractEnvSyncComm::new_pair();
+        todo!()
+    }
+}*/
+
+/*
+impl<ISW2T: WayToTensor> BoxedContractA2CSession<ISW2T>{
+    fn set_declarer_state_type<
+        S: ContractInfoSetForLearning<
+            ISW2T,
+            ActionIteratorType=SmallVec<[ContractAction; HAND_SIZE]>,
+            RewardType=i32>>(&mut self){
+
+
+    }
+}
+
+ */
+impl<ISW2T: WayToTensor, S: ContractInfoSetForLearning<ISW2T> + Clone> DynamicContractA2CSession<ISW2T, S>
 where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::IntoIter: ExactSizeIterator{
+
+    pub(crate) fn _new(
+        environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
+        declarer: ContractA2CAgentLocalGen<ISW2T, S>,
+        whist: ContractA2CAgentLocalGen<ISW2T, S>,
+        dummy: AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>,
+        offside: ContractA2CAgentLocalGen<ISW2T, S>,
+        test_agent_declarer: ContractTestAgentTmp<ISW2T, S>,
+        test_agent_whist: ContractTestAgentTmp<ISW2T, S>,
+        test_agent_offside: ContractTestAgentTmp<ISW2T, S>,
+        env_comm_test_declarer: ContractEnvSyncComm,
+        env_comm_test_whist: ContractEnvSyncComm,
+        env_comm_test_offside: ContractEnvSyncComm,
+    ) -> Self{
+        Self{environment, declarer, whist, dummy, offside,
+            declarer_trajectories: Vec::new(),
+            whist_trajectories: Vec::new(),
+            offside_trajectories: Vec::new(),
+            test_agent_declarer,
+            test_agent_whist,
+            test_agent_offside,
+            declarer_rewards: Vec::new(),
+            whist_rewards: Vec::new(),
+            offside_rewards: Vec::new(),
+
+            env_comm_test_declarer,
+            env_comm_test_whist,
+            env_comm_test_offside,
+        }
+    }
 
     fn stash_trajectories(&mut self){
         self.declarer_trajectories.push(self.declarer.0.take_trajectory());
@@ -377,15 +439,34 @@ where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::I
 
     }
 }
-
+/*
 pub struct DynamicContractA2CSessionBuilder<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone>{
     environment: Option<ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>>,
     declarer: Option<ContractA2CAgentLocalGen<ISW2T, S>>,
     whist: Option<ContractA2CAgentLocalGen<ISW2T, S>>,
     dummy: Option<AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>>,
     offside: Option<ContractA2CAgentLocalGen<ISW2T, S>>,
+    env_declarer_comm: Option<ContractEnvSyncComm>,
+    env_whist_comm: Option<ContractEnvSyncComm>,
+    env_offside_comm: Option<ContractEnvSyncComm>,
+    env_dummy_comm: Option<ContractEnvSyncComm>,
+    env_declarer_hold: Option<ContractEnvSyncComm>,
+    env_whist_hold: Option<ContractEnvSyncComm>,
+    env_offside_hold: Option<ContractEnvSyncComm>,
+
+
+
 
 
 }
+
+impl <ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone> DynamicContractA2CSessionBuilder<ISW2T, S>{
+
+    //pub fn register_dummy
+
+}
+
+
+ */
 
 //impl<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone>
