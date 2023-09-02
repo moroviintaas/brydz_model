@@ -4,6 +4,11 @@ use std::str::FromStr;
 
 
 use clap::Parser;
+use tch::{Device, nn, Tensor};
+use tch::Device::Cpu;
+use tch::nn::{Adam, VarStore};
+use brydz_core::sztorm::spec::ContractDP;
+use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractStateConverter};
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{
@@ -13,6 +18,10 @@ use brydz_simulator::options::operation::{Operation,
 };
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
+use brydz_simulator::options::operation::sessions::GenericContractA2CSession;
+use sztorm::agent::RandomPolicy;
+use sztorm_rl::actor_critic::ActorCriticPolicy;
+use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 
 
 //use crate::options::operation::{GenContract, Operation};
@@ -50,6 +59,37 @@ fn main() -> Result<(), BrydzSimError> {
         }//sim2(options)}
 
         Operation::Train(train_params) => {
+            let network_pattern  = NeuralNetCloner::new(|path|{
+                let seq = nn::seq()
+                    .add(nn::linear(path / "input", 420, 512, Default::default()))
+                    .add(nn::linear(path / "h1", 512, 512, Default::default()))
+                    .add(nn::linear(path / "h2", 512, 512, Default::default()));
+                let actor = nn::linear(path / "al", 512, 52, Default::default());
+                let critic = nn::linear(path / "cl", 512, 1, Default::default());
+                let device = path.device();
+
+                {move |xs: &Tensor|{
+                    let xs = xs.to_device(device).apply(&seq);
+                    //(xs.apply(&critic), xs.apply(&actor))
+                    TensorA2C{critic: xs.apply(&critic), actor: xs.apply(&actor)}
+                }}
+            });
+            let declarer_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+            let whist_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+            let offside_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+            let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 1e-4).unwrap();
+            let whist_optimiser = whist_net.build_optimizer(Adam::default(), 1e-4).unwrap();
+            let offside_optimiser = offside_net.build_optimizer(Adam::default(), 1e-4).unwrap();
+            let declarer_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractStateConverter>  =
+                ActorCriticPolicy::new(declarer_net,declarer_optimiser, ContractStateConverter{});
+            let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractStateConverter> =
+                ActorCriticPolicy::new(whist_net,whist_optimiser, ContractStateConverter{});
+            let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractStateConverter> =
+                ActorCriticPolicy::new(offside_net,offside_optimiser, ContractStateConverter{});
+            let mut session = GenericContractA2CSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
+
+            let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
+            session.train(1, 64, 1000, None, &Default::default(), test_policy).unwrap();
             //train_session(train_params)
 
             /*train_session2_with_assumption::<ContractAgentInfoSetSimple>(
@@ -62,8 +102,7 @@ fn main() -> Result<(), BrydzSimError> {
                 ))
 
              */
-
-            todo!()
+            Ok(())
 
 
 

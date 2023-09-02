@@ -73,7 +73,7 @@ pub struct ContractTestAgentTmp<
     ISW: WayToTensor,
     S: ConvertToTensor<ISW>  + ScoringInformationSet<ContractDP>
         + for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-        +  Debug + Display + Clone>(
+        +  Debug + Clone>(
     pub AgentGen<
         ContractDP,
         RandomPolicy<ContractDP, S>,
@@ -87,7 +87,12 @@ pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
 ConvertToTensor<ISW>
 + for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP>
-+ Debug + Display{}
++ Debug {}
+
+impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
++ for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
++ ScoringInformationSet<ContractDP>
++ Debug > ContractInfoSetForLearning<ISW> for T{}
 
 
 #[derive(Copy, Clone, Debug)]
@@ -110,7 +115,7 @@ impl Team{
 
 
 
-impl<ISW: WayToTensor, T: ContractInfoSetForLearning<ISW>> ContractInfoSetForLearning<ISW> for Box<T>{}
+//impl<ISW: WayToTensor, T: ContractInfoSetForLearning<ISW>> ContractInfoSetForLearning<ISW> for Box<T>{}
 /*pub type ContractA2CAgentLocalBoxing<ISW, IS: ContractInfoSetTraitJoined<ISW>> = ContractA2CAgentLocalGen<
     ISW,
     //Box<dyn ContractInfoSetTraitJoined<
@@ -125,7 +130,7 @@ impl<ISW: WayToTensor, T: ContractInfoSetForLearning<ISW>> ContractInfoSetForLea
 
 
 
-
+/*
 pub struct DynamicContractA2CSession<
     ISW2T: WayToTensor,
     S: ContractInfoSetForLearning<ISW2T> + Clone>
@@ -154,20 +159,9 @@ pub type BoxedContractA2CSession<ISW2T> = DynamicContractA2CSession<ISW2T, Box<d
     ActionIteratorType=SmallVec<[ContractAction; HAND_SIZE]>,
     RewardType=i32>>>;
 
-/*
-impl<
-    ISW2T: WayToTensor,
-> Default for BoxedContractA2CSession<ISW2T> {
 
 
-    fn default() -> Self {
-        let (comm_env_decl, comm_decl_env) = ContractEnvSyncComm::new_pair();
-        let (comm_env_decl, comm_decl_env) = ContractEnvSyncComm::new_pair();
-        todo!()
-    }
-}*/
 
-/*
 impl<ISW2T: WayToTensor> BoxedContractA2CSession<ISW2T>{
     fn set_declarer_state_type<
         S: ContractInfoSetForLearning<
@@ -180,6 +174,7 @@ impl<ISW2T: WayToTensor> BoxedContractA2CSession<ISW2T>{
 }
 
  */
+/*
 impl<ISW2T: WayToTensor, S: ContractInfoSetForLearning<ISW2T> + Clone> DynamicContractA2CSession<ISW2T, S>
 where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::IntoIter: ExactSizeIterator{
 
@@ -439,7 +434,7 @@ where <<S as InformationSet<ContractDP>>::ActionIteratorType as IntoIterator>::I
 
     }
 }
-/*
+
 pub struct DynamicContractA2CSessionBuilder<ISW2T: WayToTensor, S: ContractInfoSetTraitJoined<ISW2T> + Clone>{
     environment: Option<ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>>,
     declarer: Option<ContractA2CAgentLocalGen<ISW2T, S>>,

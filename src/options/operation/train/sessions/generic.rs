@@ -1,4 +1,5 @@
 use std::thread;
+use log::{debug, info};
 use rand::prelude::{Distribution, SliceRandom};
 use rand::rngs::ThreadRng;
 use rand::thread_rng;
@@ -11,15 +12,14 @@ use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractDummyState, ContractEnvStateComplete, ContractState};
-use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
-use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
+use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
+use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::tensor_repr::WayToTensor;
 use crate::options::operation::sessions::{ContractA2CAgentLocalGen, ContractInfoSetForLearning, Team};
-use crate::options::operation::sessions::Team::Contractors;
 
 pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
     ContractDP,
@@ -204,6 +204,8 @@ impl<
         self.offside.change_id(contract.offside());
         self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
 
+        info!("Preparing game, trump: {}", &contract.bid().trump());
+        info!("Preparing game, declarer's side: {}", &contract.declarer());
     }
 /*
     fn prepare_game_test_declarer<P: Policy<ContractDP>>
@@ -284,6 +286,7 @@ impl<
         tested_team: Team)
     where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
 
+        debug!("Preparing test game for team: {tested_team:?}");
         let deal = distribution.sample(rng);
         let deal_description = DescriptionDeckDeal{
             probabilities: distribution.clone(),
@@ -304,38 +307,48 @@ impl<
                 test_agents.declarer.reset(ContractAgentInfoSetAllKnowing::construct_from((&contract.declarer(), &contract, &deal_description)));
                 self.whist.reset(WIS::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
                 self.offside.reset(OIS::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+                debug!("Whist's , commited score: {}", self.whist.current_universal_score());
             }
         }
 
         self.declarer.change_id(contract.declarer());
         self.dummy.change_id(contract.dummy());
         self.offside.change_id(contract.offside());
+        self.whist.change_id(contract.whist());
         self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
         test_agents.whist.change_id(contract.whist());
         test_agents.offside.change_id(contract.offside());
         test_agents.declarer.change_id(contract.declarer());
+
+        info!("Preparing game, trump: {}", &contract.bid().trump());
+        info!("Preparing game, declarer's side: {}", &contract.declarer());
+        info!("Declarer ({}) cards: {:#}", &contract.declarer(), deal_description.cards[&contract.declarer()]);
+        info!("Whist ({}) cards: {:#}", &contract.whist(), deal_description.cards[&contract.whist()]);
+        info!("Dummy ({}) cards: {:#}", &contract.dummy(), deal_description.cards[&contract.dummy()]);
+        info!("Offside ({}) cards: {:#}", &contract.offside(), deal_description.cards[&contract.offside()]);
+
 
     }
 
     fn play_game(&mut self) -> Result<(), SztormError<ContractDP>>{
         thread::scope(|s|{
             s.spawn(||{
-                self.environment.run_round_robin_uni_rewards().unwrap();
+                self.environment.run_round_robin_uni_rewards_penalise(-100);
             });
             s.spawn(||{
-                self.declarer.run().unwrap();
-            });
-
-            s.spawn(||{
-                self.whist.run().unwrap();
+                self.declarer.run_rewarded();
             });
 
             s.spawn(||{
-                self.dummy.run().unwrap();
+                self.whist.run_rewarded();
             });
 
             s.spawn(||{
-                self.offside.run().unwrap();
+                self.dummy.run_rewarded();
+            });
+
+            s.spawn(||{
+                self.offside.run_rewarded();
             });
         });
         Ok(())
@@ -346,40 +359,64 @@ impl<
     where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
         thread::scope(|s|{
             s.spawn(||{
-                self.environment.run_round_robin_uni_rewards().unwrap();
+                self.environment.run_round_robin_uni_rewards_penalise(-100);
             });
 
             s.spawn(||{
-                self.dummy.run().unwrap();
+                self.dummy.run();
             });
 
             match team{
                 Team::Contractors => {
                     s.spawn(||{
-                        self.declarer.run().unwrap();
+                        self.declarer.run_rewarded();
                     });
                     s.spawn(||{
-                        test_agents.whist.run().unwrap();
+                        test_agents.whist.run_rewarded();
                     });
                     s.spawn(||{
-                        test_agents.offside.run().unwrap();
+                        test_agents.offside.run_rewarded();
                     });
 
                 }
                 Team::Defenders => {
                     s.spawn(||{
-                        self.whist.run().unwrap();
+                        self.whist.run_rewarded();
                     });
                     s.spawn(||{
-                        test_agents.declarer.run().unwrap();
+                        test_agents.declarer.run_rewarded();
                     });
                     s.spawn(||{
-                        self.offside.run().unwrap();
+                        self.offside.run_rewarded();
                     });
                 }
             }
         });
+
+        //self.declarer_rewards.push()
         Ok(())
+    }
+
+    fn stash_result<P: Policy<ContractDP>>(&mut self, team: &Team, test_agents: &TestAgents<P>)
+    where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
+        match team{
+            Team::Contractors => {
+                self.declarer_rewards.push(self.declarer.current_universal_score());
+                self.whist_rewards.push(test_agents.whist.current_universal_score());
+                self.offside_rewards.push(test_agents.offside.current_universal_score());
+            }
+            Team::Defenders => {
+                self.declarer_rewards.push(test_agents.declarer.current_universal_score());
+                self.whist_rewards.push(self.whist.current_universal_score());
+                self.offside_rewards.push(self.offside.current_universal_score());
+            }
+        }
+    }
+
+    fn clear_rewards(&mut self){
+        self.declarer_rewards.clear();
+        self.whist_rewards.clear();
+        self.offside_rewards.clear();
     }
 
     pub fn train_agents_separately_one_epoch(
@@ -421,7 +458,7 @@ impl<
     where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
 
 
-
+        self.clear_rewards();
 
         match team{
             Team::Contractors => {
@@ -433,14 +470,17 @@ impl<
                     } else {
                         &DealDistribution::Fair
                     };
-                    self.prepare_test_game(rng, distr, contract_randomizer, test_agents, Contractors);
+                    self.prepare_test_game(rng, distr, contract_randomizer, test_agents, Team::Contractors);
                     let _ = self.play_test_game(team, test_agents);
+                    self.stash_result(team, test_agents);
 
                 }
                 self.whist.swap_comms_with_basic(&mut test_agents.whist);
                 self.offside.swap_comms_with_basic(&mut test_agents.offside);
 
+                debug!("Declarer's rewards: {:?}", self.declarer_rewards);
                 let average = self.declarer_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.declarer_rewards.len() as f64;
+                info!("Testing declarer. Declarer's average reward: {average:}");
                 Ok(average)
             }
             Team::Defenders => {
@@ -451,14 +491,17 @@ impl<
                     } else {
                         &DealDistribution::Fair
                     };
-                    self.prepare_test_game(rng, distr, contract_randomizer, test_agents, Contractors);
+                    self.prepare_test_game(rng, distr, contract_randomizer, test_agents, Team::Defenders);
                     let _ = self.play_test_game(team, test_agents);
+                    self.stash_result(team, test_agents);
 
                 }
                 self.declarer.swap_comms_with_basic(&mut test_agents.declarer);
 
-                let average_w = self.whist_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.declarer_rewards.len() as f64;
-                let average_o = self.offside_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.declarer_rewards.len() as f64;
+                debug!("Whist's rewards: {:?}, offside's rewards {:?}", self.whist_rewards, self.offside_rewards);
+                let average_w = self.whist_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.whist_rewards.len() as f64;
+                let average_o = self.offside_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.offside_rewards.len() as f64;
+                info!("Testing defender's. Whist's average reward: {average_w:}. Offside's average reward: {average_o:}");
                 Ok((average_w + average_o) / 2.0)
 
 
@@ -519,6 +562,8 @@ impl<
             contract_randomizer,
             &mut test_agents)?;
 
+
+
         let defender_score = self.test_agents_team(
             &mut rng,
             &Team::Defenders,
@@ -530,6 +575,28 @@ impl<
 
         Ok((declarer_score, defender_score))
 
+    }
+
+    pub fn train<P: Policy<ContractDP>>(
+        &mut self,
+        epochs: usize,
+        games_in_epoch: usize,
+        games_in_test: usize,
+        distribution_pool: Option<&[DealDistribution]>,
+        contract_randomizer: &ContractRandomizer,
+        tester_policy: P
+    ) -> Result<(), SztormError<ContractDP>>
+    where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing> + Clone{
+
+        println!("Przed testem początkowym");
+        self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
+        println!("Po teście początkowym");
+        for e in 1..=epochs{
+            self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            info!("Completed epoch {e:} of training.");
+            let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
+        }
+        Ok(())
     }
 
 
