@@ -61,11 +61,11 @@ fn main() -> Result<(), BrydzSimError> {
         Operation::Train(train_params) => {
             let network_pattern  = NeuralNetCloner::new(|path|{
                 let seq = nn::seq()
-                    .add(nn::linear(path / "input", 420, 512, Default::default()))
-                    .add(nn::linear(path / "h1", 512, 512, Default::default()))
-                    .add(nn::linear(path / "h2", 512, 256, Default::default()));
-                let actor = nn::linear(path / "al", 256, 52, Default::default());
-                let critic = nn::linear(path / "cl", 256, 1, Default::default());
+                    .add(nn::linear(path / "input", 420, 1024, Default::default()))
+                    .add(nn::linear(path / "h1", 1024, 1024, Default::default()))
+                    .add(nn::linear(path / "h2", 1024, 1024, Default::default()));
+                let actor = nn::linear(path / "al", 1024, 52, Default::default());
+                let critic = nn::linear(path / "cl", 1024, 1, Default::default());
                 let device = path.device();
 
                 {move |xs: &Tensor|{

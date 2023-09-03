@@ -207,75 +207,7 @@ impl<
         debug!("Preparing game, trump: {}", &contract.bid().trump());
         debug!("Preparing game, declarer's side: {}", &contract.declarer());
     }
-/*
-    fn prepare_game_test_declarer<P: Policy<ContractDP>>
-    (
-        &mut self,
-        rng: &mut ThreadRng,
-        distribution: &DealDistribution,
-        contract_randomizer: &ContractRandomizer,
-        test_whist: &mut AgentGen<ContractDP, P, ContractAgentSyncComm>,
-        test_offside: &mut AgentGen<ContractDP, P, ContractAgentSyncComm>)
-    where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
 
-        let deal = distribution.sample(rng);
-        let deal_description = DescriptionDeckDeal{
-            probabilities: distribution.clone(),
-            cards: deal,
-        };
-
-        let contract = contract_randomizer.sample(rng);
-        let old_declarer_side = self.environment.state().contract_data().declarer();
-        self.environment.replace_state(ContractEnvStateComplete::construct_from((&contract, &deal_description)));
-        self.declarer.reset(DIS::construct_from((&contract.declarer(), &contract, &deal_description)));
-        test_whist.reset(ContractAgentInfoSetAllKnowing::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
-        test_offside.reset(ContractAgentInfoSetAllKnowing::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
-
-
-        self.declarer.change_id(contract.declarer());
-        self.dummy.change_id(contract.dummy());
-        self.offside.change_id(contract.offside());
-        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
-        test_whist.change_id(contract.whist());
-        test_offside.change_id(contract.offside());
-
-    }
-
-    fn prepare_game_test_whist_offside<P: Policy<ContractDP>>
-    (
-        &mut self,
-        rng: &mut ThreadRng,
-        distribution: &DealDistribution,
-        contract_randomizer: &ContractRandomizer,
-        test_declarer: &mut AgentGen<ContractDP, P, ContractAgentSyncComm>, )
-    where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
-
-        let deal = distribution.sample(rng);
-        let deal_description = DescriptionDeckDeal{
-            probabilities: distribution.clone(),
-            cards: deal,
-        };
-
-        let contract = contract_randomizer.sample(rng);
-        let old_declarer_side = self.environment.state().contract_data().declarer();
-        self.environment.replace_state(ContractEnvStateComplete::construct_from((&contract, &deal_description)));
-        test_declarer.reset(ContractAgentInfoSetAllKnowing::construct_from((&contract.declarer(), &contract, &deal_description)));
-        self.whist.reset(WIS::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
-        self.offside.reset(OIS::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
-
-        self.declarer.change_id(contract.declarer());
-        self.whist.change_id(contract.whist());
-        self.dummy.change_id(contract.dummy());
-        self.offside.change_id(contract.offside());
-        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
-        test_declarer.change_id(contract.declarer());
-
-    }
-
-
- */
     fn prepare_test_game<P: Policy<ContractDP>>
     (
         &mut self,
@@ -435,6 +367,55 @@ impl<
 
     }
 
+    /*
+    fn stash_trajectories_all_to_declarer(&mut self){
+        let declarer_trajectory = self.declarer.take_trajectory();
+        if !declarer_trajectory.is_empty(){
+            self.declarer_trajectories.push(declarer_trajectory);
+        }
+        let whist_trajectory = self.whist.take_trajectory();
+        if !whist_trajectory.is_empty(){
+            self.declarer_trajectories.push(whist_trajectory);
+        }
+        let offside_trajectory = self.offside.take_trajectory();
+        if !offside_trajectory.is_empty(){
+            self.declarer_trajectories.push(offside_trajectory);
+        }
+    }
+
+    pub fn train_agents_singe_store_one_epoch(
+        &mut self,
+        games_in_epoch: usize,
+        distribution_pool: Option<&[DealDistribution]>,
+        contract_randomizer: &ContractRandomizer,
+    ) -> Result<(), SztormError<ContractDP>> {
+        self.clear_trajectories();
+        let mut rng = thread_rng();
+        for _ in 0..games_in_epoch{
+
+            let distr = if let Some(pool) = distribution_pool{
+                pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
+
+            } else {
+                &DealDistribution::Fair
+            };
+            self.prepare_game(&mut rng, distr, &contract_randomizer);
+            self.play_game()?;
+
+            self.stash_trajectories_all_to_declarer();
+
+        }
+
+        if !self.declarer_trajectories.is_empty(){
+            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
+        }
+        self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
+        self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
+        Ok(())
+    }
+    
+     */
+
     pub fn train_agents_separately_one_epoch(
         &mut self,
         games_in_epoch: usize,
@@ -453,8 +434,9 @@ impl<
             };
             self.prepare_game(&mut rng, distr, &contract_randomizer);
             self.play_game()?;
-
             self.stash_trajectories();
+
+
 
         }
         debug!("Declarer batch input sizes: {:?}", self.declarer_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
@@ -621,6 +603,7 @@ impl<
         println!("Po teście początkowym");
         for e in 1..=epochs{
             self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             info!("Completed epoch {e:} of training.");
             let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
         }
