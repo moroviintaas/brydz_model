@@ -16,7 +16,11 @@ pub fn setup_logger(log_level: LevelFilter, log_file: &Option<PathBuf>) -> Resul
                 message
             ))
         })
-        .level(log_level);
+        //.level(log_level)
+        .level_for("brydz_simulator", log_level)
+        .level_for("brydz_core", LevelFilter::Off)
+        .level_for("sztorm_rl", LevelFilter::Off)
+        .level_for("sztorm", LevelFilter::Off);
 
         match log_file{
             None => dispatch.chain(std::io::stdout()),

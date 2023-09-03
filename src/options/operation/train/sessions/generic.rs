@@ -204,8 +204,8 @@ impl<
         self.offside.change_id(contract.offside());
         self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
 
-        info!("Preparing game, trump: {}", &contract.bid().trump());
-        info!("Preparing game, declarer's side: {}", &contract.declarer());
+        debug!("Preparing game, trump: {}", &contract.bid().trump());
+        debug!("Preparing game, declarer's side: {}", &contract.declarer());
     }
 /*
     fn prepare_game_test_declarer<P: Policy<ContractDP>>
@@ -320,12 +320,12 @@ impl<
         test_agents.offside.change_id(contract.offside());
         test_agents.declarer.change_id(contract.declarer());
 
-        info!("Preparing game, trump: {}", &contract.bid().trump());
-        info!("Preparing game, declarer's side: {}", &contract.declarer());
-        info!("Declarer ({}) cards: {:#}", &contract.declarer(), deal_description.cards[&contract.declarer()]);
-        info!("Whist ({}) cards: {:#}", &contract.whist(), deal_description.cards[&contract.whist()]);
-        info!("Dummy ({}) cards: {:#}", &contract.dummy(), deal_description.cards[&contract.dummy()]);
-        info!("Offside ({}) cards: {:#}", &contract.offside(), deal_description.cards[&contract.offside()]);
+        debug!("Preparing game, trump: {}", &contract.bid().trump());
+        debug!("Preparing game, declarer's side: {}", &contract.declarer());
+        debug!("Declarer ({}) cards: {:#}", &contract.declarer(), deal_description.cards[&contract.declarer()]);
+        debug!("Whist ({}) cards: {:#}", &contract.whist(), deal_description.cards[&contract.whist()]);
+        debug!("Dummy ({}) cards: {:#}", &contract.dummy(), deal_description.cards[&contract.dummy()]);
+        debug!("Offside ({}) cards: {:#}", &contract.offside(), deal_description.cards[&contract.offside()]);
 
 
     }
@@ -419,6 +419,22 @@ impl<
         self.offside_rewards.clear();
     }
 
+    fn stash_trajectories(&mut self){
+        let declarer_trajectory = self.declarer.take_trajectory();
+        if !declarer_trajectory.is_empty(){
+            self.declarer_trajectories.push(declarer_trajectory);
+        }
+        let whist_trajectory = self.whist.take_trajectory();
+        if !whist_trajectory.is_empty(){
+            self.whist_trajectories.push(whist_trajectory);
+        }
+        let offside_trajectory = self.offside.take_trajectory();
+        if !offside_trajectory.is_empty(){
+            self.offside_trajectories.push(offside_trajectory);
+        }
+
+    }
+
     pub fn train_agents_separately_one_epoch(
         &mut self,
         games_in_epoch: usize,
@@ -437,14 +453,26 @@ impl<
             };
             self.prepare_game(&mut rng, distr, &contract_randomizer);
             self.play_game()?;
-            self.declarer_trajectories.push(self.declarer.take_trajectory());
-            self.whist_trajectories.push(self.whist.take_trajectory());
-            self.offside_trajectories.push(self.offside.take_trajectory());
+
+            self.stash_trajectories();
 
         }
-        self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
-        self.whist.policy_mut().batch_train_env_rewards(&self.whist_trajectories[..], 0.99)?;
-        self.offside.policy_mut().batch_train_env_rewards(&self.offside_trajectories[..], 0.99)?;
+        debug!("Declarer batch input sizes: {:?}", self.declarer_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
+        debug!("Whist batch input sizes: {:?}", self.whist_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
+        debug!("Offside batch input sizes: {:?}", self.offside_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
+
+        if !self.declarer_trajectories.is_empty(){
+            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
+        }
+        if !self.whist_trajectories.is_empty(){
+            self.whist.policy_mut().batch_train_env_rewards(&self.whist_trajectories[..], 0.99)?;
+        }
+        if !self.offside_trajectories.is_empty(){
+            self.offside.policy_mut().batch_train_env_rewards(&self.offside_trajectories[..], 0.99)?;
+        }
+
+
+
 
         Ok(())
 

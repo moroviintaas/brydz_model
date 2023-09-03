@@ -63,9 +63,9 @@ fn main() -> Result<(), BrydzSimError> {
                 let seq = nn::seq()
                     .add(nn::linear(path / "input", 420, 512, Default::default()))
                     .add(nn::linear(path / "h1", 512, 512, Default::default()))
-                    .add(nn::linear(path / "h2", 512, 512, Default::default()));
-                let actor = nn::linear(path / "al", 512, 52, Default::default());
-                let critic = nn::linear(path / "cl", 512, 1, Default::default());
+                    .add(nn::linear(path / "h2", 512, 256, Default::default()));
+                let actor = nn::linear(path / "al", 256, 52, Default::default());
+                let critic = nn::linear(path / "cl", 256, 1, Default::default());
                 let device = path.device();
 
                 {move |xs: &Tensor|{
@@ -89,7 +89,7 @@ fn main() -> Result<(), BrydzSimError> {
             let mut session = GenericContractA2CSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
 
             let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
-            session.train(1, 64, 1000, None, &Default::default(), test_policy).unwrap();
+            session.train(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();
             //train_session(train_params)
 
             /*train_session2_with_assumption::<ContractAgentInfoSetSimple>(
