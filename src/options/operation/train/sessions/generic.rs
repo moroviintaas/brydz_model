@@ -1,10 +1,11 @@
+use std::fmt::Debug;
 use std::thread;
 use log::{debug, info};
 use rand::prelude::{Distribution, SliceRandom};
 use rand::rngs::ThreadRng;
 use rand::thread_rng;
 use tch::nn::Optimizer;
-use brydz_core::contract::{ContractMechanics, ContractRandomizer};
+use brydz_core::contract::{ContractMechanics, ContractParameters, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 use brydz_core::error::BridgeCoreErrorGen::Contract;
 use brydz_core::player::side::{Side, SideMap};
@@ -16,10 +17,22 @@ use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent,
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
+use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::tensor_repr::WayToTensor;
-use crate::options::operation::sessions::{ContractA2CAgentLocalGen, ContractInfoSetForLearning, Team};
+use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
+use crate::options::operation::sessions::{Team};
+
+pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
+ConvertToTensor<ISW>
++ for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
++ ScoringInformationSet<ContractDP>
++ Debug {}
+
+impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
++ for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
++ ScoringInformationSet<ContractDP>
++ Debug > ContractInfoSetForLearning<ISW> for T{}
 
 pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
     ContractDP,

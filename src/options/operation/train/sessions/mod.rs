@@ -1,12 +1,12 @@
 mod simple;
 mod contract_session;
-mod dynamic;
 mod generic;
+mod team;
 
 pub use contract_session::*;
 pub use simple::*;
-pub use dynamic::*;
 pub use generic::*;
+pub use team::*;
 
 
 use crate::options::operation::TrainOptions;
