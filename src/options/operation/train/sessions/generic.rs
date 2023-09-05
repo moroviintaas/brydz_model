@@ -380,54 +380,7 @@ impl<
 
     }
 
-    /*
-    fn stash_trajectories_all_to_declarer(&mut self){
-        let declarer_trajectory = self.declarer.take_trajectory();
-        if !declarer_trajectory.is_empty(){
-            self.declarer_trajectories.push(declarer_trajectory);
-        }
-        let whist_trajectory = self.whist.take_trajectory();
-        if !whist_trajectory.is_empty(){
-            self.declarer_trajectories.push(whist_trajectory);
-        }
-        let offside_trajectory = self.offside.take_trajectory();
-        if !offside_trajectory.is_empty(){
-            self.declarer_trajectories.push(offside_trajectory);
-        }
-    }
 
-    pub fn train_agents_singe_store_one_epoch(
-        &mut self,
-        games_in_epoch: usize,
-        distribution_pool: Option<&[DealDistribution]>,
-        contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormError<ContractDP>> {
-        self.clear_trajectories();
-        let mut rng = thread_rng();
-        for _ in 0..games_in_epoch{
-
-            let distr = if let Some(pool) = distribution_pool{
-                pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
-
-            } else {
-                &DealDistribution::Fair
-            };
-            self.prepare_game(&mut rng, distr, &contract_randomizer);
-            self.play_game()?;
-
-            self.stash_trajectories_all_to_declarer();
-
-        }
-
-        if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
-        }
-        self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
-        self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
-        Ok(())
-    }
-    
-     */
 
     pub fn train_agents_separately_one_epoch(
         &mut self,
@@ -622,8 +575,85 @@ impl<
         }
         Ok(())
     }
+}
 
+impl<
+    W2T: WayToTensor,
+    IS: ContractInfoSetForLearning<W2T> + Clone,
+    //TP: Policy<ContractDP, StateType= ContractAgentInfoSetAllKnowing> + Clone,
+> GenericContractA2CSession<
+    W2T, W2T, W2T,
+    IS,IS, IS
+    >{
 
+    fn stash_trajectories_all_to_declarer(&mut self){
+        let declarer_trajectory = self.declarer.take_trajectory();
+        if !declarer_trajectory.is_empty(){
+            self.declarer_trajectories.push(declarer_trajectory);
+        }
+        let whist_trajectory = self.whist.take_trajectory();
+        if !whist_trajectory.is_empty(){
+            self.declarer_trajectories.push(whist_trajectory);
+        }
+        let offside_trajectory = self.offside.take_trajectory();
+        if !offside_trajectory.is_empty(){
+            self.declarer_trajectories.push(offside_trajectory);
+        }
+    }
+
+    pub fn train_agents_singe_store_one_epoch(
+        &mut self,
+        games_in_epoch: usize,
+        distribution_pool: Option<&[DealDistribution]>,
+        contract_randomizer: &ContractRandomizer,
+    ) -> Result<(), SztormError<ContractDP>> {
+        self.clear_trajectories();
+        let mut rng = thread_rng();
+        for _ in 0..games_in_epoch{
+
+            let distr = if let Some(pool) = distribution_pool{
+                pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
+
+            } else {
+                &DealDistribution::Fair
+            };
+            self.prepare_game(&mut rng, distr, &contract_randomizer);
+            self.play_game()?;
+
+            self.stash_trajectories_all_to_declarer();
+
+        }
+
+        if !self.declarer_trajectories.is_empty(){
+            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
+        }
+        self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
+        self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
+        Ok(())
+    }
+
+    pub fn train_all_at_once<P: Policy<ContractDP>>(
+        &mut self,
+        epochs: usize,
+        games_in_epoch: usize,
+        games_in_test: usize,
+        distribution_pool: Option<&[DealDistribution]>,
+        contract_randomizer: &ContractRandomizer,
+        tester_policy: P
+    ) -> Result<(), SztormError<ContractDP>>
+    where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing> + Clone{
+
+        println!("Przed testem początkowym");
+        self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
+        println!("Po teście początkowym");
+        for e in 1..=epochs{
+            self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            info!("Completed epoch {e:} of training.");
+            let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
+        }
+        Ok(())
+    }
 
 
 
