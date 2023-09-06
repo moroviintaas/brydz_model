@@ -8,7 +8,7 @@ use tch::{Device, nn, Tensor};
 use tch::Device::Cpu;
 use tch::nn::{Adam, VarStore};
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised};
+use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised};
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{
@@ -18,9 +18,10 @@ use brydz_simulator::options::operation::{Operation,
 };
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
-use brydz_simulator::options::operation::sessions::GenericContractA2CSession;
+use brydz_simulator::options::operation::sessions::{GenericContractA2CSession, GenericContractQLearningSession};
 use sztorm::agent::RandomPolicy;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
+use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 
 
@@ -82,6 +83,7 @@ fn main() -> Result<(), BrydzSimError> {
             let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 5e-5).unwrap();
             let whist_optimiser = whist_net.build_optimizer(Adam::default(), 5e-5).unwrap();
             let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+            
             let declarer_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>  =
                 ActorCriticPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {});
             let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
@@ -89,6 +91,16 @@ fn main() -> Result<(), BrydzSimError> {
             let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
                 ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {});
             let mut session = GenericContractA2CSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
+
+            /*
+            let declarer_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>  =
+                QLearningPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, QSelector::MultinomialLogits);
+            let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
+                ActorCriticPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {});
+            let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
+                ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {});
+            let mut session = GenericContractQLearningSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
+             */
 
             let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
             session.train_all_at_once(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();

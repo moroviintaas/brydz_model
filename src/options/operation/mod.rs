@@ -12,7 +12,7 @@ use clap::Subcommand;
 pub use simulate_local::*;
 pub use train::*;
 use crate::options::operation::demo_op::DemoCommands;
-use crate::options::operation::sessions::TrainType;
+use crate::options::operation::sessions::{AgentType, TrainType};
 //pub use demo_op::*;
 
 #[derive(Subcommand)]
@@ -26,7 +26,7 @@ pub enum Operation {
     //TestRunNN,
     //TestBiasedParams,
     #[command(subcommand, rename_all = "snake_case")]
-    Train(TrainType),
+    Train(AgentType),
     #[command(subcommand, rename_all = "snake_case")]
     Demo(DemoCommands),
 }
