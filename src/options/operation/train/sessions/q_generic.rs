@@ -4,7 +4,8 @@ use log::{debug, info};
 use rand::prelude::{Distribution, SliceRandom};
 use rand::rngs::ThreadRng;
 use rand::thread_rng;
-use tch::nn::Optimizer;
+use tch::{Device, nn, Tensor};
+use tch::nn::{Adam, Optimizer, VarStore};
 use brydz_core::contract::{ContractMechanics, ContractParameters, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 use brydz_core::error::BridgeCoreErrorGen::Contract;
@@ -12,7 +13,7 @@ use brydz_core::player::side::{Side, SideMap};
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractDummyState, ContractEnvStateComplete, ContractState};
+use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateComplete, ContractInfoSetConvert420Normalised, ContractState};
 use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
@@ -20,9 +21,11 @@ use sztorm::protocol::DomainParameters;
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::q_learning_policy::QLearningPolicy;
+use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
+use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
 use crate::options::operation::sessions::{ContractInfoSetForLearning, Team};
+use crate::options::operation::TrainOptions;
 
 
 pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<
@@ -646,3 +649,41 @@ impl<
 
 }
 
+pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<ContractDP>>{
+    let network_pattern  = NeuralNetCloner::new(|path|{
+        let seq = nn::seq()
+            .add(nn::linear(path / "input", 422, 2048, Default::default()))
+            .add(nn::linear(path / "h1", 2048, 2048, Default::default()))
+            .add(nn::linear(path / "h2", 2048, 1024, Default::default()))
+            //.add(nn::linear(path / "h3", 1024, 512, Default::default()))
+        ;
+        //let actor = nn::linear(path / "al", 1024, 52, Default::default());
+        //let critic = nn::linear(path / "cl", 1024, 1, Default::default());
+        let q_layer = nn::linear(path /  "q", 1024, 1, Default::default());
+        let device = path.device();
+
+        {move |xs: &Tensor|{
+            let xs = xs.to_device(device).apply(&seq);
+            //(xs.apply(&critic), xs.apply(&actor))
+            xs.apply(&q_layer)
+        }}
+    });
+    let declarer_net = QValueNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+    let whist_net = QValueNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+    let offside_net = QValueNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
+    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let whist_optimiser = whist_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+
+    let declarer_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
+        QLearningPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let whist_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
+        QLearningPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let offside_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
+        QLearningPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+
+    let mut session = GenericContractQLearningSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
+    let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
+    session.train_all_at_once(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();
+    Ok(())
+}

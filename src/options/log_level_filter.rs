@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 use log::LevelFilter;
+use crate::options::CliOptions;
 
 //#[derive(Args)]
 //pub struct ArgLogLevel(LevelFilter);
 
-pub fn setup_logger(log_level: LevelFilter, log_file: &Option<PathBuf>) -> Result<(), fern::InitError> {
+pub fn setup_logger(options: &CliOptions) -> Result<(), fern::InitError> {
     let dispatch  = fern::Dispatch::new()
 
         .format(|out, message, record| {
@@ -17,12 +18,12 @@ pub fn setup_logger(log_level: LevelFilter, log_file: &Option<PathBuf>) -> Resul
             ))
         })
         //.level(log_level)
-        .level_for("brydz_simulator", log_level)
-        .level_for("brydz_core", LevelFilter::Off)
-        .level_for("sztorm_rl", LevelFilter::Off)
-        .level_for("sztorm", LevelFilter::Off);
+        .level_for("brydz_simulator", options.log_level)
+        .level_for("brydz_core", options.brydz_core_log_level)
+        .level_for("sztorm_rl", options.sztormrl_log_level)
+        .level_for("sztorm", options.sztorm_log_level);
 
-        match log_file{
+        match &options.log_file{
             None => dispatch.chain(std::io::stdout()),
             Some(f) => dispatch.chain(fern::log_file(f)?)
         }

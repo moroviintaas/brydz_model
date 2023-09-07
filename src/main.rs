@@ -18,7 +18,7 @@ use brydz_simulator::options::operation::{Operation,
 };
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
-use brydz_simulator::options::operation::sessions::{GenericContractA2CSession, GenericContractQLearningSession};
+use brydz_simulator::options::operation::sessions::{build_and_run_train_session, GenericContractA2CSession, GenericContractQLearningSession};
 use sztorm::agent::RandomPolicy;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
@@ -49,8 +49,8 @@ fn serialize_settings_toml(){
 
 fn main() -> Result<(), BrydzSimError> {
 
-    let cli = options::Cli::parse();
-    options::setup_logger(cli.log_level, &cli.log_file).unwrap();
+    let cli = options::CliOptions::parse();
+    options::setup_logger(&cli).unwrap();
     //serialize_settings_toml();
     match &cli.command{
         Operation::ContractGen(gen_options) => gen2(gen_options),
@@ -59,64 +59,8 @@ fn main() -> Result<(), BrydzSimError> {
             sim2(options)
         }//sim2(options)}
 
-        Operation::Train(train_params) => {
-            let network_pattern  = NeuralNetCloner::new(|path|{
-                let seq = nn::seq()
-                    .add(nn::linear(path / "input", 420, 2048, Default::default()))
-                    .add(nn::linear(path / "h1", 2048, 2048, Default::default()))
-                    .add(nn::linear(path / "h2", 2048, 1024, Default::default()))
-                    //.add(nn::linear(path / "h3", 1024, 512, Default::default()))
-                ;
-                let actor = nn::linear(path / "al", 1024, 52, Default::default());
-                let critic = nn::linear(path / "cl", 1024, 1, Default::default());
-                let device = path.device();
-
-                {move |xs: &Tensor|{
-                    let xs = xs.to_device(device).apply(&seq);
-                    //(xs.apply(&critic), xs.apply(&actor))
-                    TensorA2C{critic: xs.apply(&critic), actor: xs.apply(&actor)}
-                }}
-            });
-            let declarer_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
-            let whist_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
-            let offside_net = A2CNet::new(VarStore::new(Device::Cpu), network_pattern.get_net_closure());
-            let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-            let whist_optimiser = whist_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-            let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-            
-            let declarer_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>  =
-                ActorCriticPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {});
-            let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-                ActorCriticPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {});
-            let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-                ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {});
-            let mut session = GenericContractA2CSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
-
-            /*
-            let declarer_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>  =
-                QLearningPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, QSelector::MultinomialLogits);
-            let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-                ActorCriticPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {});
-            let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-                ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {});
-            let mut session = GenericContractQLearningSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
-             */
-
-            let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
-            session.train_all_at_once(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();
-            //train_session(train_params)
-
-            /*train_session2_with_assumption::<ContractAgentInfoSetSimple>(
-                train_params,
-                &SequentialB::new(Box::new(|p | {
-                    nn::seq().add(nn::linear(p/"i", CONTRACT_Q_INPUT_STATE_HIST_SPARSE, 1024, Default::default()))
-                        .add(nn::linear(p/"h1", 1024, 1024, Default::default()))
-                        .add(nn::linear(p/"h2", 1024, 1, Default::default()))
-                    }                    )
-                ))
-
-             */
-            Ok(())
+        Operation::Train(agent_type) => {
+            Ok(build_and_run_train_session(agent_type)?)
 
 
 
