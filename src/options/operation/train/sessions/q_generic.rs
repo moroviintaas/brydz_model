@@ -590,7 +590,7 @@ impl<
         }
     }
 
-    pub fn train_agents_singe_store_one_epoch(
+    pub fn train_agents_single_store_one_epoch(
         &mut self,
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
@@ -636,7 +636,7 @@ impl<
         self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
         println!("Po teście początkowym");
         for e in 1..=epochs{
-            self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            self.train_agents_single_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             info!("Completed epoch {e:} of training.");
             let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer, tester_policy.clone())?;
@@ -684,6 +684,6 @@ pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<Contrac
 
     let mut session = GenericContractQLearningSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
     let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
-    session.train_all_at_once(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();
+    session.train_all_at_once(1000, 64, 100, None, &Default::default(), test_policy).unwrap();
     Ok(())
 }

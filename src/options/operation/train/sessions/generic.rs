@@ -695,7 +695,7 @@ pub fn train_session_a2c(options: &TrainOptions) -> Result<(), SztormError<Contr
 
 
     let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
-    session.train_all_at_once(1000, 512, 1000, None, &Default::default(), test_policy).unwrap();
+    session.train_all_at_once(1000, 64, 100, None, &Default::default(), test_policy).unwrap();
 
     Ok(())
 }
