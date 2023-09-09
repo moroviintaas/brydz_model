@@ -14,6 +14,7 @@ use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateComplete, ContractInfoSetConvert420Normalised, ContractState};
+use karty::suits::Suit;
 use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
@@ -24,7 +25,7 @@ use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, Team};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team};
 use crate::options::operation::TrainOptions;
 
 
@@ -35,6 +36,8 @@ pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<
         S,
         ISW, ContractActionWayToTensor>,
     ContractAgentSyncComm>;
+
+
 
 pub struct TestAgents<P: Policy<ContractDP>>
 where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{

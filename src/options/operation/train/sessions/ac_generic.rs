@@ -23,19 +23,10 @@ use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
-use crate::options::operation::sessions::{Team};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, Team};
 use crate::options::operation::TrainOptions;
 
-pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
-ConvertToTensor<ISW>
-+ for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP>
-+ Debug {}
 
-impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
-+ for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP>
-+ Debug > ContractInfoSetForLearning<ISW> for T{}
 
 pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
     ContractDP,

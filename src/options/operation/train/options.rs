@@ -1,6 +1,11 @@
 use clap::Args;
 use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
+pub enum TestPolicyChoice{
+    RandomPolicy,
+    InitLikeLearning,
+}
 
 
 
@@ -30,6 +35,12 @@ pub struct TrainOptions{
 
     #[arg(short = 't', long = "tests", help = "test_set_number", default_value = "100")]
     pub tests_set_size: u32,
+
+    #[arg(short = 'l', long = "layers", help = "Add hidden layers", default_value = "1024,512")]
+    pub hidden_layers: Vec<u32>,
+
+    #[arg(long = "separate", help = "Separate learning for different agents")]
+    pub separate: bool
 
 
 }
