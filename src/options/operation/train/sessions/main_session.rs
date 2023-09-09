@@ -104,7 +104,7 @@ impl <
     AgentWTest,
     AgentOTest
 >{
-
+    /*
     pub(crate) fn new_(
         environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
         declarer: AgentD,
@@ -137,7 +137,13 @@ impl <
 
         }
     }
+
+     */
+
+
 }
+
+
 
 pub fn run_train_session(main_agent_policy_type: &AgentType,  options: TrainOptions) -> SztormRLError<ContractDP>{
 

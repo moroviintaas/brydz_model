@@ -2,13 +2,16 @@ use rand::distributions::Distribution;
 use rand::thread_rng;
 use brydz_core::contract::{ContractParameters, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
+use brydz_core::player::role::PlayRole;
+use brydz_core::player::side::Side;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete};
+use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete, CreatedContractInfoSet};
 use sztorm::agent::{AgentGen, AgentGenT, AgentTrajectory, Policy, RandomPolicy};
 use sztorm::protocol::DomainParameters;
-use sztorm_rl::tensor_repr::WayToTensor;
+use sztorm::state::ConstructedState;
+use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use crate::options::operation::sessions::{AgentType, ContractInfoSetForLearning, SessionAgentTrait, SessionAgentTraitDyn};
 use crate::options::operation::TrainOptions;
 
@@ -56,15 +59,38 @@ impl<
     DISW2T, WISW2T, OISW2T,
     DIS, WIS, OIS,
     PolicyD, PolicyW, PolicyO
->{
+>
+{
 
-    fn _create_agent<ISW2T: WayToTensor, P: Policy<ContractDP, StateType=ISW2T>>(
+    //pub(crate) fn _create_policy<P: Policy<ContractDP>>()
+
+    /*
+    pub(crate) fn _create_agent<ISW2T: WayToTensor, P: Policy<ContractDP>>(
         policy_learn_type: &AgentType,
-        &contract_params: ContractParameters,
-        deal_description: DescriptionDeckDeal
-    ) -> Box<dyn SessionAgentTraitDyn<ISW2T, P>>{
-        
+        side: Side,
+        contract_params: &ContractParameters,
+        deal_description: &DescriptionDeckDeal,
+        comm: ContractAgentSyncComm,
+    ) -> Box<dyn SessionAgentTraitDyn<ISW2T, P>>
+    where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW2T>{
+        Box::new(AgentGenT::new(contract_params[role], <P as Policy<ContractDP>>::StateType::construct_from((&side, contract_params, deal_description)),
+         comm, ()))
     }
+
+     */
+    /*
+    pub(crate) fn _create_agent<ISW2T: WayToTensor, IS: ContractInfoSetForLearning<ISW2T>>(
+        policy_learn_type: &AgentType,
+        side: Side,
+        contract_params: &ContractParameters,
+        deal_description: &DescriptionDeckDeal,
+        comm: ContractAgentSyncComm,
+    ) -> Box<dyn SessionAgentTraitDyn<ISW2T, P>> {
+        Box::new(AgentGenT::new(contract_params[role], <P as Policy<ContractDP>>::StateType::construct_from((&side, contract_params, deal_description)),
+         comm, ()))
+    }
+
+     */
 
     pub fn new_from_training_config(policy_learn_type: &AgentType) -> Self{
         let mut rng = thread_rng();

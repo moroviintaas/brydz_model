@@ -6,9 +6,10 @@ use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::ContractEnvStateComplete;
-use sztorm::agent::{AgentGen, AgentGenT, Policy};
+use sztorm::agent::{ActingAgent, AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent};
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
+use sztorm_rl::LearningNetworkPolicy;
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 
 pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
@@ -87,3 +88,12 @@ where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
 
  */
 
+/*
+pub trait LearningAgentContract<ISW2T: WayToTensor, InfoSet: ContractInfoSetForLearning<ISW2T>>: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>
+where <Self as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP, InfoSet>{}
+
+impl <ISW2T: WayToTensor, InfoSet: ContractInfoSetForLearning<ISW2T>, T: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>>
+LearningAgentContract<ISW2T, InfoSet> for T{}
+
+
+ */
