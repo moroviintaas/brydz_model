@@ -21,7 +21,8 @@ use sztorm::protocol::DomainParameters;
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
+use sztorm_rl::LearningNetworkPolicy;
+use sztorm_rl::tensor_repr::{ConvertToTensor, FloatTensorReward, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 use crate::options::operation::sessions::{ContractInfoSetForLearning, Team};
 use crate::options::operation::TrainOptions;
@@ -578,7 +579,8 @@ impl<
 > GenericContractA2CSession<
     W2T, W2T, W2T,
     IS,IS, IS
-    >{
+    >
+where <IS as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorReward{
 
     fn stash_trajectories_all_to_declarer(&mut self){
         let declarer_trajectory = self.declarer.take_trajectory();

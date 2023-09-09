@@ -22,6 +22,8 @@ use sztorm::protocol::DomainParameters;
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
+use sztorm_rl::error::SztormRLError;
+use sztorm_rl::LearningNetworkPolicy;
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
@@ -379,7 +381,7 @@ impl<
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormError<ContractDP>>{
+    ) -> Result<(), SztormRLError<ContractDP>>{
         self.clear_trajectories();
         let mut rng = thread_rng();
         for _ in 0..games_in_epoch{
@@ -402,13 +404,13 @@ impl<
         debug!("Offside batch input sizes: {:?}", self.offside_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
+            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..], &0.99)?;
         }
         if !self.whist_trajectories.is_empty(){
-            self.whist.policy_mut().batch_train_env_rewards(&self.whist_trajectories[..], 0.99)?;
+            self.whist.policy_mut().batch_train_on_universal_rewards(&self.whist_trajectories[..], &0.99)?;
         }
         if !self.offside_trajectories.is_empty(){
-            self.offside.policy_mut().batch_train_env_rewards(&self.offside_trajectories[..], 0.99)?;
+            self.offside.policy_mut().batch_train_on_universal_rewards(&self.offside_trajectories[..], &0.99)?;
         }
 
 
@@ -553,7 +555,7 @@ impl<
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
         tester_policy: P
-    ) -> Result<(), SztormError<ContractDP>>
+    ) -> Result<(), SztormRLError<ContractDP>>
     where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing> + Clone{
 
         println!("Przed testem początkowym");
@@ -598,7 +600,7 @@ impl<
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormError<ContractDP>> {
+    ) -> Result<(), SztormRLError<ContractDP>> {
         self.clear_trajectories();
         let mut rng = thread_rng();
         for _ in 0..games_in_epoch{
@@ -617,7 +619,7 @@ impl<
         }
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_env_rewards(&self.declarer_trajectories[..], 0.99)?;
+            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..], &0.99)?;
         }
         self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
         self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
@@ -632,7 +634,7 @@ impl<
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
         tester_policy: P
-    ) -> Result<(), SztormError<ContractDP>>
+    ) -> Result<(), SztormRLError<ContractDP>>
     where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing> + Clone{
 
         println!("Przed testem początkowym");
