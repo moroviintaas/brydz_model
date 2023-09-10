@@ -11,6 +11,7 @@ use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete, Cr
 use sztorm::agent::{AgentGen, AgentGenT, AgentTrajectory, Policy, RandomPolicy};
 use sztorm::protocol::DomainParameters;
 use sztorm::state::ConstructedState;
+use sztorm_rl::agent::NetworkLearningAgent;
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use crate::options::operation::sessions::{AgentType, ContractInfoSetForLearning, SessionAgentTrait, SessionAgentTraitDyn};
 use crate::options::operation::TrainOptions;
@@ -125,3 +126,4 @@ impl<
 
     }
 }
+

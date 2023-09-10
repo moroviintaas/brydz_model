@@ -1,5 +1,6 @@
-use clap::Args;
+use clap::{Args, ValueEnum};
 use std::path::PathBuf;
+use tch::Device;
 
 #[derive(Debug, Clone)]
 pub enum TestPolicyChoice{
@@ -7,6 +8,22 @@ pub enum TestPolicyChoice{
     InitLikeLearning,
 }
 
+#[derive(ValueEnum, Copy, Clone)]
+pub enum DeviceSelect{
+    Cpu,
+    //Cuda(usize),
+    Vulkan
+}
+
+impl DeviceSelect{
+    pub fn map(self) -> tch::Device{
+        match self{
+            DeviceSelect::Cpu => {Device::Cpu}
+            //DeviceSelect::Cuda => {Device::Cuda()}
+            DeviceSelect::Vulkan => {Device::Vulkan}
+        }
+    }
+}
 
 
 
@@ -37,10 +54,13 @@ pub struct TrainOptions{
     pub tests_set_size: u32,
 
     #[arg(short = 'l', long = "layers", help = "Add hidden layers", default_value = "1024,512")]
-    pub hidden_layers: Vec<u32>,
+    pub hidden_layers: Vec<i64>,
 
     #[arg(long = "separate", help = "Separate learning for different agents")]
-    pub separate: bool
+    pub separate: bool,
+
+    #[arg(long = "device", help = "Device to be used", default_value = "cpu")]
+    pub device: DeviceSelect
 
 
 }

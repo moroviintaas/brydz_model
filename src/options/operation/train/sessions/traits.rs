@@ -6,7 +6,10 @@ use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::ContractEnvStateComplete;
-use sztorm::agent::{ActingAgent, AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent};
+use sztorm::agent::{ActingAgent, Agent, AgentGen, AgentGenT, AutomaticAgent, AutomaticAgentRewarded, Policy, PolicyAgent, StatefulAgent};
+use sztorm::comm::CommEndpoint;
+use sztorm::error::{CommError, SztormError};
+use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::LearningNetworkPolicy;
@@ -88,12 +91,29 @@ where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
 
  */
 
+
+pub trait ContractLearningAgent: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>
+where <Self as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
+<Self as StatefulAgent<ContractDP>>::State: ScoringInformationSet<ContractDP>{}
+
+impl <T: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>>
+ContractLearningAgent for T
+where <T as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
+<T as StatefulAgent<ContractDP>>::State: ScoringInformationSet<ContractDP>
+{}
+
+
 /*
-pub trait LearningAgentContract<ISW2T: WayToTensor, InfoSet: ContractInfoSetForLearning<ISW2T>>: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>
-where <Self as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP, InfoSet>{}
+impl<
+    P: LearningNetworkPolicy<ContractDP>,
+    Comm: > ContractLearningAgent for AgentGenT<ContractDP, P, Comm>
+where Comm: CommEndpoint<
+        OutwardType = AgentMessage<ContractDP>,
+        InwardType = EnvMessage<ContractDP>,
+        Error=CommError<ContractDP>>,
+    <P as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP> + Clone
 
-impl <ISW2T: WayToTensor, InfoSet: ContractInfoSetForLearning<ISW2T>, T: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>>
-LearningAgentContract<ISW2T, InfoSet> for T{}
-
+{}
 
  */
+

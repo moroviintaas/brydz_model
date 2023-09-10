@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::path::PathBuf;
 use std::thread;
 use log::{debug, info};
 use rand::prelude::{Distribution, SliceRandom};
@@ -19,7 +20,7 @@ use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent,
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
-use sztorm::state::agent::ScoringInformationSet;
+use sztorm::state::agent::{ConstructedInfoSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::error::SztormRLError;
@@ -27,7 +28,7 @@ use sztorm_rl::LearningNetworkPolicy;
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team, TrainingSession};
 use crate::options::operation::TrainOptions;
 
 
@@ -691,4 +692,167 @@ pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<Contrac
     let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
     session.train_all_at_once(1000, 64, 100, None, &Default::default(), test_policy).unwrap();
     Ok(())
+}
+
+pub fn training_session_q_symmetric<
+    InfoSet: ContractInfoSetForLearning<W2T> + Clone,
+    W2T: WayToTensor
+>(
+    //declarer_policy: QLearningPolicy<ContractDP, DIS, DISW2T, ContractActionWayToTensor>,
+    //whist_policy: QLearningPolicy<ContractDP, WIS, WISW2T, ContractActionWayToTensor>,
+    //offside_policy: QLearningPolicy<ContractDP, OIS, OISW2T, ContractActionWayToTensor>,
+    training_config: &TrainOptions,
+) -> Result<TrainingSession<
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+
+>, SztormRLError<ContractDP>>{
+
+    let mut rng = thread_rng();
+    let contract_params = ContractRandomizer::default().sample(&mut rng);
+    let deal_description = DescriptionDeckDeal{
+        probabilities: DealDistribution::Fair,
+        cards: DealDistribution::Fair.sample(&mut rng)
+    };
+
+    let network_pattern = NeuralNetCloner::new(|path| {
+        let mut seq = nn::seq();
+        let mut last_dim = None;
+        if !training_config.hidden_layers.is_empty(){
+            let mut ld = W2T::desired_shape()[0]+2;
+            last_dim = Some(ld);
+            seq = seq.add(nn::linear(path / "INPUT", ld, 1, Default::default()));
+
+            for i in 0..training_config.hidden_layers.len(){
+                let ld_new = training_config.hidden_layers[i];
+                seq = seq.add(nn::linear(path / &format!("h_{:}", i+1), ld, ld_new, Default::default()));
+                ld = ld_new;
+                last_dim = Some(ld);
+            }
+        }
+        if let Some(ld) = last_dim{
+            seq = seq.add(nn::linear(path / "Q", ld, 1, Default::default()));
+        } else {
+            seq = seq.add(nn::linear(path / "Q", W2T::desired_shape()[0]+2, 1, Default::default()));
+        }
+        let device = path.device();
+        {move |xs: &Tensor|{
+            xs.to_device(device).apply(&seq)
+        }}
+    });
+
+
+    let (comm_env_decl, comm_decl_env) = ContractEnvSyncComm::new_pair();
+    let (comm_env_whist, comm_whist_env) = ContractEnvSyncComm::new_pair();
+    let (comm_env_dummy, comm_dummy_env) = ContractEnvSyncComm::new_pair();
+    let (comm_env_offside, comm_offside_env) = ContractEnvSyncComm::new_pair();
+    let (_, comm_decl_test_env) = ContractEnvSyncComm::new_pair();
+    let (_, comm_whist_test_env) = ContractEnvSyncComm::new_pair();
+    let (_, comm_offside_test_env) = ContractEnvSyncComm::new_pair();
+
+    let mut declarer_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &training_config.declarer_load{
+        declarer_net.var_store_mut().load(p)?;
+    }
+    let mut whist_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &training_config.whist_load{
+        whist_net.var_store_mut().load(p)?;
+    }
+    let mut offside_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &training_config.offside_load{
+        offside_net.var_store_mut().load(p)?;
+    }
+    let mut declarer_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    let mut whist_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    let mut offside_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+
+    declarer_test_net.var_store_mut().copy(declarer_net.var_store())?;
+    whist_test_net.var_store_mut().copy(whist_net.var_store())?;
+    offside_test_net.var_store_mut().copy(offside_net.var_store())?;
+
+    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let whist_optimiser = whist_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let declarer_test_optimiser = declarer_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let whist_test_optimiser = whist_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+
+    let declarer_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(declarer_net, declarer_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let whist_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(whist_net, whist_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let offside_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(offside_net, offside_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+
+    let declarer_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(declarer_test_net, declarer_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let whist_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(whist_test_net, whist_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+    let offside_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
+        QLearningPolicy::new(offside_test_net, offside_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+
+
+    let declarer = ContractQPolicyLocalAgent::new(
+        contract_params.declarer(),
+        InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
+        comm_decl_env, declarer_policy);
+
+
+
+    let whist = ContractQPolicyLocalAgent::new(
+        contract_params.declarer().next_i(1),
+        InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
+        comm_whist_env, whist_policy);
+
+    let offside = ContractQPolicyLocalAgent::new(
+        contract_params.declarer().next_i(3),
+        InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
+        comm_offside_env, offside_policy);
+
+
+    let test_declarer = ContractQPolicyLocalAgent::new(
+        contract_params.declarer(),
+        InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
+        comm_decl_test_env, declarer_policy_test);
+
+
+    let test_whist = ContractQPolicyLocalAgent::new(
+        contract_params.declarer().next_i(1),
+        InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
+        comm_whist_test_env, whist_policy_test);
+
+    let test_offside = ContractQPolicyLocalAgent::new(
+        contract_params.declarer().next_i(3),
+        InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
+        comm_offside_test_env, offside_policy_test);
+
+    let dummy = AgentGen::new(
+        contract_params.declarer().next_i(2),
+        ContractDummyState::construct_from((&contract_params.declarer().next_i(2), &contract_params, &deal_description)), comm_dummy_env, RandomPolicy::new(), );
+
+    let (north_comm, east_comm, south_comm, west_comm) = match contract_params.declarer() {
+        Side::East => (comm_env_offside, comm_env_decl, comm_env_whist, comm_env_dummy),
+        Side::South => (comm_env_dummy, comm_env_offside, comm_env_decl, comm_env_whist),
+        Side::West => (comm_env_whist, comm_env_dummy, comm_env_offside, comm_env_decl),
+        Side::North => ( comm_env_decl, comm_env_whist, comm_env_dummy, comm_env_offside),
+    };
+    let environment = ContractEnv::new(
+        ContractEnvStateComplete::construct_from((&contract_params, &deal_description)),
+        SideMap::new(north_comm, east_comm, south_comm, west_comm));
+
+    Ok(TrainingSession::_new(
+        environment,
+        declarer,
+        whist,
+        offside,
+        dummy,
+        test_declarer,
+        test_whist,
+        test_offside
+    ))
+
 }
