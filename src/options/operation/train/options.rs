@@ -1,6 +1,7 @@
 use clap::{Args, ValueEnum};
 use std::path::PathBuf;
 use tch::Device;
+use sztorm_rl::TrainConfig;
 
 #[derive(Debug, Clone)]
 pub enum TestPolicyChoice{
@@ -27,7 +28,7 @@ impl DeviceSelect{
 
 
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct TrainOptions{
 
     #[arg(short = 'd', long = "declarer_save", help = "Declarer VarStore save file")]
@@ -47,7 +48,7 @@ pub struct TrainOptions{
     #[arg(short = 'e', long = "epochs", help = "Number of epochs", default_value = "10")]
     pub epochs: u32,
 
-    #[arg(short = 'g', long = "games", help = "games iin epoch", default_value = "100")]
+    #[arg(short = 'n', long = "games", help = "games iin epoch", default_value = "100")]
     pub games: u32,
 
     #[arg(short = 't', long = "tests", help = "test_set_number", default_value = "100")]
@@ -60,7 +61,18 @@ pub struct TrainOptions{
     pub separate: bool,
 
     #[arg(long = "device", help = "Device to be used", default_value = "cpu")]
-    pub device: DeviceSelect
+    pub device: DeviceSelect,
+
+    #[arg(short = 'g', long = "gamma", help = "Discount factor (gamma)", default_value = "0.99")]
+    pub gamma: f64,
 
 
+}
+
+impl From<&TrainOptions> for TrainConfig{
+    fn from(value: &TrainOptions) -> Self {
+        TrainConfig{
+            gamma: value.gamma
+        }
+    }
 }

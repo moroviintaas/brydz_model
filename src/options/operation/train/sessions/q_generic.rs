@@ -24,11 +24,11 @@ use sztorm::state::agent::{ConstructedInfoSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
 use sztorm_rl::error::SztormRLError;
-use sztorm_rl::LearningNetworkPolicy;
+use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team, TrainingSession};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team,  TrainingSession};
 use crate::options::operation::TrainOptions;
 
 
@@ -405,13 +405,13 @@ impl<
         debug!("Offside batch input sizes: {:?}", self.offside_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..], &0.99)?;
+            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..])?;
         }
         if !self.whist_trajectories.is_empty(){
-            self.whist.policy_mut().batch_train_on_universal_rewards(&self.whist_trajectories[..], &0.99)?;
+            self.whist.policy_mut().batch_train_on_universal_rewards(&self.whist_trajectories[..])?;
         }
         if !self.offside_trajectories.is_empty(){
-            self.offside.policy_mut().batch_train_on_universal_rewards(&self.offside_trajectories[..], &0.99)?;
+            self.offside.policy_mut().batch_train_on_universal_rewards(&self.offside_trajectories[..])?;
         }
 
 
@@ -620,7 +620,7 @@ impl<
         }
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..], &0.99)?;
+            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..])?;
         }
         self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
         self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
@@ -682,11 +682,11 @@ pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<Contrac
     let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
 
     let declarer_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
-        QLearningPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
     let whist_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
-        QLearningPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
     let offside_policy: QLearningPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised, ContractActionWayToTensor>  =
-        QLearningPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {}, ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
 
     let mut session = GenericContractQLearningSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
     let test_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetAllKnowing>::new();
@@ -701,7 +701,7 @@ pub fn training_session_q_symmetric<
     //declarer_policy: QLearningPolicy<ContractDP, DIS, DISW2T, ContractActionWayToTensor>,
     //whist_policy: QLearningPolicy<ContractDP, WIS, WISW2T, ContractActionWayToTensor>,
     //offside_policy: QLearningPolicy<ContractDP, OIS, OISW2T, ContractActionWayToTensor>,
-    training_config: &TrainOptions,
+    options: &TrainOptions,
 ) -> Result<TrainingSession<
     AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
     AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
@@ -709,6 +709,7 @@ pub fn training_session_q_symmetric<
     AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
     AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
     AgentGenT<ContractDP, QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>, ContractAgentSyncComm>,
+    W2T, W2T, W2T, W2T, W2T, W2T,
 
 >, SztormRLError<ContractDP>>{
 
@@ -722,13 +723,13 @@ pub fn training_session_q_symmetric<
     let network_pattern = NeuralNetCloner::new(|path| {
         let mut seq = nn::seq();
         let mut last_dim = None;
-        if !training_config.hidden_layers.is_empty(){
+        if !options.hidden_layers.is_empty(){
             let mut ld = W2T::desired_shape()[0]+2;
             last_dim = Some(ld);
             seq = seq.add(nn::linear(path / "INPUT", ld, 1, Default::default()));
 
-            for i in 0..training_config.hidden_layers.len(){
-                let ld_new = training_config.hidden_layers[i];
+            for i in 0..options.hidden_layers.len(){
+                let ld_new = options.hidden_layers[i];
                 seq = seq.add(nn::linear(path / &format!("h_{:}", i+1), ld, ld_new, Default::default()));
                 ld = ld_new;
                 last_dim = Some(ld);
@@ -754,21 +755,21 @@ pub fn training_session_q_symmetric<
     let (_, comm_whist_test_env) = ContractEnvSyncComm::new_pair();
     let (_, comm_offside_test_env) = ContractEnvSyncComm::new_pair();
 
-    let mut declarer_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
-    if let Some(p) =  &training_config.declarer_load{
+    let mut declarer_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &options.declarer_load{
         declarer_net.var_store_mut().load(p)?;
     }
-    let mut whist_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
-    if let Some(p) =  &training_config.whist_load{
+    let mut whist_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &options.whist_load{
         whist_net.var_store_mut().load(p)?;
     }
-    let mut offside_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
-    if let Some(p) =  &training_config.offside_load{
+    let mut offside_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
+    if let Some(p) =  &options.offside_load{
         offside_net.var_store_mut().load(p)?;
     }
-    let mut declarer_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
-    let mut whist_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
-    let mut offside_test_net = QValueNet::new(VarStore::new(training_config.device.map()), network_pattern.get_net_closure());
+    let mut declarer_test_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
+    let mut whist_test_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
+    let mut offside_test_net = QValueNet::new(VarStore::new(options.device.map()), network_pattern.get_net_closure());
 
     declarer_test_net.var_store_mut().copy(declarer_net.var_store())?;
     whist_test_net.var_store_mut().copy(whist_net.var_store())?;
@@ -782,18 +783,18 @@ pub fn training_session_q_symmetric<
     let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
 
     let declarer_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(declarer_net, declarer_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(declarer_net, declarer_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits,options.into());
     let whist_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(whist_net, whist_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(whist_net, whist_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
     let offside_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(offside_net, offside_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(offside_net, offside_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
 
     let declarer_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(declarer_test_net, declarer_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(declarer_test_net, declarer_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
     let whist_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(whist_test_net, whist_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(whist_test_net, whist_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
     let offside_policy_test: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
-        QLearningPolicy::new(offside_test_net, offside_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits);
+        QLearningPolicy::new(offside_test_net, offside_test_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::MultinomialLogits, options.into());
 
 
     let declarer = ContractQPolicyLocalAgent::new(
@@ -852,7 +853,8 @@ pub fn training_session_q_symmetric<
         dummy,
         test_declarer,
         test_whist,
-        test_offside
+        test_offside,
+        TrainConfig{gamma: options.gamma}
     ))
 
 }

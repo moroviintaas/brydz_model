@@ -6,3 +6,4 @@ pub enum AgentType{
     ActorCritic(TrainOptions),
     Q(TrainOptions)
 }
+

@@ -21,7 +21,7 @@ use sztorm::protocol::DomainParameters;
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::LearningNetworkPolicy;
+use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::tensor_repr::{ConvertToTensor, FloatTensorReward, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 use crate::options::operation::sessions::{ContractInfoSetForLearning, Team};
@@ -679,11 +679,11 @@ pub fn train_session_a2c(options: &TrainOptions) -> Result<(), SztormError<Contr
     let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
 
     let declarer_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>  =
-        ActorCriticPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {});
+        ActorCriticPolicy::new(declarer_net, declarer_optimiser, ContractInfoSetConvert420Normalised {}, TrainConfig{gamma: 0.99});
     let whist_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-        ActorCriticPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {});
+        ActorCriticPolicy::new(whist_net, whist_optimiser, ContractInfoSetConvert420Normalised {}, TrainConfig{gamma: 0.99});
     let offside_policy: ActorCriticPolicy<ContractDP, ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised> =
-        ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {});
+        ActorCriticPolicy::new(offside_net, offside_optimiser, ContractInfoSetConvert420Normalised {}, TrainConfig{gamma: 0.99});
     let mut session = GenericContractA2CSession::new_rand_init(declarer_policy, whist_policy, offside_policy);
 
 

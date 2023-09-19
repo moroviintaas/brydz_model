@@ -4,7 +4,6 @@ mod q_generic;
 mod options;
 mod main_session;
 mod traits;
-mod main_session_boxed;
 
 pub use ac_generic::*;
 pub use team::*;
@@ -12,7 +11,6 @@ pub use q_generic::*;
 pub use options::*;
 pub use main_session::*;
 pub use traits::*;
-pub use main_session_boxed::*;
 
 
 use crate::options::operation::TrainOptions;
