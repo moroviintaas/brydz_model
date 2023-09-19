@@ -469,3 +469,125 @@ where
 
 }
 
+pub struct TSession<
+    PolicyD: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    PolicyW: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    PolicyO: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    TestPolicyD: Policy<ContractDP>,
+    TestPolicyW: Policy<ContractDP>,
+    TestPolicyO: Policy<ContractDP>,
+    DIS2T: WayToTensor,
+    WIS2T: WayToTensor,
+    OIS2T: WayToTensor,
+    DISTest2T: WayToTensor,
+    WISTest2T: WayToTensor,
+    OISTest2T: WayToTensor,
+>
+where
+    <PolicyD as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <PolicyW as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <PolicyO as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyD as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyW as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyO as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+
+{
+
+    environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
+    declarer: AgentGenT<ContractDP, PolicyD, ContractAgentSyncComm>,
+    whist: AgentGenT<ContractDP, PolicyW, ContractAgentSyncComm>,
+    offside: AgentGenT<ContractDP, PolicyO, ContractAgentSyncComm>,
+    dummy: AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>,
+
+    test_declarer: AgentGenT<ContractDP, TestPolicyD, ContractAgentSyncComm>,
+    test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
+    test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
+
+    declarer_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyD as Policy<ContractDP>>::StateType>>,
+    whist_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyW as Policy<ContractDP>>::StateType>>,
+    offside_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyO as Policy<ContractDP>>::StateType>>,
+    declarer_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
+    whist_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
+    offside_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
+
+    _dis2t: PhantomData<DIS2T>,
+    _wis2t: PhantomData<WIS2T>,
+    _ois2t: PhantomData<OIS2T>,
+    _dis_test2t: PhantomData<DISTest2T>,
+    _wis_test2t: PhantomData<WISTest2T>,
+    _ois_test2t: PhantomData<OISTest2T>,
+
+
+
+}
+impl <
+    PolicyD: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    PolicyW: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    PolicyO: LearningNetworkPolicy<ContractDP, TrainConfig=TrainConfig>,
+    TestPolicyD: Policy<ContractDP>,
+    TestPolicyW: Policy<ContractDP>,
+    TestPolicyO: Policy<ContractDP>,
+    DIS2T: WayToTensor,
+    WIS2T: WayToTensor,
+    OIS2T: WayToTensor,
+    DISTest2T: WayToTensor,
+    WISTest2T: WayToTensor,
+    OISTest2T: WayToTensor,
+> TSession<
+    PolicyD,
+    PolicyW,
+    PolicyO,
+    TestPolicyD,
+    TestPolicyW,
+    TestPolicyO,
+    DIS2T,
+    WIS2T,
+    OIS2T,
+    DISTest2T,
+    WISTest2T,
+    OISTest2T,
+>
+where
+    <PolicyD as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <PolicyW as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <PolicyO as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyD as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyW as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+    <TestPolicyO as Policy<ContractDP>>::StateType: ScoringInformationSet<ContractDP>,
+{
+    pub(crate) fn _new(
+        environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
+        declarer: AgentGenT<ContractDP, PolicyD, ContractAgentSyncComm>,
+        whist: AgentGenT<ContractDP, PolicyW, ContractAgentSyncComm>,
+        offside: AgentGenT<ContractDP, PolicyO, ContractAgentSyncComm>,
+        dummy: AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>,
+
+        test_declarer: AgentGenT<ContractDP, TestPolicyD, ContractAgentSyncComm>,
+        test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
+        test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
+    ) -> Self{
+        Self{
+            environment,
+            declarer,
+            whist,
+            offside,
+            dummy,
+            test_declarer,
+            test_whist,
+            test_offside,
+            declarer_trajectories: Default::default(),
+            whist_trajectories: Default::default(),
+            offside_trajectories: Default::default(),
+            declarer_rewards: Default::default(),
+            whist_rewards: Default::default(),
+            offside_rewards: Default::default(),
+            _dis2t: Default::default(),
+            _wis2t: Default::default(),
+            _ois2t: Default::default(),
+            _dis_test2t: Default::default(),
+            _wis_test2t: Default::default(),
+            _ois_test2t: Default::default(),
+        }
+    }
+}
+
