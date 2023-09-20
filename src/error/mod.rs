@@ -8,6 +8,7 @@ use brydz_core::sztorm::spec::ContractDP;
 pub use gen::*;
 pub use simulation::*;
 use sztorm::error::{SetupError, SztormError};
+use sztorm_rl::error::SztormRLError;
 use crate::error::BrydzSimError::Sztorm;
 
 #[derive(Debug,  thiserror::Error)]
@@ -22,6 +23,8 @@ pub enum BrydzSimError{
     //Game(BridgeCoreError),
     #[error("Error in Sztorm framework: {0}")]
     Sztorm(SztormError<ContractDP>),
+    #[error("Error in Sztorm Reinforcement Learning framework: {0}")]
+    SztormRL(SztormRLError<ContractDP>),
     //#[error("Tensorflow Error {0}")]
     //TensorflowStatus(Status),
     //#[error("SaveModel Error {0}")]
@@ -41,6 +44,11 @@ impl From<BridgeCoreError> for BrydzSimError{
 impl From<SztormError<ContractDP>> for BrydzSimError{
     fn from(value: SztormError<ContractDP>) -> Self {
         Self::Sztorm(value)
+    }
+}
+impl From<SztormRLError<ContractDP>> for BrydzSimError{
+    fn from(value: SztormRLError<ContractDP>) -> Self {
+        Self::SztormRL(value)
     }
 }
 

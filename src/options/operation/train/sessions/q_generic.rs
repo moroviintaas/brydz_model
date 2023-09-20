@@ -28,7 +28,7 @@ use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team, TrainingSession, TSession};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team,  TSession};
 use crate::options::operation::TrainOptions;
 
 
@@ -693,7 +693,7 @@ pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<Contrac
     session.train_all_at_once(1000, 64, 100, None, &Default::default(), test_policy).unwrap();
     Ok(())
 }
-
+/*
 pub fn training_session_q_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,
     W2T: WayToTensor
@@ -859,6 +859,8 @@ pub fn training_session_q_symmetric<
 
 }
 
+
+ */
 
 
 pub fn t_session_q_symmetric<
