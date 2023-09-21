@@ -725,11 +725,12 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         let mut seq = nn::seq();
         let mut last_dim = None;
         if !options.hidden_layers.is_empty(){
-            let mut ld = W2T::desired_shape()[0];
-            last_dim = Some(ld);
-            seq = seq.add(nn::linear(path / "INPUT", ld, 1, Default::default()));
+            let mut ld = options.hidden_layers[0];
 
-            for i in 0..options.hidden_layers.len(){
+            last_dim = Some(ld);
+            seq = seq.add(nn::linear(path / "INPUT", W2T::desired_shape()[0], ld, Default::default()));
+
+            for i in 1..options.hidden_layers.len(){
                 let ld_new = options.hidden_layers[i];
                 seq = seq.add(nn::linear(path / &format!("h_{:}", i+1), ld, ld_new, Default::default()));
                 ld = ld_new;
