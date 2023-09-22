@@ -3,7 +3,7 @@ use crate::options::operation::TrainOptions;
 
 #[derive(Subcommand)]
 pub enum AgentType{
-    ActorCritic(TrainOptions),
+    A2C(TrainOptions),
     Q(TrainOptions)
 }
 

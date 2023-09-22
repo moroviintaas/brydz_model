@@ -12,7 +12,7 @@ pub enum TestPolicyChoice{
 #[derive(ValueEnum, Copy, Clone)]
 pub enum DeviceSelect{
     Cpu,
-    //Cuda(usize),
+    Cuda,
     Vulkan
 }
 
@@ -20,7 +20,7 @@ impl DeviceSelect{
     pub fn map(self) -> tch::Device{
         match self{
             DeviceSelect::Cpu => {Device::Cpu}
-            //DeviceSelect::Cuda => {Device::Cuda()}
+            DeviceSelect::Cuda => {Device::Cuda(32000)}
             DeviceSelect::Vulkan => {Device::Vulkan}
         }
     }
