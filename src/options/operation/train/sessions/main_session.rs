@@ -5,8 +5,10 @@ use rand::distributions::Distribution;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use tch::nn::Path;
 use brydz_core::contract::{ContractMechanics, ContractParametersGen, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
+use brydz_core::player::role::PlayRole;
 use brydz_core::player::side::Side;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
@@ -23,6 +25,7 @@ use sztorm_rl::agent::{NetworkLearningAgent, TestingAgent};
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::tensor_repr::WayToTensor;
+use crate::error::{BrydzSimError, SimulationError};
 use crate::options::operation::sessions::{AgentType, ContractInfoSetForLearning, SessionAgentTrait, Team};
 use crate::options::operation::TrainOptions;
 
@@ -928,10 +931,6 @@ where
             cards: distr.sample(&mut thread_rng()),
         };
 
-        let contract = contract_randomizer.sample(&mut rng);
-
-
-
         let declarer_score = self.test_agents_team(
             &mut rng,
             &Team::Contractors,
@@ -990,6 +989,101 @@ where
 
      */
 
+    pub fn load_network_params_for_role<S: AsRef<std::path::Path>>(&mut self, role: PlayRole, path: S) -> Result<(), BrydzSimError>{
+        match role{
+            PlayRole::Whist => {
+                self.whist.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Declarer => {
+                self.declarer.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Offside => {
+                self.offside.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Dummy => {
+                return Err(SimulationError::NoNetworkPolicy(PlayRole::Dummy).into())
+            }
+        }
+        Ok(())
+    }
+    /*
+    fn load_network_params_for_test_role<S: AsRef<std::path::Path>>(&mut self, role: PlayRole, path: S) -> Result<(), BrydzSimError>{
+        match role{
+            PlayRole::Whist => {
+                self.test_whist.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Declarer => {
+                self.test_declarer.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Offside => {
+                self.test_offside.policy_mut().var_store_mut().load(path)?;
+            }
+            PlayRole::Dummy => {
+                return Err(SimulationError::NoNetworkPolicy(PlayRole::Dummy).into())
+            }
+        }
+        Ok(())
+    }
+
+     */
+
+    pub fn load_network_params(&mut self, options: &TrainOptions) -> Result<(), BrydzSimError>{
+        if let Some(ref dpath) = options.declarer_load{
+            self.load_network_params_for_role(PlayRole::Declarer, dpath)?;
+        }
+        if let Some(ref wpath) = options.whist_load{
+            self.load_network_params_for_role(PlayRole::Whist, wpath)?;
+        }
+        if let Some(ref opath) = options.offside_load{
+            self.load_network_params_for_role(PlayRole::Offside, opath)?;
+        }
+    /*
+        if let Some(ref dpath) = options.test_declarer_load{
+            self.load_network_params_for_test_role(PlayRole::Declarer, dpath)?;
+        }
+        if let Some(ref wpath) = options.whist_load{
+            self.load_network_params_for_test_role(PlayRole::Whist, wpath)?;
+        }
+        if let Some(ref opath) = options.offside_load{
+            self.load_network_params_for_test_role(PlayRole::Offside, opath)?;
+        }
+
+     */
+
+        Ok(())
+    }
+
+    pub fn save_network_params_for_role<S: AsRef<std::path::Path>>(&self, role: PlayRole, path: S) -> Result<(), BrydzSimError>{
+        match role{
+            PlayRole::Whist => {
+                self.whist.policy().var_store().save(path)?;
+            }
+            PlayRole::Declarer => {
+                self.declarer.policy().var_store().save(path)?;
+            }
+            PlayRole::Offside => {
+                self.offside.policy().var_store().save(path)?;
+            }
+            PlayRole::Dummy => {
+                return Err(SimulationError::NoNetworkPolicy(PlayRole::Dummy).into())
+            }
+        }
+        Ok(())
+    }
+
+    pub fn save_network_params(&self, options: &TrainOptions) -> Result<(), BrydzSimError>{
+        if let Some(ref path) = options.declarer_save{
+            self.save_network_params_for_role(PlayRole::Declarer, path)?;
+        }
+        if let Some(ref path) = options.whist_save{
+            self.save_network_params_for_role(PlayRole::Whist, path)?;
+        }
+        if let Some(ref path) = options.offside_save{
+            self.save_network_params_for_role(PlayRole::Offside, path)?;
+        }
+        Ok(())
+    }
+
     pub fn train_all_at_once(
         &mut self,
         epochs: usize,
@@ -999,9 +1093,7 @@ where
         contract_randomizer: &ContractRandomizer,
     ) -> Result<(), SztormRLError<ContractDP>> {
 
-        println!("Przed testem początkowym");
         self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
-        println!("Po teście początkowym");
         for e in 1..=epochs{
             self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;

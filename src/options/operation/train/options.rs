@@ -45,6 +45,14 @@ pub struct TrainOptions{
     #[arg(short = 'O', long = "offside_load", help = "Offside VarStore load file")]
     pub offside_load: Option<PathBuf>,
 
+    /*
+    #[arg(short = 'S', long = "test_declarer_load", help = "Test Declarer VarStore load file")]
+    pub test_declarer_load: Option<PathBuf>,
+    #[arg(short = 'Q', long = "test_whist_load", help = "Test Whist VarStore load file")]
+    pub test_whist_load: Option<PathBuf>,
+    #[arg(short = 'I', long = "test_offside_load", help = "Test Offside VarStore load file")]
+    pub test_offside_load: Option<PathBuf>,
+    */
     #[arg(short = 'e', long = "epochs", help = "Number of epochs", default_value = "10")]
     pub epochs: u32,
 

@@ -19,6 +19,7 @@ use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised};
 use sztorm::error::SztormError;
 use sztorm_rl::error::SztormRLError;
+use crate::error::BrydzSimError;
 
 
 #[derive(Subcommand)]
@@ -27,17 +28,23 @@ pub enum TrainType{
 }
 
 
-pub fn build_and_run_train_session(agent_type: &AgentType) -> Result<(), SztormRLError<ContractDP>>{
+pub fn build_and_run_train_session(agent_type: &AgentType) -> Result<(), BrydzSimError>{
     match agent_type{
         AgentType::ActorCritic(options) => {
             let mut session = t_session_a2c_symmetric::<ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>(options)?;
-            session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())
+            session.load_network_params(options)?;
+            session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())?;
+            session.save_network_params(options)?;
             //train_session_a2c(options)
         }
         AgentType::Q(options) => {
             let mut session = t_session_q_symmetric::<ContractAgentInfoSetSimple, ContractInfoSetConvert420Normalised>(options)?;
-            session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())
+            session.load_network_params(options)?;
+            session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())?;
+            session.save_network_params(options)?;
             //train_session_q(options)
         }
+
     }
+    Ok(())
 }
