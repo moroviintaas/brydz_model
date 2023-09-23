@@ -5,7 +5,7 @@ use rand::distributions::Distribution;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use tch::nn::Path;
+
 use brydz_core::contract::{ContractMechanics, ContractParametersGen, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 use brydz_core::player::role::PlayRole;
@@ -13,20 +13,20 @@ use brydz_core::player::side::Side;
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractDummyState, ContractEnvStateComplete, ContractState};
+use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete, ContractState};
 use karty::suits::Suit;
 use sztorm::agent::{AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, StatefulAgent, TracingAgent};
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
-use sztorm::state::agent::{ConstructedInfoSet, ScoringInformationSet};
+use sztorm::state::agent::{ScoringInformationSet};
 use sztorm::state::ConstructedState;
-use sztorm_rl::agent::{NetworkLearningAgent, TestingAgent};
+
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::tensor_repr::WayToTensor;
 use crate::error::{BrydzSimError, SimulationError};
-use crate::options::operation::sessions::{AgentType, ContractInfoSetForLearning, SessionAgentTrait, Team};
+use crate::options::operation::sessions::{Team};
 use crate::options::operation::TrainOptions;
 
 /*
@@ -926,7 +926,7 @@ where
                 &DealDistribution::Fair
             };
 
-        let deal_description = DescriptionDeckDeal{
+        let _deal_description = DescriptionDeckDeal{
             probabilities: distr.clone(),
             cards: distr.sample(&mut thread_rng()),
         };

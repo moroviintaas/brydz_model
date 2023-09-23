@@ -1,34 +1,34 @@
-use std::fmt::Debug;
-use std::path::PathBuf;
+
+
 use std::thread;
 use log::{debug, info};
 use rand::prelude::{Distribution, SliceRandom};
 use rand::rngs::ThreadRng;
 use rand::thread_rng;
 use tch::{Device, nn, Tensor};
-use tch::nn::{Adam, Optimizer, VarStore};
-use brydz_core::contract::{ContractMechanics, ContractParameters, ContractRandomizer};
+use tch::nn::{Adam, VarStore};
+use brydz_core::contract::{ContractMechanics, ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
-use brydz_core::error::BridgeCoreErrorGen::Contract;
+
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateComplete, ContractInfoSetConvert420Normalised, ContractState};
-use karty::suits::Suit;
+
 use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
-use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, RoundRobinUniversalEnvironment, StatefulEnvironment};
+use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
-use sztorm::state::agent::{ConstructedInfoSet, ScoringInformationSet};
+
 use sztorm::state::ConstructedState;
-use sztorm_rl::actor_critic::ActorCriticPolicy;
+
 use sztorm_rl::error::SztormRLError;
-use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
+use sztorm_rl::{LearningNetworkPolicy};
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
-use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
-use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, QValueNet, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, SessionAgentTrait, Team,  TSession};
+use sztorm_rl::tensor_repr::{WayToTensor};
+use sztorm_rl::torch_net::{NeuralNetCloner, QValueNet};
+use crate::options::operation::sessions::{ContractInfoSetForLearning, Team,  TSession};
 use crate::options::operation::TrainOptions;
 
 

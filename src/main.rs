@@ -4,11 +4,11 @@ use std::str::FromStr;
 
 
 use clap::Parser;
-use tch::{Device, nn, Tensor};
-use tch::Device::Cpu;
-use tch::nn::{Adam, VarStore};
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised};
+
+
+
+
+
 
 use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{
@@ -18,11 +18,11 @@ use brydz_simulator::options::operation::{Operation,
 };
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
-use brydz_simulator::options::operation::sessions::{build_and_run_train_session, GenericContractA2CSession, GenericContractQLearningSession};
-use sztorm::agent::RandomPolicy;
-use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
-use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
+use brydz_simulator::options::operation::sessions::{build_and_run_train_session};
+
+
+
+
 
 
 //use crate::options::operation::{GenContract, Operation};

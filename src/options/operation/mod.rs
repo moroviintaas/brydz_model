@@ -12,7 +12,7 @@ use clap::Subcommand;
 pub use simulate_local::*;
 pub use train::*;
 use crate::options::operation::demo_op::DemoCommands;
-use crate::options::operation::sessions::{AgentType, TrainType};
+use crate::options::operation::sessions::{AgentType};
 //pub use demo_op::*;
 
 #[derive(Subcommand)]
