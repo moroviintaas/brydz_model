@@ -16,6 +16,19 @@ pub enum DeviceSelect{
     Vulkan
 }
 
+#[derive(ValueEnum, Copy, Clone)]
+pub enum InfoSetTypeSelect{
+    Simple,
+    Assume,
+    Complete
+}
+
+#[derive(ValueEnum, Copy, Clone)]
+pub enum InfoSetWayToTensorSelect{
+    _420,
+    Sparse,
+}
+
 impl DeviceSelect{
     pub fn map(self) -> tch::Device{
         match self{
@@ -74,6 +87,11 @@ pub struct TrainOptions{
     #[arg(short = 'g', long = "gamma", help = "Discount factor (gamma)", default_value = "0.99")]
     pub gamma: f64,
 
+    #[arg(short = 'i', long = "info_set", help = "InfoSet type", default_value = "simple")]
+    pub info_set_select: InfoSetTypeSelect,
+
+    #[arg(short = 'r', long = "info_set_tensor", help = "Way to convert info set to tensor", default_value = "sparse")]
+    pub w2t: InfoSetWayToTensorSelect,
 
 }
 
