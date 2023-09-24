@@ -1,31 +1,23 @@
-
-use std::thread;
-use log::{debug, info};
-use rand::prelude::{Distribution, SliceRandom};
-use rand::rngs::ThreadRng;
+use rand::prelude::{Distribution};
 use rand::thread_rng;
-use tch::{Device, nn, Tensor};
+use tch::{nn, Tensor};
 use tch::nn::{Adam, VarStore};
-use brydz_core::contract::{ContractMechanics, ContractRandomizer};
+use brydz_core::contract::{ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateComplete, ContractInfoSetConvert420Normalised, ContractState};
-use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
-use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
-use sztorm::error::SztormError;
-use sztorm::protocol::DomainParameters;
+use brydz_core::sztorm::state::*;
+use sztorm::agent::*;
 use sztorm::state::agent::ScoringInformationSet;
 use sztorm::state::ConstructedState;
 use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
-use crate::options::operation::train::sessions::{ContractInfoSetForLearning, Team, TSession};
+use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 
 
@@ -44,7 +36,7 @@ where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
     pub offside: AgentGen<ContractDP, P, ContractAgentSyncComm>,
 }
 
-
+/*
 pub struct GenericContractA2CSession<
     DISW2T: WayToTensor,
     WISW2T: WayToTensor,
@@ -692,6 +684,8 @@ pub fn train_session_a2c(_options: &TrainOptions) -> Result<(), SztormError<Cont
 
     Ok(())
 }
+
+*/
 
 pub fn t_session_a2c_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,

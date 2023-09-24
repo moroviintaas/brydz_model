@@ -58,7 +58,7 @@ where for<'a> <P as Policy<ContractDP>>::StateType: ConstructedState<ContractDP,
         type IS<P> = <P as Policy<ContractDP>>::StateType;
         AgentGenT::new(
             side,
-            <P as Policy<ContractDP>>::StateType::construct_from((&side, &contract_params, &deal_description)),
+            <IS<P>>::construct_from((&side, &contract_params, &deal_description)),
             comm, policy)
     }
 }
@@ -74,7 +74,7 @@ where for<'a> <P as Policy<ContractDP>>::StateType: ConstructedState<ContractDP,
         type IS<P> = <P as Policy<ContractDP>>::StateType;
         AgentGen::new(
             side,
-            <P as Policy<ContractDP>>::StateType::construct_from((&side, &contract_params, &deal_description)),
+            <IS<P>>::construct_from((&side, &contract_params, &deal_description)),
             comm, policy)
     }
 }

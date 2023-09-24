@@ -1,6 +1,5 @@
 mod options;
 
-use std::path::PathBuf;
 use log::error;
 use rand::{Rng, thread_rng};
 use ron::ser::{PrettyConfig, to_string_pretty};

@@ -1,34 +1,25 @@
-
-
-use std::thread;
-use log::{debug, info};
-use rand::prelude::{Distribution, SliceRandom};
-use rand::rngs::ThreadRng;
+use rand::prelude::{Distribution};
 use rand::thread_rng;
-use tch::{Device, nn, Tensor};
+use tch::{nn, Tensor};
 use tch::nn::{Adam, VarStore};
-use brydz_core::contract::{ContractMechanics, ContractRandomizer};
+use brydz_core::contract::{ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractActionWayToTensor, ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateComplete, ContractInfoSetConvert420Normalised, ContractState};
+use brydz_core::sztorm::state::*;
 
-use sztorm::agent::{Agent, AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
-use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
-use sztorm::error::SztormError;
-use sztorm::protocol::DomainParameters;
+use sztorm::agent::{*};
 
 use sztorm::state::ConstructedState;
 
 use sztorm_rl::error::SztormRLError;
-use sztorm_rl::{LearningNetworkPolicy};
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{WayToTensor};
 use sztorm_rl::torch_net::{NeuralNetCloner, QValueNet};
-use crate::options::operation::train::sessions::{ContractInfoSetForLearning, Team, TSession};
+use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 
 
@@ -41,7 +32,7 @@ pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<
     ContractAgentSyncComm>;
 
 
-
+/*
 pub struct TestAgents<P: Policy<ContractDP>>
 where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
     pub declarer: AgentGen<ContractDP, P, ContractAgentSyncComm>,
@@ -49,7 +40,9 @@ where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
     pub offside: AgentGen<ContractDP, P, ContractAgentSyncComm>,
 }
 
+ */
 
+/*
 pub struct GenericContractQLearningSession<
     DISW2T: WayToTensor,
     WISW2T: WayToTensor,
@@ -693,6 +686,8 @@ pub fn train_session_q(options: &TrainOptions) -> Result<(), SztormError<Contrac
     session.train_all_at_once(1000, 64, 100, None, &Default::default(), test_policy).unwrap();
     Ok(())
 }
+
+ */
 /*
 pub fn training_session_q_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,

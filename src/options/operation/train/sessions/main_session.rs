@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 use std::thread;
-use log::{debug, info};
+use log::{debug, error, info};
 use rand::distributions::Distribution;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
@@ -15,7 +15,7 @@ use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete, ContractState};
 use karty::suits::Suit;
-use sztorm::agent::{AgentGen, AgentGenT, AgentTrajectory, AutomaticAgent, AutomaticAgentRewarded, EnvRewardedAgent, Policy, PolicyAgent, RandomPolicy, ResetAgent, StatefulAgent, TracingAgent};
+use sztorm::agent::*;
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
 use sztorm::protocol::DomainParameters;
@@ -162,7 +162,7 @@ where
         self.whist_trajectories.clear();
         self.declarer_trajectories.clear();
     }
-
+    #[allow(dead_code)]
     fn store_single_game_results_in_test(&mut self, team: &Team)
     {
         match team{
@@ -259,22 +259,47 @@ where
     fn play_game(&mut self) -> Result<(), SztormRLError<ContractDP>>{
         thread::scope(|s|{
             s.spawn(||{
-                self.environment.run_round_robin_uni_rewards_penalise(-100);
+                match self.environment.run_round_robin_uni_rewards_penalise(-100){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Environment run error: {e:}");
+                    }
+                }
             });
             s.spawn(||{
-                self.declarer.run_rewarded();
+                match self.declarer.run_rewarded(){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Declarer run error: {e:}");
+                    }
+                }
             });
 
             s.spawn(||{
-                self.whist.run_rewarded();
+                match self.whist.run_rewarded(){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Whist run error: {e:}");
+                    }
+                }
             });
 
             s.spawn(||{
-                self.dummy.run_rewarded();
+                match self.dummy.run_rewarded(){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Dummy run error: {e:}");
+                    }
+                }
             });
 
             s.spawn(||{
-                self.offside.run_rewarded();
+                match self.offside.run_rewarded(){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Offside run error: {e:}");
+                    }
+                }
             });
         });
         Ok(())
@@ -284,35 +309,77 @@ where
     (&mut self, team: &Team) -> Result<(), SztormRLError<ContractDP>> {
         thread::scope(|s|{
             s.spawn(||{
-                self.environment.run_round_robin_uni_rewards_penalise(-100);
+                match self.environment.run_round_robin_uni_rewards_penalise(-100){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Environment run error: {e:}");
+                    }
+                }
             });
 
             s.spawn(||{
-                self.dummy.run();
+
+                match self.dummy.run(){
+                    Ok(_) => {}
+                    Err(e) => {
+                        error!("Dummy run error: {e:}");
+                    }
+                }
             });
 
             match team{
                 Team::Contractors => {
                     s.spawn(||{
-                        self.declarer.run_rewarded();
+                        match self.declarer.run_rewarded(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Declarer run error: {e:}");
+                            }
+                        }
                     });
                     s.spawn(||{
-                        self.test_whist.run();
+                        match self.test_whist.run(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Whust run error: {e:}");
+                            }
+                        }
                     });
                     s.spawn(||{
-                        self.test_offside.run();
+                        match self.test_offside.run(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Offside run error: {e:}");
+                            }
+                        }
                     });
 
                 }
                 Team::Defenders => {
                     s.spawn(||{
-                        self.whist.run_rewarded();
+                        match self.whist.run_rewarded(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Whist run error: {e:}");
+                            }
+                        }
                     });
                     s.spawn(||{
-                        self.test_declarer.run();
+                        match self.test_declarer.run(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Declarer run error: {e:}");
+                            }
+                        }
                     });
                     s.spawn(||{
-                        self.offside.run_rewarded();
+                        match self.offside.run_rewarded(){
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Offside run error: {e:}");
+                            }
+                        }
+
                     });
                 }
             }
