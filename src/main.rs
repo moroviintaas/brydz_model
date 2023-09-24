@@ -83,10 +83,13 @@ fn main() -> Result<(), BrydzSimError> {
                         Err(e) => Err(BrydzSimError::Custom(format!("{e:}")))
                     }
                 },
+                /*
                 DemoCommands::RunNN => {
                     options::operation::demo_op::test_with_untrained_network()?;
                     Ok(())
                 },
+
+                 */
                 DemoCommands::BiasedParams => {
                     Ok(test_sample_biased_distribution_parameters()?)
                 },
