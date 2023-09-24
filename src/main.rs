@@ -15,8 +15,8 @@ use brydz_simulator::{
     options};
 use brydz_simulator::options::operation::{Operation,
 };
-use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
+use brydz_simulator::options::operation::generate::{gen2, GenerateSubcommand, op_generate_biased_distributions};
 use brydz_simulator::options::operation::simulate_local::sim2;
 use brydz_simulator::options::operation::train::sessions::build_and_run_train_session;
 
@@ -49,7 +49,11 @@ fn main() -> Result<(), BrydzSimError> {
     options::setup_logger(&cli).unwrap();
     //serialize_settings_toml();
     match &cli.command{
-        Operation::ContractGen(gen_options) => gen2(gen_options),
+        //Operation::ContractGen(gen_options) => gen2(gen_options),
+        Operation::Generate(subcommand) => match subcommand{
+            GenerateSubcommand::Contract(options) => gen2(options),
+            GenerateSubcommand::Distribution(options) => op_generate_biased_distributions(options)
+        }
 
         Operation::LocalSimContract(options) => {
             sim2(options)

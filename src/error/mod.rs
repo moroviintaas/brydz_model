@@ -1,6 +1,7 @@
 mod gen;
 mod simulation;
 
+use ron::Error;
 use tch::TchError;
 //use tensorflow::{SaveModelError, Status};
 use brydz_core::error::BridgeCoreError;
@@ -31,6 +32,10 @@ pub enum BrydzSimError{
     //SaveModel(SaveModelError),
     #[error("LoadModel Error {0}")]
     Tch(TchError),
+    #[error("Ron Error {0}")]
+    Ron(ron::error::Error),
+    #[error("IO Error {0}")]
+    IO(std::io::Error),
 
 }
 
@@ -55,6 +60,16 @@ impl From<SztormRLError<ContractDP>> for BrydzSimError{
 impl From<SetupError<ContractDP>> for BrydzSimError{
     fn from(value: SetupError<ContractDP>) -> Self {
         Sztorm(SztormError::Setup(value))
+    }
+}
+impl From<ron::error::Error> for BrydzSimError{
+    fn from(value: Error) -> Self {
+        BrydzSimError::Ron(value)
+    }
+}
+impl From<std::io::Error> for BrydzSimError{
+    fn from(value: std::io::Error) -> Self {
+        BrydzSimError::IO(value)
     }
 }
 /*
