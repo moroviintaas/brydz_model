@@ -24,13 +24,13 @@ use karty::random::RandomSymbol;
 use karty::suits::Suit;
 use crate::{SyntheticContractQNetSimple, EEPolicy};
 use crate::error::BrydzSimError;
-use crate::options::operation::TrainOptions;
 use rand_distr::Distribution;
 use tch::Kind::Float;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 use sztorm::agent::{Agent, AutomaticAgent, PolicyAgent, RandomPolicy, ResetAgent, TracingAgent};
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::model::single_play;
+use crate::options::operation::train::TrainOptions;
 
 const LEARNING_RATE: f64 = 1e-4;
 

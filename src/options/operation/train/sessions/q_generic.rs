@@ -28,8 +28,8 @@ use sztorm_rl::{LearningNetworkPolicy};
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use sztorm_rl::tensor_repr::{WayToTensor};
 use sztorm_rl::torch_net::{NeuralNetCloner, QValueNet};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, Team,  TSession};
-use crate::options::operation::TrainOptions;
+use crate::options::operation::train::sessions::{ContractInfoSetForLearning, Team, TSession};
+use crate::options::operation::train::TrainOptions;
 
 
 pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<

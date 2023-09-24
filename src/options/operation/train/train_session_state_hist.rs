@@ -24,8 +24,8 @@ use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
+use crate::options::operation::train::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
-use crate::options::operation::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
 const LEARNING_RATE: f64 = 1e-4;
 
@@ -140,7 +140,7 @@ fn run_test_set2_with_assumption<
     test_params: &[(ContractParameters, SideMap<CardSet>, BiasedHandDistribution)])-> Result<SideMap<f64>, BrydzSimError>{
 
 
-    //let card_distribution: BiasedHandDistribution = thread_rng().gen();
+    //let card_distribution: BiasedHandDistribution = thread_rng().generate();
     let mut sum_north_south = 0.0;
     let mut sum_east_west =0.0;
     for (param, cards, biased_card_distribution) in test_params{

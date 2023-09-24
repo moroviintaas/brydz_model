@@ -1,19 +1,16 @@
 mod gen_contract;
 pub mod test_ops;
-mod simulate_local;
-mod train;
+pub mod simulate_local;
+pub mod train;
 pub mod demo_op;
-mod gen_distribution;
+pub mod generate;
 
 
-pub use gen_distribution::*;
 pub use gen_contract::*;
 use clap::Subcommand;
-pub use simulate_local::*;
-pub use train::*;
 use crate::options::operation::demo_op::DemoCommands;
-use crate::options::operation::sessions::{AgentType};
-//pub use demo_op::*;
+use crate::options::operation::simulate_local::SimContractOptions;
+use crate::options::operation::train::sessions::AgentType;
 
 #[derive(Subcommand)]
 pub enum Operation {

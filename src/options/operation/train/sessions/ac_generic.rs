@@ -25,9 +25,8 @@ use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
-use crate::options::operation::sessions::{ContractInfoSetForLearning, Team, TSession};
-use crate::options::operation::TrainOptions;
-
+use crate::options::operation::train::sessions::{ContractInfoSetForLearning, Team, TSession};
+use crate::options::operation::train::TrainOptions;
 
 
 pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<

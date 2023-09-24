@@ -14,15 +14,11 @@ use brydz_simulator::error::BrydzSimError;
 use brydz_simulator::{
     options};
 use brydz_simulator::options::operation::{Operation,
-                                          sim2,
 };
 use brydz_simulator::options::operation::gen2;
 use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
-use brydz_simulator::options::operation::sessions::{build_and_run_train_session};
-
-
-
-
+use brydz_simulator::options::operation::simulate_local::sim2;
+use brydz_simulator::options::operation::train::sessions::build_and_run_train_session;
 
 
 //use crate::options::operation::{GenContract, Operation};

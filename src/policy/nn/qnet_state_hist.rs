@@ -8,7 +8,7 @@ use sztorm::agent::Policy;
 use sztorm::state::agent::InformationSet;
 use crate::policy::nn::Model;
 use crate::{tch_model};
-use crate::options::operation::{SequentialB, SequentialGen};
+use crate::options::operation::train::{SequentialB, SequentialGen};
 
 const CONTRACT_STATE_HISTORY_SIZE: i64 = (7 + (4 * 13)) * 53;
 const CONTRACT_ACTION_SPARSE_SIZE: i64 = 53;
