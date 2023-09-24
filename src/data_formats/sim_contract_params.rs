@@ -1,4 +1,5 @@
 use brydz_core::contract::ContractParameters;
+use brydz_core::deal::DealDistribution;
 use brydz_core::player::side::SideMap;
 use karty::hand::CardSet;
 use crate::DistributionTemplate;
@@ -8,16 +9,16 @@ use crate::DistributionTemplate;
 pub struct SimContractParams {
     parameters: ContractParameters,
     //info_sets: SideMap<DistributionTemplate>
-    distribution_template: DistributionTemplate,
+    deal_distribution: DealDistribution,
     cards: SideMap<CardSet>
 
 }
 
 impl SimContractParams{
     pub fn new(parameters: ContractParameters,
-               distribution_template: DistributionTemplate,
+               deal_distribution: DealDistribution,
                cards: SideMap<CardSet>) -> Self{
-        Self{parameters, distribution_template, cards}
+        Self{parameters, deal_distribution, cards}
     }
 
     pub fn cards(&self) -> &SideMap<CardSet>{

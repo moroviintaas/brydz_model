@@ -5,7 +5,7 @@ use ron::ser::{PrettyConfig, to_string_pretty};
 use brydz_core::bidding::{Bid, Doubling};
 use brydz_core::cards::trump::{Trump, TrumpGen};
 use brydz_core::contract::ContractParameters;
-use brydz_core::deal::{BiasedHandDistribution, fair_bridge_deal};
+use brydz_core::deal::{BiasedHandDistribution, DealDistribution, fair_bridge_deal};
 use brydz_core::player::side::Side;
 use karty::hand::CardSet;
 use karty::random::RandomSymbol;
@@ -56,13 +56,13 @@ fn generate_single_contract(params: &GenContractOptions, rng: &mut ThreadRng) ->
 
 
     let (template, cards) = match params.deal_method{
-        DealMethod::Fair => (DistributionTemplate::Simple, fair_bridge_deal::<CardSet>()),
+        DealMethod::Fair => (DealDistribution::Fair, fair_bridge_deal::<CardSet>()),
 
         DealMethod::Biased => {
             let mut rng = thread_rng();
             let distribution: BiasedHandDistribution = rng.gen();
             let cards = distribution.sample(&mut rng);
-            (DistributionTemplate::Suspect(distribution), cards)
+            (DealDistribution::Biased(Box::new(distribution)), cards)
         }
     };
 
