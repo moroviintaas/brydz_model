@@ -1,3 +1,4 @@
+use std::fs;
 use rand::prelude::{Distribution};
 use rand::thread_rng;
 use tch::{nn, Tensor};
@@ -19,6 +20,7 @@ use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
+use crate::SimContractParams;
 
 
 pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
@@ -63,6 +65,12 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         probabilities: DealDistribution::Fair,
         cards: DealDistribution::Fair.sample(&mut rng)
     };
+
+    let test_set = options.test_set.as_ref().map(|path|{
+        let test_str = fs::read_to_string(path).unwrap();
+        let set: Vec<SimContractParams> = ron::de::from_str(&test_str).unwrap();
+        set
+    });
 
     let network_pattern = NeuralNetCloner::new(|path| {
         let mut seq = nn::seq();
@@ -216,6 +224,7 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         test_declarer,
         test_whist,
         test_offside,
+        test_set,
     ))
 
 }

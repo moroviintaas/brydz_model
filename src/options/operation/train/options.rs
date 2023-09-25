@@ -93,6 +93,9 @@ pub struct TrainOptions{
     #[arg(short = 'r', long = "info_set_tensor", help = "Way to convert info set to tensor", default_value = "sparse")]
     pub w2t: InfoSetWayToTensorSelect,
 
+    #[arg(short = 'T', long = "test_set", help = "Pre-generated set of contracts with cards distribution and deal for tests")]
+    pub test_set: Option<PathBuf>,
+
 }
 
 impl From<&TrainOptions> for TrainConfig{

@@ -12,7 +12,7 @@ use karty::random::RandomSymbol;
 use karty::suits::Suit;
 use crate::error::BrydzSimError;
 use crate::error::GenError::LowerBoundOverUpper;
-use crate::{DistributionTemplate, SimContractParams};
+use crate::{SimContractParams};
 use rand_distr::Distribution;
 use std::io::Write;
 

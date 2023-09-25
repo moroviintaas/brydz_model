@@ -28,6 +28,7 @@ use sztorm_rl::tensor_repr::WayToTensor;
 use crate::error::{BrydzSimError, SimulationError};
 use crate::options::operation::train::sessions::Team;
 use crate::options::operation::train::TrainOptions;
+use crate::SimContractParams;
 
 
 pub type ContractInfoSetSeed<'a> = (&'a Side, &'a ContractParametersGen<Suit>, &'a DescriptionDeckDeal);
@@ -81,6 +82,8 @@ where
     _wis_test2t: PhantomData<WISTest2T>,
     _ois_test2t: PhantomData<OISTest2T>,
 
+    test_set: Option<Vec<SimContractParams>>
+
 
 
 }
@@ -129,6 +132,7 @@ where
         test_declarer: AgentGenT<ContractDP, TestPolicyD, ContractAgentSyncComm>,
         test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
         test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
+        test_set: Option<Vec<SimContractParams>>,
     ) -> Self{
         Self{
             environment,
@@ -145,12 +149,14 @@ where
             declarer_rewards: Default::default(),
             whist_rewards: Default::default(),
             offside_rewards: Default::default(),
+            test_set,
             _dis2t: Default::default(),
             _wis2t: Default::default(),
             _ois2t: Default::default(),
             _dis_test2t: Default::default(),
             _wis_test2t: Default::default(),
             _ois_test2t: Default::default(),
+
         }
     }
 
@@ -228,6 +234,55 @@ where
                 self.declarer.reset(<PolicyD as Policy<ContractDP>>::StateType::construct_from((&contract.declarer(), &contract, &deal_description)));
                 self.test_whist.reset(<TestPolicyW as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
                 self.test_offside.reset(<TestPolicyO as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+            }
+            Team::Defenders => {
+                self.test_declarer.reset(<TestPolicyD as Policy<ContractDP>>::StateType::construct_from((&contract.declarer(), &contract, &deal_description)));
+                self.whist.reset(<PolicyW as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
+                self.offside.reset(<PolicyO as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+                debug!("Whist's , committed score: {}", self.whist.current_universal_score());
+            }
+        }
+
+        self.declarer.change_id(contract.declarer());
+        self.dummy.change_id(contract.dummy());
+        self.offside.change_id(contract.offside());
+        self.whist.change_id(contract.whist());
+        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
+        self.test_whist.change_id(contract.whist());
+        self.test_offside.change_id(contract.offside());
+        self.test_declarer.change_id(contract.declarer());
+
+        debug!("Preparing game, trump: {}", &contract.bid().trump());
+        debug!("Preparing game, declarer's side: {}", &contract.declarer());
+        debug!("Declarer ({}) cards: {:#}", &contract.declarer(), deal_description.cards[&contract.declarer()]);
+        debug!("Whist ({}) cards: {:#}", &contract.whist(), deal_description.cards[&contract.whist()]);
+        debug!("Dummy ({}) cards: {:#}", &contract.dummy(), deal_description.cards[&contract.dummy()]);
+        debug!("Offside ({}) cards: {:#}", &contract.offside(), deal_description.cards[&contract.offside()]);
+
+
+    }
+
+    fn prepare_test_game_on_ready_deal
+    (
+        &mut self,
+        deal: &SimContractParams,
+        tested_team: Team) {
+
+        debug!("Preparing test game for team: {tested_team:?}");
+        let old_declarer_side = self.environment.state().contract_data().declarer();
+        let contract = deal.parameters();
+        let deal_distribution = deal.distribution();
+        let deal_description = DescriptionDeckDeal{
+            probabilities: deal_distribution.clone(),
+            cards: deal.cards().clone()
+        };
+        self.environment.replace_state(ContractEnvStateComplete::construct_from((contract, &deal_description)));
+        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), contract, &deal_description)));
+        match tested_team{
+            Team::Contractors => {
+                self.declarer.reset(<PolicyD as Policy<ContractDP>>::StateType::construct_from((&contract.declarer(), contract, &deal_description)));
+                self.test_whist.reset(<TestPolicyW as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(1), contract, &deal_description)));
+                self.test_offside.reset(<TestPolicyO as Policy<ContractDP>>::StateType::construct_from((&contract.declarer().next_i(3), contract, &deal_description)));
             }
             Team::Defenders => {
                 self.test_declarer.reset(<TestPolicyD as Policy<ContractDP>>::StateType::construct_from((&contract.declarer(), &contract, &deal_description)));
@@ -476,6 +531,7 @@ where
 
         self.clear_rewards();
 
+
         match team{
             Team::Contractors => {
                 self.whist.swap_comms(&mut self.test_whist);
@@ -527,18 +583,64 @@ where
 
     }
 
+    pub fn test_agents_team_on_ready_test_set(&mut self, team: &Team, number_of_tests: usize,
+        test_set: &Vec<SimContractParams>)
+        -> Result<f64, SztormError<ContractDP>> {
+
+
+        self.clear_rewards();
+
+        match team{
+            Team::Contractors => {
+                self.whist.swap_comms(&mut self.test_whist);
+                self.offside.swap_comms(&mut self.test_offside);
+                for test in test_set.iter() {
+
+                    self.prepare_test_game_on_ready_deal(test,  Team::Contractors);
+                    let _ = self.play_test_game(team);
+                    self.stash_result(team);
+
+                }
+                self.whist.swap_comms(&mut self.test_whist);
+                self.offside.swap_comms(&mut self.test_offside);
+
+                debug!("Declarer's rewards: {:?}", self.declarer_rewards);
+                let average = self.declarer_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.declarer_rewards.len() as f64;
+                info!("Testing declarer. Declarer's average reward: {average:}");
+                Ok(average)
+            }
+            Team::Defenders => {
+                self.declarer.swap_comms(&mut self.test_declarer);
+                for test in test_set.iter() {
+
+                    self.prepare_test_game_on_ready_deal(test,  Team::Defenders);
+                    let _ = self.play_test_game(team, );
+                    self.stash_result(team);
+
+                }
+                self.declarer.swap_comms(&mut self.test_declarer);
+
+                debug!("Whist's rewards: {:?}, offside's rewards {:?}", self.whist_rewards, self.offside_rewards);
+                let average_w = self.whist_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.whist_rewards.len() as f64;
+                let average_o = self.offside_rewards.iter().map(|i| *i as f64).sum::<f64>() / self.offside_rewards.len() as f64;
+                info!("Testing defender's. Whist's average reward: {average_w:}. Offside's average reward: {average_o:}");
+                Ok((average_w + average_o) / 2.0)
+
+
+            }
+        }
+
+
+    }
+
+
+
     pub fn test_agents(&mut self, number_of_tests: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer)
         -> Result<(f64, f64), SztormError<ContractDP>> {
 
-        /*
-        let (_, test_decl_comm) = ContractEnvSyncComm::new_pair();
-        let (_, test_whist_comm) = ContractEnvSyncComm::new_pair();
-        let (_, test_offside_comm) = ContractEnvSyncComm::new_pair();
 
-
-         */
         let mut rng = thread_rng();
         let distr = if let Some(pool) = distribution_pool{
                 pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
@@ -574,41 +676,34 @@ where
 
     }
 
+    pub fn test_agents_on_ready_contracts(&mut self, number_of_tests: usize,
+        test_set: &Vec<SimContractParams>)
+        -> Result<(f64, f64), SztormError<ContractDP>> {
 
 
-    /*
-    pub fn train_agents_single_store_one_epoch(
-        &mut self,
-        games_in_epoch: usize,
-        distribution_pool: Option<&[DealDistribution]>,
-        contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormRLError<ContractDP>> {
-        self.clear_trajectories();
-        let mut rng = thread_rng();
-        for _ in 0..games_in_epoch{
 
-            let distr = if let Some(pool) = distribution_pool{
-                pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
+        let declarer_score = self.test_agents_team_on_ready_test_set(
+            &Team::Contractors,
+            number_of_tests,
+            test_set )?;
 
-            } else {
-                &DealDistribution::Fair
-            };
-            self.prepare_game(&mut rng, distr, &contract_randomizer);
-            self.play_game()?;
 
-            self.stash_trajectories_all_to_declarer();
 
-        }
+        let defender_score = self.test_agents_team_on_ready_test_set(
+            &Team::Defenders,
+            number_of_tests,
+            test_set
+            )?;
 
-        if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..])?;
-        }
-        self.whist.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
-        self.offside.policy_mut().var_store_mut().copy(self.declarer.policy().var_store()).unwrap();
-        Ok(())
+
+        Ok((declarer_score, defender_score))
+
     }
 
-     */
+
+
+
+
 
     pub fn load_network_params_for_role<S: AsRef<std::path::Path>>(&mut self, role: PlayRole, path: S) -> Result<(), BrydzSimError>{
         match role{
@@ -695,13 +790,36 @@ where
         contract_randomizer: &ContractRandomizer,
     ) -> Result<(), SztormRLError<ContractDP>> {
 
-        self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
+        let test_set = self.test_set.take();
+        match test_set{
+            None => {
+                let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
+            }
+            Some(ref set) => {
+                let _test_agents = self.test_agents_on_ready_contracts(games_in_test, set)?;
+            }
+        }
+
+        //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
         for e in 1..=epochs{
             self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             info!("Completed epoch {e:} of training.");
-            let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
+            //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
+
+            match test_set{
+                None => {
+                    let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
+                }
+                Some(ref set) => {
+                    let _test_agents = self.test_agents_on_ready_contracts(games_in_test, set)?;
+                }
+            }
+
+
+
         }
+        self.test_set = test_set;
         Ok(())
     }
 
