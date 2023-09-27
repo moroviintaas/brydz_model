@@ -145,12 +145,12 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
     whist_test_net.var_store_mut().copy(whist_net.var_store())?;
     offside_test_net.var_store_mut().copy(offside_net.var_store())?;
 
-    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-    let whist_optimiser = whist_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-    let offside_optimiser = offside_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-    let declarer_test_optimiser = declarer_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-    let whist_test_optimiser = whist_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
-    let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), 5e-5).unwrap();
+    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let whist_optimiser = whist_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let offside_optimiser = offside_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let declarer_test_optimiser = declarer_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let whist_test_optimiser = whist_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
 
     let declarer_policy: ActorCriticPolicy<ContractDP, InfoSet, W2T>  =
         ActorCriticPolicy::new(declarer_net, declarer_optimiser, W2T::default(), options.into());

@@ -583,7 +583,7 @@ where
 
     }
 
-    pub fn test_agents_team_on_ready_test_set(&mut self, team: &Team, number_of_tests: usize,
+    pub fn test_agents_team_on_ready_test_set(&mut self, team: &Team,
         test_set: &Vec<SimContractParams>)
         -> Result<f64, SztormError<ContractDP>> {
 
@@ -676,7 +676,7 @@ where
 
     }
 
-    pub fn test_agents_on_ready_contracts(&mut self, number_of_tests: usize,
+    pub fn test_agents_on_ready_contracts(&mut self,
         test_set: &Vec<SimContractParams>)
         -> Result<(f64, f64), SztormError<ContractDP>> {
 
@@ -684,14 +684,12 @@ where
 
         let declarer_score = self.test_agents_team_on_ready_test_set(
             &Team::Contractors,
-            number_of_tests,
             test_set )?;
 
 
 
         let defender_score = self.test_agents_team_on_ready_test_set(
             &Team::Defenders,
-            number_of_tests,
             test_set
             )?;
 
@@ -796,7 +794,7 @@ where
                 let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
             }
             Some(ref set) => {
-                let _test_agents = self.test_agents_on_ready_contracts(games_in_test, set)?;
+                let _test_agents = self.test_agents_on_ready_contracts( set)?;
             }
         }
 
@@ -812,7 +810,7 @@ where
                     let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
                 }
                 Some(ref set) => {
-                    let _test_agents = self.test_agents_on_ready_contracts(games_in_test, set)?;
+                    let _test_agents = self.test_agents_on_ready_contracts(` set)?;
                 }
             }
 

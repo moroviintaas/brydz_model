@@ -124,12 +124,12 @@ pub fn t_session_q_symmetric<
     whist_test_net.var_store_mut().copy(whist_net.var_store())?;
     offside_test_net.var_store_mut().copy(offside_net.var_store())?;
 
-    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), 1e-4).unwrap();
-    let whist_optimiser = whist_net.build_optimizer(Adam::default(), 1e-4).unwrap();
-    let offside_optimiser = offside_net.build_optimizer(Adam::default(), 1e-4).unwrap();
-    let declarer_test_optimiser = declarer_test_net.build_optimizer(Adam::default(), 1e-4).unwrap();
-    let whist_test_optimiser = whist_test_net.build_optimizer(Adam::default(), 1e-4).unwrap();
-    let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), 1e-4).unwrap();
+    let declarer_optimiser = declarer_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let whist_optimiser = whist_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let offside_optimiser = offside_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let declarer_test_optimiser = declarer_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let whist_test_optimiser = whist_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
+    let offside_test_optimiser = offside_test_net.build_optimizer(Adam::default(), options.learning_rate).unwrap();
 
     let declarer_policy: QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>  =
         QLearningPolicy::new(declarer_net, declarer_optimiser, W2T::default(), ContractActionWayToTensor {}, QSelector::EpsilonGreedy(0.1),options.into());
