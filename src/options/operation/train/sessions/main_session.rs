@@ -810,7 +810,7 @@ where
                     let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
                 }
                 Some(ref set) => {
-                    let _test_agents = self.test_agents_on_ready_contracts(` set)?;
+                    let _test_agents = self.test_agents_on_ready_contracts(set)?;
                 }
             }
 
