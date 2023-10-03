@@ -8,7 +8,7 @@ use brydz_core::error::BridgeCoreError;
 use brydz_core::sztorm::spec::ContractDP;
 pub use gen::*;
 pub use simulation::*;
-use sztorm::error::{SetupError, SztormError};
+use sztorm::error::{SztormError, WorldError};
 use sztorm_rl::error::SztormRLError;
 use crate::error::BrydzSimError::Sztorm;
 
@@ -57,11 +57,13 @@ impl From<SztormRLError<ContractDP>> for BrydzSimError{
     }
 }
 
-impl From<SetupError<ContractDP>> for BrydzSimError{
-    fn from(value: SetupError<ContractDP>) -> Self {
-        Sztorm(SztormError::Setup(value))
+impl From<WorldError<ContractDP>> for BrydzSimError{
+    fn from(value: WorldError<ContractDP>) -> Self {
+        Sztorm(SztormError::World(value))
     }
 }
+
+
 impl From<ron::error::Error> for BrydzSimError{
     fn from(value: Error) -> Self {
         BrydzSimError::Ron(value)
