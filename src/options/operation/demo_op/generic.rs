@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use std::thread;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
@@ -10,10 +11,11 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
 use sztorm::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use sztorm::comm::DynComm;
 use sztorm::env::RoundRobinModelBuilder;
 use sztorm::error::{CommError, SztormError};
 use sztorm::protocol::{AgentMessage, EnvMessage};
-use sztorm_net_ext::{ComplexComm, ComplexComm2048};
+use sztorm_net_ext::{ComplexComm};
 use sztorm_net_ext::tcp::TcpCommK2;
 
 pub fn test_generic_model() -> Result<(), SztormError<ContractDP>>{
@@ -36,8 +38,8 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractDP>>{
 
     let stream_south_agent_side = std::net::TcpStream::connect("127.0.0.1:8420").unwrap();
     let south_stream_env_side = r.recv().unwrap();
-    let env_comm_south = ComplexComm::Tcp(TcpCommSimEnv::new(south_stream_env_side)) ;
-
+    //let env_comm_south = ComplexComm::Tcp(TcpCommSimEnv::new(south_stream_env_side)) ;
+    let env_comm_south = Box::new(TcpCommSimEnv::new(south_stream_env_side));
     let agent_comm_south = ComplexComm::Tcp(TcpCommSim::new(stream_south_agent_side));
 
 /*
@@ -71,11 +73,11 @@ pub fn test_generic_model() -> Result<(), SztormError<ContractDP>>{
 
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .add_local_agent(Box::new(agent_east), ComplexComm2048::StdSync(comm_env_east))?
+        .add_local_agent(Arc::new(Mutex::new(agent_east)), DynComm::Std(comm_env_east))?
         //.with_local_agent(Box::new(agent_south), agent_comm_south)?
-        .add_local_agent(Box::new(agent_west), ComplexComm2048::StdSync(comm_env_west))?
-        .add_local_agent(Box::new(agent_north), ComplexComm2048::StdSync(comm_env_north))?
-        .with_remote_agent(Side::South, env_comm_south)?
+        .add_local_agent(Arc::new(Mutex::new(agent_west)), DynComm::Std(comm_env_west))?
+        .add_local_agent(Arc::new(Mutex::new(agent_north)), DynComm::Std(comm_env_north))?
+        .with_remote_agent(Side::South, DynComm::Dynamic(env_comm_south))?
         .build()?;
 
 

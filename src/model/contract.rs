@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use brydz_core::contract::{Contract};
 use brydz_core::player::side::{SideMap};
 
@@ -59,10 +60,10 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
 
     let model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
-        .add_local_agent(Box::new(agent_declarer), ComplexComm1024::StdSync(comm_env_declarer))?
-        .add_local_agent(Box::new(agent_def1), ComplexComm1024::StdSync(comm_env_def1))?
-        .add_local_agent(Box::new(agent_dummy), ComplexComm1024::StdSync(comm_env_dummy))?
-        .add_local_agent(Box::new(agent_def2), ComplexComm1024::StdSync(comm_env_def2))?
+        .add_local_agent(Arc::new(Mutex::new(agent_declarer)), ComplexComm1024::StdSync(comm_env_declarer))?
+        .add_local_agent(Arc::new(Mutex::new(agent_def1)), ComplexComm1024::StdSync(comm_env_def1))?
+        .add_local_agent(Arc::new(Mutex::new(agent_dummy)), ComplexComm1024::StdSync(comm_env_dummy))?
+        .add_local_agent(Arc::new(Mutex::new(agent_def2)), ComplexComm1024::StdSync(comm_env_def2))?
         //.with_remote_agent(Side::South, env_comm_south)?
         .build()?;
 
