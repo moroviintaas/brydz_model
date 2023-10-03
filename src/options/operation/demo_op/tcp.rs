@@ -15,7 +15,7 @@ use karty::suits::Suit::Spades;
 use sztorm::agent::{AutomaticAgent, RandomPolicy};
 use sztorm::env::RoundRobinUniversalEnvironment;
 use sztorm::error::CommError;
-use sztorm::protocol::{AgentMessage, EnvMessage};
+use sztorm::domain::{AgentMessage, EnvMessage};
 use sztorm_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){

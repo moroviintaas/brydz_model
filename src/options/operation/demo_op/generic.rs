@@ -14,7 +14,7 @@ use sztorm::agent::{AgentGen, AutomaticAgent, RandomPolicy};
 use sztorm::comm::DynComm;
 use sztorm::env::RoundRobinModelBuilder;
 use sztorm::error::{CommError, SztormError};
-use sztorm::protocol::{AgentMessage, EnvMessage};
+use sztorm::domain::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm};
 use sztorm_net_ext::tcp::TcpCommK2;
 

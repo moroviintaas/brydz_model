@@ -8,7 +8,7 @@ use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, 
 use sztorm::agent::{AgentGen, RandomPolicy};
 use sztorm::env::{RoundRobinModel, RoundRobinModelBuilder};
 use sztorm::error::{CommError};
-use sztorm::protocol::{AgentMessage, EnvMessage};
+use sztorm::domain::{AgentMessage, EnvMessage};
 use sztorm_net_ext::{ComplexComm1024};
 use crate::error::{BrydzSimError};
 use crate::SimContractParams;

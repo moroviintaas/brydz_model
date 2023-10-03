@@ -18,7 +18,7 @@ use karty::suits::Suit;
 use sztorm::agent::*;
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
-use sztorm::protocol::DomainParameters;
+use sztorm::domain::DomainParameters;
 use sztorm::state::agent::{ScoringInformationSet};
 use sztorm::state::ConstructedState;
 
