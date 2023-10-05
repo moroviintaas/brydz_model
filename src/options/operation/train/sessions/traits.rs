@@ -29,13 +29,13 @@ impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
 pub trait SessionAgentTraitDyn<
     ISW: WayToTensor,
     P: Policy<ContractDP>
-> where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
+> where <P as Policy<ContractDP>>::InfoSetType: ContractInfoSetForLearning<ISW>
  + for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>{}
 
 pub trait SessionAgentTrait<
     ISW: WayToTensor,
     P: Policy<ContractDP>
-> where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
+> where <P as Policy<ContractDP>>::InfoSetType: ContractInfoSetForLearning<ISW>
  + for<'a> ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>{
 
     fn create_for_session(
@@ -51,11 +51,11 @@ impl<
     ISW: WayToTensor,
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGenT<ContractDP, P, ContractAgentSyncComm>
-where for<'a> <P as Policy<ContractDP>>::StateType: ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
+where for<'a> <P as Policy<ContractDP>>::InfoSetType: ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
-        type IS<P> = <P as Policy<ContractDP>>::StateType;
+        type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
         AgentGenT::new(
             side,
             <IS<P>>::construct_from((&side, &contract_params, &deal_description)),
@@ -67,11 +67,11 @@ impl<
     ISW: WayToTensor,
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGen<ContractDP, P, ContractAgentSyncComm>
-where for<'a> <P as Policy<ContractDP>>::StateType: ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
+where for<'a> <P as Policy<ContractDP>>::InfoSetType: ConstructedState<ContractDP, (&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
-        type IS<P> = <P as Policy<ContractDP>>::StateType;
+        type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
         AgentGen::new(
             side,
             <IS<P>>::construct_from((&side, &contract_params, &deal_description)),

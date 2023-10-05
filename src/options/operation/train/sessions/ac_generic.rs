@@ -32,7 +32,7 @@ pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
     ContractAgentSyncComm>;
 
 pub struct TestAgents<P: Policy<ContractDP>>
-where P: Policy<ContractDP, StateType = ContractAgentInfoSetAllKnowing>{
+where P: Policy<ContractDP, InfoSetType= ContractAgentInfoSetAllKnowing>{
     pub declarer: AgentGen<ContractDP, P, ContractAgentSyncComm>,
     pub whist: AgentGen<ContractDP, P, ContractAgentSyncComm>,
     pub offside: AgentGen<ContractDP, P, ContractAgentSyncComm>,

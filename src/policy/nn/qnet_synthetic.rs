@@ -60,9 +60,9 @@ impl SyntheticContractQNetSimple {
 
 
 impl Policy<ContractDP> for SyntheticContractQNetSimple {
-    type StateType = ContractAgentInfoSetSimple;
+    type InfoSetType = ContractAgentInfoSetSimple;
 
-    fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
+    fn select_action(&self, state: &Self::InfoSetType) -> Option<ContractAction> {
         let in_array_state:[f32; CONTRACT_STATE_SIZE as usize] = state.into();
         let mut q_input: Vec<f32> = Vec::from(in_array_state);
         q_input.append(&mut vec![0.0, 0.0]);

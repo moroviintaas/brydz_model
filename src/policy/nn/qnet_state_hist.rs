@@ -51,9 +51,9 @@ impl<S: BuildStateHistoryTensor + InformationSet<ContractDP>>
 Policy<ContractDP> for ContractStateHistQPolicy<S>
 //where <<S as InformationSet<ContractProtocolSpec>>::ActionIteratorType as IntoIterator>::Item: Debug
 {
-    type StateType = S;
+    type InfoSetType = S;
 
-    fn select_action(&self, state: &Self::StateType) -> Option<ContractAction> {
+    fn select_action(&self, state: &Self::InfoSetType) -> Option<ContractAction> {
         let in_array_state = state.state_history_tensor().f_flatten(0,1).unwrap();
         let mut current_best_action = None;
         let mut q_max: f32 = f32::MIN;
