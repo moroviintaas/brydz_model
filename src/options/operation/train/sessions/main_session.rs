@@ -18,9 +18,7 @@ use karty::suits::Suit;
 use sztorm::agent::*;
 use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
 use sztorm::error::SztormError;
-use sztorm::domain::DomainParameters;
-use sztorm::state::agent::{ScoringInformationSet};
-use sztorm::state::ConstructedState;
+use sztorm::domain::{Construct, DomainParameters};
 
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
@@ -115,12 +113,12 @@ impl <
     OISTest2T,
 >
 where
-    <PolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP> + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>> + Clone,
-    <PolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>>  + Clone,
-    <PolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> ConstructedState<ContractDP, ContractInfoSetSeed<'a>> + Clone,
+    <PolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP> + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
+    <PolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>>  + Clone,
+    <PolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
+    <TestPolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
+    <TestPolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
+    <TestPolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
 {
     pub(crate) fn _new(
         environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,

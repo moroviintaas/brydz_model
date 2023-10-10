@@ -13,8 +13,8 @@ use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::*;
 
 use sztorm::agent::{*};
+use sztorm::domain::Construct;
 
-use sztorm::state::ConstructedState;
 
 use sztorm_rl::error::SztormRLError;
 use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};

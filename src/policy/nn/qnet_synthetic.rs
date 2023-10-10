@@ -3,8 +3,7 @@ use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ ContractAction, ContractAgentInfoSetSimple};
-use sztorm::agent::Policy;
-use sztorm::state::agent::InformationSet;
+use sztorm::agent::{InformationSet, Policy};
 use crate::policy::nn::Model;
 
 

@@ -19,11 +19,10 @@ use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent};
+use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
-use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use crate::options::operation::train::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
 

@@ -16,8 +16,8 @@ pub use traits::*;
 use clap::Subcommand;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
+use sztorm::agent::ScoringInformationSet;
 
-use sztorm::state::agent::ScoringInformationSet;
 
 use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use crate::error::BrydzSimError;
