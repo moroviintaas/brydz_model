@@ -19,7 +19,7 @@ use brydz_core::sztorm::env::ContractEnv;
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet};
+use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
@@ -38,6 +38,7 @@ pub fn train_episode_state_hist<
     St: ScoringInformationSet<ContractDP,
         RewardType=i32> + BuildStateHistoryTensor + Clone
     + StateWithSide
+    + PresentPossibleActions<ContractDP>
     + Send>(
     ready_env: &mut SimpleEnv2,
     ready_declarer: &mut QNetStateHistAgent<St>,
@@ -106,7 +107,8 @@ pub fn train_episode_state_hist<
 
 }
 
-fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone>(
+fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
+        + PresentPossibleActions<ContractDP>>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -130,7 +132,8 @@ fn run_test_set2<St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWit
 }
 
 fn run_test_set2_with_assumption<
-    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone>(
+    St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
+        +PresentPossibleActions<ContractDP>>(
     env: &mut SimpleEnv2,
     declarer: &mut QNetStateHistAgent<St>,
     whist: &mut QNetStateHistAgent<St>,
@@ -160,6 +163,7 @@ fn run_test_set2_with_assumption<
 
 fn renew_world2<
     St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
+        + PresentPossibleActions<ContractDP>
 >(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,
@@ -180,6 +184,7 @@ fn renew_world2<
 #[allow(clippy::too_many_arguments)]
 fn renew_world2_with_assumption<
     St: CreatedContractInfoSet + BuildStateHistoryTensor + StateWithSide + Send + Clone
+         + PresentPossibleActions<ContractDP>
 >(contract_params: ContractParameters, cards: SideMap<CardSet>,
                env: &mut SimpleEnv2,
                declarer: &mut QNetStateHistAgent<St>, whist: &mut QNetStateHistAgent<St>, offside: &mut QNetStateHistAgent<St>,

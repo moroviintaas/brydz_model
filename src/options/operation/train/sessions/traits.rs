@@ -6,7 +6,7 @@ use brydz_core::sztorm::comm::{ContractAgentSyncComm};
 
 use brydz_core::sztorm::spec::ContractDP;
 
-use sztorm::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, ScoringInformationSet, StatefulAgent};
+use sztorm::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, ScoringInformationSet, StatefulAgent};
 use sztorm::domain::Construct;
 
 use sztorm_rl::LearningNetworkPolicy;
@@ -16,11 +16,13 @@ pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
 ConvertToTensor<ISW>
 + for<'a> Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP>
++ PresentPossibleActions<ContractDP>
 + Debug {}
 
 impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
 + for<'a> Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + ScoringInformationSet<ContractDP>
++ PresentPossibleActions<ContractDP>
 + Debug > ContractInfoSetForLearning<ISW> for T{}
 
 pub trait SessionAgentTraitDyn<
@@ -49,7 +51,7 @@ impl<
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGenT<ContractDP, P, ContractAgentSyncComm>
 where for<'a> <P as Policy<ContractDP>>::InfoSetType: Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
++ ScoringInformationSet<ContractDP> + ConvertToTensor<ISW> + PresentPossibleActions<ContractDP>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
@@ -64,8 +66,10 @@ impl<
     ISW: WayToTensor,
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGen<ContractDP, P, ContractAgentSyncComm>
-where for<'a> <P as Policy<ContractDP>>::InfoSetType: Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
+where for<'a> <P as Policy<ContractDP>>::InfoSetType:
+    Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
+    + PresentPossibleActions<ContractDP>
+    + ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;

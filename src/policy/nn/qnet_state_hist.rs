@@ -4,7 +4,7 @@ use tch::{Device, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
 use brydz_core::sztorm::spec::ContractDP;
 use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAction};
-use sztorm::agent::{InformationSet, Policy};
+use sztorm::agent::{InformationSet, Policy, PresentPossibleActions};
 use crate::policy::nn::Model;
 use crate::{tch_model};
 use crate::options::operation::train::{SequentialB, SequentialGen};
@@ -46,7 +46,7 @@ impl<S: BuildStateHistoryTensor + InformationSet<ContractDP>> ContractStateHistQ
 }
 
 
-impl<S: BuildStateHistoryTensor + InformationSet<ContractDP>>
+impl<S: BuildStateHistoryTensor + PresentPossibleActions<ContractDP>>
 Policy<ContractDP> for ContractStateHistQPolicy<S>
 //where <<S as InformationSet<ContractProtocolSpec>>::ActionIteratorType as IntoIterator>::Item: Debug
 {

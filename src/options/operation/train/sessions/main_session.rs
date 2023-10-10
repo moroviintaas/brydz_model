@@ -113,12 +113,30 @@ impl <
     OISTest2T,
 >
 where
-    <PolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP> + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
-    <PolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>>  + Clone,
-    <PolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
-    <TestPolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>  + for<'a> Construct<ContractInfoSetSeed<'a>> + Clone,
+    <PolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+        + PresentPossibleActions<ContractDP>
+        + Clone,
+    <PolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+         + PresentPossibleActions<ContractDP>
+        + Clone,
+    <PolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+        + PresentPossibleActions<ContractDP>
+        + Clone,
+    <TestPolicyD as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+        + PresentPossibleActions<ContractDP>
+        + Clone,
+    <TestPolicyW as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + PresentPossibleActions<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+        + Clone,
+    <TestPolicyO as Policy<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+        + for<'a> Construct<ContractInfoSetSeed<'a>>
+        + PresentPossibleActions<ContractDP>
+        + Clone,
 {
     pub(crate) fn _new(
         environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
