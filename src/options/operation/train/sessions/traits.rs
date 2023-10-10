@@ -95,12 +95,12 @@ where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
 
 pub trait ContractLearningAgent: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>
 where <Self as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
-<Self as StatefulAgent<ContractDP>>::State: ScoringInformationSet<ContractDP>{}
+<Self as StatefulAgent<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>{}
 
 impl <T: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>>
 ContractLearningAgent for T
 where <T as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
-<T as StatefulAgent<ContractDP>>::State: ScoringInformationSet<ContractDP>
+<T as StatefulAgent<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
 {}
 
 
