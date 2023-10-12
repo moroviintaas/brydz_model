@@ -37,7 +37,7 @@ where P: Policy<ContractDP, InfoSetType= ContractAgentInfoSetAllKnowing>{
     pub offside: AgentGen<ContractDP, P, ContractAgentSyncComm>,
 }
 
-
+#[allow(clippy::type_complexity)]
 pub fn t_session_a2c_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,
     W2T: WayToTensor

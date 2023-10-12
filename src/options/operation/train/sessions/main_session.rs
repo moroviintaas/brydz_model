@@ -138,6 +138,7 @@ where
         + PresentPossibleActions<ContractDP>
         + Clone,
 {
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn _new(
         environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
         declarer: AgentGenT<ContractDP, PolicyD, ContractAgentSyncComm>,
@@ -290,7 +291,7 @@ where
         let deal_distribution = deal.distribution();
         let deal_description = DescriptionDeckDeal{
             probabilities: deal_distribution.clone(),
-            cards: deal.cards().clone()
+            cards: *deal.cards()
         };
         self.environment.replace_state(ContractEnvStateComplete::construct_from((contract, &deal_description)));
         self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), contract, &deal_description)));
@@ -514,7 +515,7 @@ where
             } else {
                 &DealDistribution::Fair
             };
-            self.prepare_game(&mut rng, distr, &contract_randomizer);
+            self.prepare_game(&mut rng, distr, contract_randomizer);
             self.play_game()?;
             self.stash_trajectories();
 
@@ -600,7 +601,7 @@ where
     }
 
     pub fn test_agents_team_on_ready_test_set(&mut self, team: &Team,
-        test_set: &Vec<SimContractParams>)
+        test_set: &[SimContractParams])
         -> Result<f64, SztormError<ContractDP>> {
 
 
@@ -693,7 +694,7 @@ where
     }
 
     pub fn test_agents_on_ready_contracts(&mut self,
-        test_set: &Vec<SimContractParams>)
+        test_set: &[SimContractParams])
         -> Result<(f64, f64), SztormError<ContractDP>> {
 
 

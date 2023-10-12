@@ -36,6 +36,7 @@ pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<
 
 
 
+#[allow(clippy::type_complexity)]
 pub fn t_session_q_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,
     W2T: WayToTensor
