@@ -2,14 +2,14 @@ use std::sync::{Arc, Mutex};
 use brydz_core::contract::{Contract};
 use brydz_core::player::side::{SideMap};
 
-use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
-use sztorm::agent::{AgentGen, RandomPolicy};
-use sztorm::env::{RoundRobinModel, RoundRobinModelBuilder};
-use sztorm::error::{CommError};
-use sztorm::domain::{AgentMessage, EnvMessage};
-use sztorm_net_ext::{ComplexComm1024};
+use brydz_core::amfi::comm::ContractEnvSyncComm;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
+use amfi::agent::{AgentGen, RandomPolicy};
+use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
+use amfi::error::{CommError};
+use amfi::domain::{AgentMessage, EnvMessage};
+use amfi_net_ext::{ComplexComm1024};
 use crate::error::{BrydzSimError};
 use crate::SimContractParams;
 

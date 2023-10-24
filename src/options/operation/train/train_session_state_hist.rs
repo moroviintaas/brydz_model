@@ -13,16 +13,16 @@ use brydz_core::meta::HAND_SIZE;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 use brydz_core::player::side::Side::{East, North, South, West};
 use brydz_core::player::side::SideMap;
-use brydz_core::sztorm::agent::TracingContractAgent;
-use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
+use brydz_core::amfi::agent::TracingContractAgent;
+use brydz_core::amfi::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use sztorm::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
+use amfi::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
-use sztorm::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
+use amfi::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::options::operation::train::{load_var_store, random_contract_params, SequentialB, TrainOptions};
 
 

@@ -5,20 +5,20 @@ use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::Side;
-use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
+use brydz_core::amfi::comm::ContractEnvSyncComm;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::agent::{AgentGen, AutomaticAgent, RandomPolicy};
-use sztorm::comm::DynComm;
-use sztorm::env::RoundRobinModelBuilder;
-use sztorm::error::{CommError, SztormError};
-use sztorm::domain::{AgentMessage, EnvMessage};
-use sztorm_net_ext::{ComplexComm};
-use sztorm_net_ext::tcp::TcpCommK2;
+use amfi::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use amfi::comm::DynComm;
+use amfi::env::RoundRobinModelBuilder;
+use amfi::error::{CommError, AmfiError};
+use amfi::domain::{AgentMessage, EnvMessage};
+use amfi_net_ext::{ComplexComm};
+use amfi_net_ext::tcp::TcpCommK2;
 
-pub fn test_generic_model() -> Result<(), SztormError<ContractDP>>{
+pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
     type TcpCommSim = TcpCommK2<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommError<ContractDP>>;
     type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommError<ContractDP>>;
     let contract_params = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());

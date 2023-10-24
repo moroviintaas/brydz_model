@@ -1,9 +1,9 @@
 use log::debug;
 use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ ContractAction, ContractAgentInfoSetSimple};
-use sztorm::agent::{Policy, PresentPossibleActions};
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAction, ContractAgentInfoSetSimple};
+use amfi::agent::{Policy, PresentPossibleActions};
 use crate::policy::nn::Model;
 
 

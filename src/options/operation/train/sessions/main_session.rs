@@ -10,19 +10,19 @@ use brydz_core::contract::{ContractMechanics, ContractParametersGen, ContractRan
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 use brydz_core::player::role::PlayRole;
 use brydz_core::player::side::Side;
-use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractDummyState, ContractEnvStateComplete, ContractState};
+use brydz_core::amfi::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractDummyState, ContractEnvStateComplete, ContractState};
 use karty::suits::Suit;
-use sztorm::agent::*;
-use sztorm::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
-use sztorm::error::SztormError;
-use sztorm::domain::{Construct, DomainParameters};
+use amfi::agent::*;
+use amfi::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
+use amfi::error::AmfiError;
+use amfi::domain::{Construct, DomainParameters};
 
-use sztorm_rl::error::SztormRLError;
-use sztorm_rl::{LearningNetworkPolicy, TrainConfig};
-use sztorm_rl::tensor_repr::WayToTensor;
+use amfi_rl::error::AmfiRLError;
+use amfi_rl::{LearningNetworkPolicy, TrainConfig};
+use amfi_rl::tensor_repr::WayToTensor;
 use crate::error::{BrydzSimError, SimulationError};
 use crate::options::operation::train::sessions::Team;
 use crate::options::operation::train::TrainOptions;
@@ -328,7 +328,7 @@ where
 
     }
 
-    fn play_game(&mut self) -> Result<(), SztormRLError<ContractDP>>{
+    fn play_game(&mut self) -> Result<(), AmfiRLError<ContractDP>>{
         thread::scope(|s|{
             s.spawn(||{
                 match self.environment.run_round_robin_uni_rewards_penalise(-100){
@@ -378,7 +378,7 @@ where
     }
 
     fn play_test_game
-    (&mut self, team: &Team) -> Result<(), SztormRLError<ContractDP>> {
+    (&mut self, team: &Team) -> Result<(), AmfiRLError<ContractDP>> {
         thread::scope(|s|{
             s.spawn(||{
                 match self.environment.run_round_robin_uni_rewards_penalise(-100){
@@ -504,7 +504,7 @@ where
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormRLError<ContractDP>>{
+    ) -> Result<(), AmfiRLError<ContractDP>>{
         self.clear_trajectories();
         let mut rng = thread_rng();
         for _ in 0..games_in_epoch{
@@ -543,7 +543,7 @@ where
     pub fn test_agents_team(&mut self, rng: &mut ThreadRng, team: &Team, number_of_tests: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer, )
-        -> Result<f64, SztormError<ContractDP>> {
+        -> Result<f64, AmfiError<ContractDP>> {
 
 
         self.clear_rewards();
@@ -602,7 +602,7 @@ where
 
     pub fn test_agents_team_on_ready_test_set(&mut self, team: &Team,
         test_set: &[SimContractParams])
-        -> Result<f64, SztormError<ContractDP>> {
+        -> Result<f64, AmfiError<ContractDP>> {
 
 
         self.clear_rewards();
@@ -655,7 +655,7 @@ where
     pub fn test_agents(&mut self, number_of_tests: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer)
-        -> Result<(f64, f64), SztormError<ContractDP>> {
+        -> Result<(f64, f64), AmfiError<ContractDP>> {
 
 
         let mut rng = thread_rng();
@@ -695,7 +695,7 @@ where
 
     pub fn test_agents_on_ready_contracts(&mut self,
         test_set: &[SimContractParams])
-        -> Result<(f64, f64), SztormError<ContractDP>> {
+        -> Result<(f64, f64), AmfiError<ContractDP>> {
 
 
 
@@ -803,7 +803,7 @@ where
         games_in_test: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-    ) -> Result<(), SztormRLError<ContractDP>> {
+    ) -> Result<(), AmfiRLError<ContractDP>> {
 
         let test_set = self.test_set.take();
         match test_set{

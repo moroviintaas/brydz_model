@@ -1,7 +1,7 @@
 use std::thread;
-use brydz_core::sztorm::spec::ContractDP;
-use sztorm::agent::AutomaticAgent;
-use sztorm::env::RoundRobinUniversalEnvironment;
+use brydz_core::amfi::spec::ContractDP;
+use amfi::agent::AutomaticAgent;
+use amfi::env::RoundRobinUniversalEnvironment;
 use crate::options::operation::train::{DummyAgent, SimpleEnv};
 
 pub fn single_play<D: AutomaticAgent<ContractDP> + Send,

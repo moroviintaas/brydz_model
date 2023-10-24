@@ -7,12 +7,12 @@ edition = "2021"
 
 [dependencies]
 karty = {path = "../karty", features = ["fuzzy"]}
-brydz_core = {path = "../brydz_core", features = ["sztorm", "speedy", "serde_dedicate", "serde_ron", "neuro"]}
-sztorm = {path = "../sztorm", features= ["speedy"]}
+brydz_core = {path = "../brydz_core", features = ["amfi", "speedy", "serde_dedicate", "serde_ron", "neuro"]}
+amfi = {path = "../sztorm", features= ["speedy"]}
 log = "0.4.17"
 fern = "0.6.1"
 chrono = "0.4.23"
-sztorm_net_ext = {path = "../sztorm_net_ext"}
+amfi_net_ext = {path = "../sztorm_net_ext" }
 config = "0.13.3"
 serde = {version = "1.0.158", featueres = ["derive"]}
 toml = "0.7.3"
@@ -24,4 +24,4 @@ ron = "0.8.0"
 tch = "0.13.0"
 smallvec = "1.10.0"
 rand_distr = "0.4.3"
-sztorm_rl = {path = "../sztorm_rl"}
+amfi_rl = {path = "../sztorm_rl" }

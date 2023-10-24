@@ -7,19 +7,19 @@ use brydz_core::contract::{ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 
 use brydz_core::player::side::{Side, SideMap};
-use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::*;
+use brydz_core::amfi::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::*;
 
-use sztorm::agent::{*};
-use sztorm::domain::Construct;
+use amfi::agent::{*};
+use amfi::domain::Construct;
 
 
-use sztorm_rl::error::SztormRLError;
-use sztorm_rl::q_learning_policy::{QLearningPolicy, QSelector};
-use sztorm_rl::tensor_repr::{WayToTensor};
-use sztorm_rl::torch_net::{NeuralNetCloner, QValueNet};
+use amfi_rl::error::AmfiRLError;
+use amfi_rl::q_learning_policy::{QLearningPolicy, QSelector};
+use amfi_rl::tensor_repr::{WayToTensor};
+use amfi_rl::torch_net::{NeuralNetCloner, QValueNet};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
@@ -54,7 +54,7 @@ pub fn t_session_q_symmetric<
     QLearningPolicy<ContractDP, InfoSet, W2T, ContractActionWayToTensor>,
     W2T, W2T, W2T, W2T, W2T, W2T,
 
->, SztormRLError<ContractDP>>{
+>, AmfiRLError<ContractDP>>{
 
     let mut rng = thread_rng();
     let contract_params = ContractRandomizer::default().sample(&mut rng);

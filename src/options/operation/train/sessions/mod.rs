@@ -14,12 +14,12 @@ pub use traits::*;
 
 
 use clap::Subcommand;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
-use sztorm::agent::ScoringInformationSet;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
+use amfi::agent::ScoringInformationSet;
 
 
-use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
+use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use crate::error::BrydzSimError;
 use crate::options::operation::train::{InfoSetTypeSelect, InfoSetWayToTensorSelect, TrainOptions};
 

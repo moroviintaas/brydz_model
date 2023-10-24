@@ -2,15 +2,15 @@ use std::fmt::Debug;
 use brydz_core::contract::ContractParameters;
 use brydz_core::deal::DescriptionDeckDeal;
 use brydz_core::player::side::Side;
-use brydz_core::sztorm::comm::{ContractAgentSyncComm};
+use brydz_core::amfi::comm::{ContractAgentSyncComm};
 
-use brydz_core::sztorm::spec::ContractDP;
+use brydz_core::amfi::spec::ContractDP;
 
-use sztorm::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, ScoringInformationSet, StatefulAgent};
-use sztorm::domain::Construct;
+use amfi::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, ScoringInformationSet, StatefulAgent};
+use amfi::domain::Construct;
 
-use sztorm_rl::LearningNetworkPolicy;
-use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
+use amfi_rl::LearningNetworkPolicy;
+use amfi_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 
 pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
 ConvertToTensor<ISW>

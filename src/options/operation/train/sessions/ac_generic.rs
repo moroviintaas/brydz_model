@@ -7,16 +7,16 @@ use brydz_core::contract::{ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 
 use brydz_core::player::side::{Side, SideMap};
-use brydz_core::sztorm::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::*;
-use sztorm::agent::*;
-use sztorm::domain::Construct;
-use sztorm_rl::actor_critic::ActorCriticPolicy;
-use sztorm_rl::error::SztormRLError;
-use sztorm_rl::tensor_repr::{FloatTensorReward, WayToTensor};
-use sztorm_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
+use brydz_core::amfi::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::*;
+use amfi::agent::*;
+use amfi::domain::Construct;
+use amfi_rl::actor_critic::ActorCriticPolicy;
+use amfi_rl::error::AmfiRLError;
+use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
+use amfi_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
@@ -55,7 +55,7 @@ pub fn t_session_a2c_symmetric<
     ActorCriticPolicy<ContractDP, InfoSet, W2T>,
     W2T, W2T, W2T, W2T, W2T, W2T,
 
->, SztormRLError<ContractDP>>
+>, AmfiRLError<ContractDP>>
 where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorReward{
 
     let mut rng = thread_rng();

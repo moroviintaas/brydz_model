@@ -6,17 +6,17 @@ use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
 use brydz_core::player::side::Side::*;
-use brydz_core::sztorm::agent::TracingContractAgent;
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
+use brydz_core::amfi::agent::TracingContractAgent;
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::agent::{AutomaticAgent, RandomPolicy};
-use sztorm::env::RoundRobinUniversalEnvironment;
-use sztorm::error::CommError;
-use sztorm::domain::{AgentMessage, EnvMessage};
-use sztorm_net_ext::tcp::TcpCommK1;
+use amfi::agent::{AutomaticAgent, RandomPolicy};
+use amfi::env::RoundRobinUniversalEnvironment;
+use amfi::error::CommError;
+use amfi::domain::{AgentMessage, EnvMessage};
+use amfi_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());

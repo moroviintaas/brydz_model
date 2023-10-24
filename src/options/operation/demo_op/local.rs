@@ -4,14 +4,14 @@ use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
-use brydz_core::sztorm::comm::ContractEnvSyncComm;
-use brydz_core::sztorm::env::ContractEnv;
-use brydz_core::sztorm::spec::ContractDP;
-use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
+use brydz_core::amfi::comm::ContractEnvSyncComm;
+use brydz_core::amfi::env::ContractEnv;
+use brydz_core::amfi::spec::ContractDP;
+use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::agent::{AgentGen, AutomaticAgent, RandomPolicy};
-use sztorm::env::RoundRobinUniversalEnvironment;
+use amfi::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use amfi::env::RoundRobinUniversalEnvironment;
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
