@@ -171,9 +171,9 @@ fn renew_world2<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
-    whist.reset(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
-    offside.reset(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
+    declarer.reset(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
+    whist.reset(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
+    offside.reset(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
     dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
@@ -192,9 +192,9 @@ fn renew_world2_with_assumption<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset(St::create_new(declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
-    whist.reset(St::create_new(whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
-    offside.reset(St::create_new(offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
+    declarer.reset(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.reset(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.reset(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
     dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
