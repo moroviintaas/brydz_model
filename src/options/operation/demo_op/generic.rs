@@ -13,14 +13,14 @@ use karty::suits::Suit::Spades;
 use amfi::agent::{AgentGen, AutomaticAgent, RandomPolicy};
 use amfi::comm::DynComm;
 use amfi::env::RoundRobinModelBuilder;
-use amfi::error::{CommError, AmfiError};
+use amfi::error::{CommunicationError, AmfiError};
 use amfi::domain::{AgentMessage, EnvMessage};
 use amfi_net_ext::{ComplexComm};
 use amfi_net_ext::tcp::TcpCommK2;
 
 pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
-    type TcpCommSim = TcpCommK2<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommError<ContractDP>>;
-    type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommError<ContractDP>>;
+    type TcpCommSim = TcpCommK2<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommunicationError<ContractDP>>;
+    type TcpCommSimEnv = TcpCommK2<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommunicationError<ContractDP>>;
     let contract_params = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
 

@@ -14,14 +14,14 @@ use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
 use amfi::agent::{AutomaticAgent, RandomPolicy};
 use amfi::env::RoundRobinUniversalEnvironment;
-use amfi::error::CommError;
+use amfi::error::CommunicationError;
 use amfi::domain::{AgentMessage, EnvMessage};
 use amfi_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
-    type TcpCommSim = TcpCommK1<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommError<ContractDP>>;
-    type TcpCommSimEnv = TcpCommK1<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommError<ContractDP>>;
+    type TcpCommSim = TcpCommK1<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommunicationError<ContractDP>>;
+    type TcpCommSimEnv = TcpCommK1<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommunicationError<ContractDP>>;
     /*let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = TcpCommSim::new_pair();
     let (comm_env_east, comm_east) = TcpCommSim::new_pair();

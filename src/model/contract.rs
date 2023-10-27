@@ -7,7 +7,7 @@ use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use amfi::agent::{AgentGen, RandomPolicy};
 use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
-use amfi::error::{CommError};
+use amfi::error::{CommunicationError};
 use amfi::domain::{AgentMessage, EnvMessage};
 use amfi_net_ext::{ComplexComm1024};
 use crate::error::{BrydzSimError};
@@ -20,7 +20,7 @@ RoundRobinModel<
     ComplexComm1024<
         EnvMessage<ContractDP>,
         AgentMessage<ContractDP>,
-        CommError<ContractDP>>>;
+        CommunicationError<ContractDP>>>;
 
 pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract, BrydzSimError>{
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
