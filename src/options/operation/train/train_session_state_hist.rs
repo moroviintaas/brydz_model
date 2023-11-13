@@ -19,7 +19,7 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use amfi::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ResetAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
+use amfi::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ReinitAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use amfi::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
@@ -171,10 +171,10 @@ fn renew_world2<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
-    whist.reset(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
-    offside.reset(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
-    dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reinit(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, Default::default()));
+    whist.reinit(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, Default::default()));
+    offside.reinit(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, Default::default()));
+    dummy.reinit(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())
@@ -192,10 +192,10 @@ fn renew_world2_with_assumption<
     let contract = Contract::new(contract_params);
     let dummy_side = contract.dummy();
     env.replace_state(ContractEnvStateMin::new(contract.clone(), None));
-    declarer.reset(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
-    whist.reset(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
-    offside.reset(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
-    dummy.reset(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
+    declarer.reinit(St::create_new(*declarer.id(), cards[&declarer.id()], contract.clone(), None, distribution_assumption.clone()));
+    whist.reinit(St::create_new(*whist.id(), cards[&whist.id()], contract.clone(), None, distribution_assumption.clone()));
+    offside.reinit(St::create_new(*offside.id(), cards[&offside.id()], contract.clone(), None, distribution_assumption));
+    dummy.reinit(ContractDummyState::new(dummy_side, cards[&dummy_side], contract));
 
 
     Ok(())

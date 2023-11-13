@@ -212,10 +212,10 @@ where
         let contract = contract_randomizer.sample(rng);
         let old_declarer_side = self.environment.state().contract_data().declarer();
         self.environment.replace_state(ContractEnvStateComplete::construct_from((&contract, &deal_description)));
-        self.declarer.reset(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
-        self.whist.reset(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
-        self.offside.reset(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+        self.declarer.reinit(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
+        self.whist.reinit(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
+        self.dummy.reinit(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
+        self.offside.reinit(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
 
         self.declarer.change_id(contract.declarer());
         self.whist.change_id(contract.whist());
@@ -245,17 +245,17 @@ where
         let contract = contract_randomizer.sample(rng);
         let old_declarer_side = self.environment.state().contract_data().declarer();
         self.environment.replace_state(ContractEnvStateComplete::construct_from((&contract, &deal_description)));
-        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
+        self.dummy.reinit(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
         match tested_team{
             Team::Contractors => {
-                self.declarer.reset(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
-                self.test_whist.reset(<TestPolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-                self.test_offside.reset(<TestPolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+                self.declarer.reinit(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
+                self.test_whist.reinit(<TestPolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
+                self.test_offside.reinit(<TestPolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
             }
             Team::Defenders => {
-                self.test_declarer.reset(<TestPolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
-                self.whist.reset(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-                self.offside.reset(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+                self.test_declarer.reinit(<TestPolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
+                self.whist.reinit(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
+                self.offside.reinit(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
                 debug!("Whist's , committed score: {}", self.whist.current_universal_score());
             }
         }
@@ -294,17 +294,17 @@ where
             cards: *deal.cards()
         };
         self.environment.replace_state(ContractEnvStateComplete::construct_from((contract, &deal_description)));
-        self.dummy.reset(ContractDummyState::construct_from((&contract.declarer().next_i(2), contract, &deal_description)));
+        self.dummy.reinit(ContractDummyState::construct_from((&contract.declarer().next_i(2), contract, &deal_description)));
         match tested_team{
             Team::Contractors => {
-                self.declarer.reset(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), contract, &deal_description)));
-                self.test_whist.reset(<TestPolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), contract, &deal_description)));
-                self.test_offside.reset(<TestPolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), contract, &deal_description)));
+                self.declarer.reinit(<PolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), contract, &deal_description)));
+                self.test_whist.reinit(<TestPolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), contract, &deal_description)));
+                self.test_offside.reinit(<TestPolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), contract, &deal_description)));
             }
             Team::Defenders => {
-                self.test_declarer.reset(<TestPolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
-                self.whist.reset(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
-                self.offside.reset(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
+                self.test_declarer.reinit(<TestPolicyD as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer(), &contract, &deal_description)));
+                self.whist.reinit(<PolicyW as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(1), &contract, &deal_description)));
+                self.offside.reinit(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
                 debug!("Whist's , committed score: {}", self.whist.current_universal_score());
             }
         }
