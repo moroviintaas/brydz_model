@@ -20,8 +20,8 @@ pub fn setup_logger(options: &CliOptions) -> Result<(), fern::InitError> {
         //.level(log_level)
         .level_for("brydz_simulator", options.log_level)
         .level_for("brydz_core", options.brydz_core_log_level)
-        .level_for("sztorm_rl", options.amfi_rl_log_level)
-        .level_for("sztorm", options.amfi_log_level);
+        .level_for("amfi_rl", options.amfi_rl_log_level)
+        .level_for("amfi", options.amfi_log_level);
 
         match &options.log_file{
             None => dispatch.chain(std::io::stdout()),

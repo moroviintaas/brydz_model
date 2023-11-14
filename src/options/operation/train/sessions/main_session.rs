@@ -504,6 +504,7 @@ where
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
+        discount_factor: f64
     ) -> Result<(), AmfiRLError<ContractDP>>{
         self.clear_trajectories();
         let mut rng = thread_rng();
@@ -527,13 +528,13 @@ where
         debug!("Offside batch input sizes: {:?}", self.offside_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().batch_train_on_universal_rewards(&self.declarer_trajectories[..])?;
+            self.declarer.policy_mut().train_on_trajectories_env_reward(&self.declarer_trajectories[..], discount_factor)?;
         }
         if !self.whist_trajectories.is_empty(){
-            self.whist.policy_mut().batch_train_on_universal_rewards(&self.whist_trajectories[..])?;
+            self.whist.policy_mut().train_on_trajectories_env_reward(&self.whist_trajectories[..], discount_factor)?;
         }
         if !self.offside_trajectories.is_empty(){
-            self.offside.policy_mut().batch_train_on_universal_rewards(&self.offside_trajectories[..])?;
+            self.offside.policy_mut().train_on_trajectories_env_reward(&self.offside_trajectories[..], discount_factor)?;
         }
 
         Ok(())
@@ -803,6 +804,7 @@ where
         games_in_test: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
+        discount_factor: f64
     ) -> Result<(), AmfiRLError<ContractDP>> {
 
         let test_set = self.test_set.take();
@@ -817,7 +819,7 @@ where
 
         //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
         for e in 1..=epochs{
-            self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
+            self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer, discount_factor)?;
             //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             info!("Completed epoch {e:} of training.");
             //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;

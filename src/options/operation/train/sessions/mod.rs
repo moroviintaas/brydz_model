@@ -37,7 +37,13 @@ fn create_and_run_learning_a2c_session<
 where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorReward{
     let mut session = t_session_a2c_symmetric::<InfoSet, W2T>(options)?;
     session.load_network_params(options)?;
-    session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())?;
+    session.train_all_at_once(
+        options.epochs as usize,
+        options.games as usize,
+        options.tests_set_size as usize,
+        None,
+        &Default::default(),
+        options.gamma)?;
     session.save_network_params(options)?;
     Ok(())
 }
@@ -75,7 +81,13 @@ fn create_and_run_learning_q_session<
 >(options: &TrainOptions) -> Result<(), BrydzSimError>{
     let mut session = t_session_q_symmetric::<InfoSet, W2T>(options)?;
     session.load_network_params(options)?;
-    session.train_all_at_once(options.epochs as usize, options.games as usize, options.tests_set_size as usize, None, &Default::default())?;
+    session.train_all_at_once(
+        options.epochs as usize,
+        options.games as usize,
+        options.tests_set_size as usize,
+        None,
+        &Default::default(),
+        options.gamma)?;
     session.save_network_params(options)?;
     Ok(())
 }
