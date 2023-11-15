@@ -528,13 +528,13 @@ where
         debug!("Offside batch input sizes: {:?}", self.offside_trajectories.iter().map(|v|v.list().len()).collect::<Vec<usize>>());
 
         if !self.declarer_trajectories.is_empty(){
-            self.declarer.policy_mut().train_on_trajectories_env_reward(&self.declarer_trajectories[..], discount_factor)?;
+            self.declarer.policy_mut().train_on_trajectories_env_reward(&self.declarer_trajectories[..])?;
         }
         if !self.whist_trajectories.is_empty(){
-            self.whist.policy_mut().train_on_trajectories_env_reward(&self.whist_trajectories[..], discount_factor)?;
+            self.whist.policy_mut().train_on_trajectories_env_reward(&self.whist_trajectories[..])?;
         }
         if !self.offside_trajectories.is_empty(){
-            self.offside.policy_mut().train_on_trajectories_env_reward(&self.offside_trajectories[..], discount_factor)?;
+            self.offside.policy_mut().train_on_trajectories_env_reward(&self.offside_trajectories[..])?;
         }
 
         Ok(())
