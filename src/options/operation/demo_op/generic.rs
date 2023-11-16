@@ -65,10 +65,10 @@ pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
     let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
-    let agent_east = AgentGen::new(Side::East, initial_state_east, comm_east, random_policy.clone() );
-    let mut agent_south = AgentGen::new(Side::South, initial_state_south, agent_comm_south, random_policy.clone() );
-    let agent_west = AgentGen::new(Side::West, initial_state_west, comm_west, policy_dummy);
-    let agent_north = AgentGen::new(Side::North, initial_state_north, comm_north, random_policy );
+    let agent_east = AgentGen::new(initial_state_east, comm_east, random_policy.clone() );
+    let mut agent_south = AgentGen::new(initial_state_south, agent_comm_south, random_policy.clone() );
+    let agent_west = AgentGen::new( initial_state_west, comm_west, policy_dummy);
+    let agent_north = AgentGen::new( initial_state_north, comm_north, random_policy );
 
 
     let mut model = RoundRobinModelBuilder::new()

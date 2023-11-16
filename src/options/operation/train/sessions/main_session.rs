@@ -217,10 +217,13 @@ where
         self.dummy.reinit(ContractDummyState::construct_from((&contract.declarer().next_i(2), &contract, &deal_description)));
         self.offside.reinit(<PolicyO as Policy<ContractDP>>::InfoSetType::construct_from((&contract.declarer().next_i(3), &contract, &deal_description)));
 
+        /*
         self.declarer.change_id(contract.declarer());
         self.whist.change_id(contract.whist());
         self.dummy.change_id(contract.dummy());
         self.offside.change_id(contract.offside());
+
+         */
         self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
 
         debug!("Preparing game, trump: {}", &contract.bid().trump());
@@ -259,15 +262,21 @@ where
                 debug!("Whist's , committed score: {}", self.whist.current_universal_score());
             }
         }
-
+        /*
         self.declarer.change_id(contract.declarer());
         self.dummy.change_id(contract.dummy());
         self.offside.change_id(contract.offside());
         self.whist.change_id(contract.whist());
-        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
+
         self.test_whist.change_id(contract.whist());
         self.test_offside.change_id(contract.offside());
         self.test_declarer.change_id(contract.declarer());
+
+         */
+
+        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
+
+
 
         debug!("Preparing game, trump: {}", &contract.bid().trump());
         debug!("Preparing game, declarer's side: {}", &contract.declarer());
@@ -308,15 +317,18 @@ where
                 debug!("Whist's , committed score: {}", self.whist.current_universal_score());
             }
         }
-
+    /*
         self.declarer.change_id(contract.declarer());
         self.dummy.change_id(contract.dummy());
         self.offside.change_id(contract.offside());
         self.whist.change_id(contract.whist());
-        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
+
         self.test_whist.change_id(contract.whist());
         self.test_offside.change_id(contract.offside());
         self.test_declarer.change_id(contract.declarer());
+
+     */
+        self.environment.comms_mut().rotate(old_declarer_side, contract.declarer());
 
         debug!("Preparing game, trump: {}", &contract.bid().trump());
         debug!("Preparing game, declarer's side: {}", &contract.declarer());

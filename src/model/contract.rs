@@ -45,6 +45,10 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
     let initial_state_def1 = ContractAgentInfoSetSimple::new(def1, card_deal[&def1], initial_contract.clone(), None);
     let initial_state_dummy = ContractDummyState::new(dummy, card_deal[&dummy], initial_contract.clone());
     let initial_state_def2 = ContractAgentInfoSetSimple::new(def2, card_deal[&def2], initial_contract.clone(), None);
+    //let initial_state_declarer = ContractAgentInfoSetSimple::new(declarer, card_deal[&declarer], initial_contract.clone(), None);
+    //let initial_state_def1 = ContractAgentInfoSetSimple::new(def1, card_deal[&def1], initial_contract.clone(), None);
+    //let initial_state_dummy = ContractDummyState::new(dummy, card_deal[&dummy], initial_contract.clone());
+    //let initial_state_def2 = ContractAgentInfoSetSimple::new(def2, card_deal[&def2], initial_contract.clone(), None);
 
     //policy select
     let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
@@ -53,10 +57,10 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
     let (comm_declarer, comm_def1, comm_dummy, comm_def2) = agent_comm_map.destruct_start_with(declarer);
     let (comm_env_declarer, comm_env_def1, comm_env_dummy, comm_env_def2) = env_comm_map.destruct_start_with(declarer);
 
-    let agent_declarer = AgentGen::new(declarer, initial_state_declarer, comm_declarer, random_policy.clone() );
-    let agent_def1 = AgentGen::new(def1, initial_state_def1, comm_def1, random_policy.clone() );
-    let agent_dummy = AgentGen::new(dummy, initial_state_dummy, comm_dummy, policy_dummy);
-    let agent_def2 = AgentGen::new(def2, initial_state_def2, comm_def2, random_policy );
+    let agent_declarer = AgentGen::new(initial_state_declarer, comm_declarer, random_policy.clone() );
+    let agent_def1 = AgentGen::new(initial_state_def1, comm_def1, random_policy.clone() );
+    let agent_dummy = AgentGen::new( initial_state_dummy, comm_dummy, policy_dummy);
+    let agent_def2 = AgentGen::new( initial_state_def2, comm_def2, random_policy );
 
     let model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?

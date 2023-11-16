@@ -56,7 +56,6 @@ where for<'a> <P as Policy<ContractDP>>::InfoSetType: Construct<(&'a Side, &'a C
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
         AgentGenT::new(
-            side,
             <IS<P>>::construct_from((&side, &contract_params, &deal_description)),
             comm, policy)
     }
@@ -74,7 +73,6 @@ where for<'a> <P as Policy<ContractDP>>::InfoSetType:
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
         AgentGen::new(
-            side,
             <IS<P>>::construct_from((&side, &contract_params, &deal_description)),
             comm, policy)
     }

@@ -167,41 +167,34 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
 
 
     let declarer = ContractA2CLocalAgent::new(
-        contract_params.declarer(),
         InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
         comm_decl_env, declarer_policy);
 
 
 
     let whist = ContractA2CLocalAgent::new(
-        contract_params.declarer().next_i(1),
         InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
         comm_whist_env, whist_policy);
 
     let offside = ContractA2CLocalAgent::new(
-        contract_params.declarer().next_i(3),
         InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
         comm_offside_env, offside_policy);
 
 
     let test_declarer = ContractA2CLocalAgent::new(
-        contract_params.declarer(),
         InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
         comm_decl_test_env, declarer_policy_test);
 
 
     let test_whist = ContractA2CLocalAgent::new(
-        contract_params.declarer().next_i(1),
         InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
         comm_whist_test_env, whist_policy_test);
 
     let test_offside = ContractA2CLocalAgent::new(
-        contract_params.declarer().next_i(3),
         InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
         comm_offside_test_env, offside_policy_test);
 
     let dummy = AgentGen::new(
-        contract_params.declarer().next_i(2),
         ContractDummyState::construct_from((&contract_params.declarer().next_i(2), &contract_params, &deal_description)), comm_dummy_env, RandomPolicy::new(), );
 
     let (north_comm, east_comm, south_comm, west_comm) = match contract_params.declarer() {

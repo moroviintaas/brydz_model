@@ -75,10 +75,10 @@ pub fn tur_sim_tcp(){
             let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
             let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
-            let mut agent_east = TracingContractAgent::new(East, initial_state_east, comm_east, random_policy.clone() );
-            let mut agent_south = TracingContractAgent::new(South, initial_state_south, comm_south, random_policy.clone() );
-            let mut agent_west = TracingContractAgent::new(West, initial_state_west, comm_west, policy_dummy);
-            let mut agent_north = TracingContractAgent::new(North, initial_state_north, comm_north, random_policy );
+            let mut agent_east = TracingContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
+            let mut agent_south = TracingContractAgent::new( initial_state_south, comm_south, random_policy.clone() );
+            let mut agent_west = TracingContractAgent::new(initial_state_west, comm_west, policy_dummy);
+            let mut agent_north = TracingContractAgent::new(initial_state_north, comm_north, random_policy );
 
             thread::scope(|s|{
                 s.spawn(||{

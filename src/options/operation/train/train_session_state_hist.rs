@@ -19,7 +19,7 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{BuildStateHistoryTensor, ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin, CreatedContractInfoSet, StateWithSide};
 use karty::hand::CardSet;
-use amfi::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, Agent, ReinitAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
+use amfi::agent::{AutomaticAgent, PolicyAgent, RandomPolicy, TracingAgent, ReinitAgent, ScoringInformationSet, InformationSet, PresentPossibleActions};
 use crate::{ContractStateHistQPolicy, EEPolicy, single_play};
 use crate::error::BrydzSimError;
 use amfi::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
