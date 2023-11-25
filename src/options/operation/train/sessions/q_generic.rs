@@ -19,7 +19,7 @@ use amfi::domain::Construct;
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::q_learning_policy::{QLearningPolicy, QSelector};
 use amfi_rl::tensor_repr::{WayToTensor};
-use amfi_rl::torch_net::{NeuralNetCloner, QValueNet};
+use amfi_rl::torch_net::{NeuralNetTemplate, QValueNet};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
@@ -63,20 +63,23 @@ pub fn t_session_q_symmetric<
         cards: DealDistribution::Fair.sample(&mut rng)
     };
 
+    let tensor_repr = W2T::default();
+    let input_shape: i64 = tensor_repr.desired_shape().iter().sum();
+
     let test_set = options.test_set.as_ref().map(|path|{
         let test_str = fs::read_to_string(path).unwrap();
         let set: Vec<SimContractParams> = ron::de::from_str(&test_str).unwrap();
         set
     });
 
-    let network_pattern = NeuralNetCloner::new(|path| {
+    let network_pattern = NeuralNetTemplate::new(|path| {
         let mut seq = nn::seq();
         let mut last_dim = None;
         if !options.hidden_layers.is_empty(){
             let mut ld = options.hidden_layers[0];
 
             last_dim = Some(ld);
-            seq = seq.add(nn::linear(path / "INPUT", W2T::desired_shape()[0]+2, ld, Default::default()));
+            seq = seq.add(nn::linear(path / "INPUT", input_shape+2, ld, Default::default()));
 
             for i in 0..options.hidden_layers.len(){
                 let ld_new = options.hidden_layers[i];
@@ -88,7 +91,7 @@ pub fn t_session_q_symmetric<
         if let Some(ld) = last_dim{
             seq = seq.add(nn::linear(path / "Q", ld, 1, Default::default()));
         } else {
-            seq = seq.add(nn::linear(path / "Q", W2T::desired_shape()[0]+2, 1, Default::default()));
+            seq = seq.add(nn::linear(path / "Q", input_shape+2, 1, Default::default()));
         }
         let device = path.device();
         {move |xs: &Tensor|{

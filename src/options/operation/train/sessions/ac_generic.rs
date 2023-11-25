@@ -16,7 +16,7 @@ use amfi::domain::Construct;
 use amfi_rl::actor_critic::ActorCriticPolicy;
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
-use amfi_rl::torch_net::{A2CNet, NeuralNetCloner, TensorA2C};
+use amfi_rl::torch_net::{A2CNet, NeuralNetTemplate, TensorA2C};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
@@ -71,14 +71,16 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         set
     });
 
-    let network_pattern = NeuralNetCloner::new(|path| {
+    let network_pattern = NeuralNetTemplate::new(|path| {
         let mut seq = nn::seq();
         let mut last_dim = None;
+        let tensor_repr = W2T::default();
+        let input_shape = tensor_repr.desired_shape().iter().sum();
         if !options.hidden_layers.is_empty(){
             let mut ld = options.hidden_layers[0];
 
             last_dim = Some(ld);
-            seq = seq.add(nn::linear(path / "INPUT", W2T::desired_shape()[0], ld, Default::default()));
+            seq = seq.add(nn::linear(path / "INPUT", input_shape, ld, Default::default()));
 
             for i in 1..options.hidden_layers.len(){
                 let ld_new = options.hidden_layers[i];
@@ -89,8 +91,8 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         }
         let (actor, critic) = match last_dim{
             None => {
-                (nn::linear(path / "al", W2T::desired_shape()[0], 52, Default::default()),
-                 nn::linear(path / "cl", W2T::desired_shape()[0], 1, Default::default()))
+                (nn::linear(path / "al", input_shape, 52, Default::default()),
+                 nn::linear(path / "cl", input_shape, 1, Default::default()))
             }
             Some(ld) => {
                 (nn::linear(path / "al", ld, 52, Default::default()),
