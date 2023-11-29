@@ -42,8 +42,7 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
         options.games as usize,
         options.tests_set_size as usize,
         None,
-        &Default::default(),
-        options.gamma)?;
+        &Default::default(), )?;
     session.save_network_params(options)?;
     Ok(())
 }
@@ -86,8 +85,7 @@ fn create_and_run_learning_q_session<
         options.games as usize,
         options.tests_set_size as usize,
         None,
-        &Default::default(),
-        options.gamma)?;
+        &Default::default(),)?;
     session.save_network_params(options)?;
     Ok(())
 }

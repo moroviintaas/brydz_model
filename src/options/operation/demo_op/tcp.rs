@@ -5,7 +5,6 @@ use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
 use brydz_core::player::side::{Side, SideMap};
-use brydz_core::player::side::Side::*;
 use brydz_core::amfi::agent::TracingContractAgent;
 use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;

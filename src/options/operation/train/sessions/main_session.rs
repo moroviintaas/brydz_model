@@ -516,7 +516,6 @@ where
         games_in_epoch: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-        discount_factor: f64
     ) -> Result<(), AmfiRLError<ContractDP>>{
         self.clear_trajectories();
         let mut rng = thread_rng();
@@ -816,7 +815,6 @@ where
         games_in_test: usize,
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
-        discount_factor: f64
     ) -> Result<(), AmfiRLError<ContractDP>> {
 
         let test_set = self.test_set.take();
@@ -831,7 +829,7 @@ where
 
         //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
         for e in 1..=epochs{
-            self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer, discount_factor)?;
+            self.train_agents_separately_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             //self.train_agents_singe_store_one_epoch(games_in_epoch, distribution_pool, contract_randomizer)?;
             info!("Completed epoch {e:} of training.");
             //let _test_results = self.test_agents(games_in_test, distribution_pool, contract_randomizer)?;
