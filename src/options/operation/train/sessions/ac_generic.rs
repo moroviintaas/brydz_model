@@ -84,7 +84,9 @@ where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorRew
 
             for i in 1..options.hidden_layers.len(){
                 let ld_new = options.hidden_layers[i];
-                seq = seq.add(nn::linear(path / &format!("h_{:}", i+1), ld, ld_new, Default::default()));
+                seq = seq.add(nn::linear(path / &format!("h_{:}", i+1), ld, ld_new, Default::default()))
+                    .add_fn(|xs| xs.relu());
+
                 ld = ld_new;
                 last_dim = Some(ld);
             }

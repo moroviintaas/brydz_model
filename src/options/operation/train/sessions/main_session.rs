@@ -511,6 +511,15 @@ where
 
     }
 
+    fn set_exploring(&mut self, exploring_enabled: bool){
+        self.declarer.policy_mut().switch_explore(exploring_enabled);
+        self.whist.policy_mut().switch_explore(exploring_enabled);
+        self.offside.policy_mut().switch_explore(exploring_enabled);
+        //self.test_whist.policy_mut().switch_explore(exploring_enabled);
+        //self.test_declarer.policy_mut().switch_explore(exploring_enabled);
+        //self.test_offside.policy_mut().switch_explore(exploring_enabled);
+    }
+
     pub fn train_agents_separately_one_epoch(
         &mut self,
         games_in_epoch: usize,
@@ -518,6 +527,7 @@ where
         contract_randomizer: &ContractRandomizer,
     ) -> Result<(), AmfiRLError<ContractDP>>{
         self.clear_trajectories();
+        self.set_exploring(true);
         let mut rng = thread_rng();
         for _ in 0..games_in_epoch{
 
@@ -559,7 +569,7 @@ where
 
 
         self.clear_rewards();
-
+        self.set_exploring(false);
 
         match team{
             Team::Contractors => {
@@ -616,7 +626,7 @@ where
         test_set: &[SimContractParams])
         -> Result<f64, AmfiError<ContractDP>> {
 
-
+        self.set_exploring(false);
         self.clear_rewards();
 
         match team{
@@ -669,7 +679,7 @@ where
         contract_randomizer: &ContractRandomizer)
         -> Result<(f64, f64), AmfiError<ContractDP>> {
 
-
+        self.set_exploring(false);
         let mut rng = thread_rng();
         let distr = if let Some(pool) = distribution_pool{
                 pool.choose(&mut rng).unwrap_or(&DealDistribution::Fair)
@@ -708,7 +718,7 @@ where
     pub fn test_agents_on_ready_contracts(&mut self,
         test_set: &[SimContractParams])
         -> Result<(f64, f64), AmfiError<ContractDP>> {
-
+        self.set_exploring(false);
 
 
         let declarer_score = self.test_agents_team_on_ready_test_set(
@@ -816,6 +826,8 @@ where
         distribution_pool: Option<&[DealDistribution]>,
         contract_randomizer: &ContractRandomizer,
     ) -> Result<(), AmfiRLError<ContractDP>> {
+
+        self.set_exploring(true);
 
         let test_set = self.test_set.take();
         match test_set{
