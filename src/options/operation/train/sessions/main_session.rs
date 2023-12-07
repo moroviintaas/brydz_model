@@ -66,9 +66,9 @@ where
     test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
     test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
 
-    declarer_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyD as Policy<ContractDP>>::InfoSetType>>,
-    whist_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyW as Policy<ContractDP>>::InfoSetType>>,
-    offside_trajectories: Vec<AgentTrajectory<ContractDP, <PolicyO as Policy<ContractDP>>::InfoSetType>>,
+    declarer_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyD as Policy<ContractDP>>::InfoSetType>>,
+    whist_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyW as Policy<ContractDP>>::InfoSetType>>,
+    offside_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyO as Policy<ContractDP>>::InfoSetType>>,
     declarer_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     whist_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     offside_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
