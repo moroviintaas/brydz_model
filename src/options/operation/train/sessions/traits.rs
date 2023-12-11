@@ -6,7 +6,7 @@ use brydz_core::amfi::comm::{ContractAgentSyncComm};
 
 use brydz_core::amfi::spec::ContractDP;
 
-use amfi::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, ScoringInformationSet, StatefulAgent};
+use amfi::agent::{AgentGen, AgentGenT, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
 use amfi::domain::Construct;
 
 use amfi_rl::LearningNetworkPolicy;
@@ -15,13 +15,13 @@ use amfi_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
 ConvertToTensor<ISW>
 + for<'a> Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP>
++ EvaluatedInformationSet<ContractDP>
 + PresentPossibleActions<ContractDP>
 + Debug {}
 
 impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
 + for<'a> Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP>
++ EvaluatedInformationSet<ContractDP>
 + PresentPossibleActions<ContractDP>
 + Debug > ContractInfoSetForLearning<ISW> for T{}
 
@@ -51,7 +51,7 @@ impl<
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGenT<ContractDP, P, ContractAgentSyncComm>
 where for<'a> <P as Policy<ContractDP>>::InfoSetType: Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
-+ ScoringInformationSet<ContractDP> + ConvertToTensor<ISW> + PresentPossibleActions<ContractDP>
++ EvaluatedInformationSet<ContractDP> + ConvertToTensor<ISW> + PresentPossibleActions<ContractDP>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
@@ -68,7 +68,7 @@ impl<
 where for<'a> <P as Policy<ContractDP>>::InfoSetType:
     Construct<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
     + PresentPossibleActions<ContractDP>
-    + ScoringInformationSet<ContractDP> + ConvertToTensor<ISW>
+    + EvaluatedInformationSet<ContractDP> + ConvertToTensor<ISW>
 {
     fn create_for_session(side: Side, contract_params: &ContractParameters, deal_description: &DescriptionDeckDeal, comm: ContractAgentSyncComm, policy: P) -> Self {
         type IS<P> = <P as Policy<ContractDP>>::InfoSetType;
@@ -93,12 +93,12 @@ where <P as Policy<ContractDP>>::StateType: ContractInfoSetForLearning<ISW>
 
 pub trait ContractLearningAgent: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>
 where <Self as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
-<Self as StatefulAgent<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>{}
+<Self as StatefulAgent<ContractDP>>::InfoSetType: EvaluatedInformationSet<ContractDP>{}
 
 impl <T: AutomaticAgentRewarded<ContractDP>  + PolicyAgent<ContractDP>>
 ContractLearningAgent for T
 where <T as PolicyAgent<ContractDP>>::Policy: LearningNetworkPolicy<ContractDP>,
-<T as StatefulAgent<ContractDP>>::InfoSetType: ScoringInformationSet<ContractDP>
+<T as StatefulAgent<ContractDP>>::InfoSetType: EvaluatedInformationSet<ContractDP>
 {}
 
 

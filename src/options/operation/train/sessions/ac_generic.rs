@@ -56,7 +56,7 @@ pub fn t_session_a2c_symmetric<
     W2T, W2T, W2T, W2T, W2T, W2T,
 
 >, AmfiRLError<ContractDP>>
-where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorReward{
+where <InfoSet as EvaluatedInformationSet<ContractDP>>::RewardType: FloatTensorReward{
 
     let mut rng = thread_rng();
     let contract_params = ContractRandomizer::default().sample(&mut rng);

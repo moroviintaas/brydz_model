@@ -16,7 +16,7 @@ pub use traits::*;
 use clap::Subcommand;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
-use amfi::agent::ScoringInformationSet;
+use amfi::agent::EvaluatedInformationSet;
 
 
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
@@ -34,7 +34,7 @@ fn create_and_run_learning_a2c_session<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,
     W2T: WayToTensor
 >(options: &TrainOptions) -> Result<(), BrydzSimError>
-where <InfoSet as ScoringInformationSet<ContractDP>>::RewardType: FloatTensorReward{
+where <InfoSet as EvaluatedInformationSet<ContractDP>>::RewardType: FloatTensorReward{
     let mut session = t_session_a2c_symmetric::<InfoSet, W2T>(options)?;
     session.load_network_params(options)?;
     session.train_all_at_once(
