@@ -22,7 +22,7 @@ use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
 
 
-pub type ContractA2CLocalAgent<ISW, S> = AgentGenT<
+pub type ContractA2CLocalAgent<ISW, S> = TracingAgentGen<
     ContractDP,
     ActorCriticPolicy<
         ContractDP,

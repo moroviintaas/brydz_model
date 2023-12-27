@@ -57,14 +57,14 @@ where
 {
 
     environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
-    declarer: AgentGenT<ContractDP, PolicyD, ContractAgentSyncComm>,
-    whist: AgentGenT<ContractDP, PolicyW, ContractAgentSyncComm>,
-    offside: AgentGenT<ContractDP, PolicyO, ContractAgentSyncComm>,
+    declarer: TracingAgentGen<ContractDP, PolicyD, ContractAgentSyncComm>,
+    whist: TracingAgentGen<ContractDP, PolicyW, ContractAgentSyncComm>,
+    offside: TracingAgentGen<ContractDP, PolicyO, ContractAgentSyncComm>,
     dummy: AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>,
 
-    test_declarer: AgentGenT<ContractDP, TestPolicyD, ContractAgentSyncComm>,
-    test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
-    test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
+    test_declarer: TracingAgentGen<ContractDP, TestPolicyD, ContractAgentSyncComm>,
+    test_whist: TracingAgentGen<ContractDP, TestPolicyW, ContractAgentSyncComm>,
+    test_offside: TracingAgentGen<ContractDP, TestPolicyO, ContractAgentSyncComm>,
 
     declarer_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyD as Policy<ContractDP>>::InfoSetType>>,
     whist_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyW as Policy<ContractDP>>::InfoSetType>>,
@@ -141,14 +141,14 @@ where
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn _new(
         environment: ContractEnv<ContractEnvStateComplete, ContractEnvSyncComm>,
-        declarer: AgentGenT<ContractDP, PolicyD, ContractAgentSyncComm>,
-        whist: AgentGenT<ContractDP, PolicyW, ContractAgentSyncComm>,
-        offside: AgentGenT<ContractDP, PolicyO, ContractAgentSyncComm>,
+        declarer: TracingAgentGen<ContractDP, PolicyD, ContractAgentSyncComm>,
+        whist: TracingAgentGen<ContractDP, PolicyW, ContractAgentSyncComm>,
+        offside: TracingAgentGen<ContractDP, PolicyO, ContractAgentSyncComm>,
         dummy: AgentGen<ContractDP, RandomPolicy<ContractDP, ContractDummyState>, ContractAgentSyncComm>,
 
-        test_declarer: AgentGenT<ContractDP, TestPolicyD, ContractAgentSyncComm>,
-        test_whist: AgentGenT<ContractDP, TestPolicyW, ContractAgentSyncComm>,
-        test_offside: AgentGenT<ContractDP, TestPolicyO, ContractAgentSyncComm>,
+        test_declarer: TracingAgentGen<ContractDP, TestPolicyD, ContractAgentSyncComm>,
+        test_whist: TracingAgentGen<ContractDP, TestPolicyW, ContractAgentSyncComm>,
+        test_offside: TracingAgentGen<ContractDP, TestPolicyO, ContractAgentSyncComm>,
         test_set: Option<Vec<SimContractParams>>,
     ) -> Self{
         Self{

@@ -8,7 +8,7 @@ use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, Co
 use amfi::agent::{AgentGen, RandomPolicy};
 use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
 use amfi::error::{CommunicationError};
-use amfi::domain::{AgentMessage, EnvMessage};
+use amfi::domain::{AgentMessage, EnvironmentMessage};
 use amfi_net_ext::{ComplexComm1024};
 use crate::error::{BrydzSimError};
 use crate::SimContractParams;
@@ -18,7 +18,7 @@ RoundRobinModel<
     ContractDP,
     ContractEnvStateMin,
     ComplexComm1024<
-        EnvMessage<ContractDP>,
+        EnvironmentMessage<ContractDP>,
         AgentMessage<ContractDP>,
         CommunicationError<ContractDP>>>;
 

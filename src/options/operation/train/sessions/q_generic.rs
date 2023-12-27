@@ -25,7 +25,7 @@ use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;
 
 
-pub type ContractQPolicyLocalAgent<ISW, S> = AgentGenT<
+pub type ContractQPolicyLocalAgent<ISW, S> = TracingAgentGen<
     ContractDP,
     QLearningPolicy<
         ContractDP,
