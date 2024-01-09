@@ -12,7 +12,6 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::*;
 use amfi::agent::*;
-use amfi::domain::Construct;
 use amfi_rl::actor_critic::ActorCriticPolicy;
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
@@ -171,35 +170,35 @@ where <InfoSet as EvaluatedInformationSet<ContractDP>>::RewardType: FloatTensorR
 
 
     let declarer = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer(), &contract_params, &deal_description)),
         comm_decl_env, declarer_policy);
 
 
 
     let whist = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
         comm_whist_env, whist_policy);
 
     let offside = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
         comm_offside_env, offside_policy);
 
 
     let test_declarer = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer(), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer(), &contract_params, &deal_description)),
         comm_decl_test_env, declarer_policy_test);
 
 
     let test_whist = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer().next_i(1), &contract_params, &deal_description)),
         comm_whist_test_env, whist_policy_test);
 
     let test_offside = ContractA2CLocalAgent::new(
-        InfoSet::construct_from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
+        InfoSet::from((&contract_params.declarer().next_i(3), &contract_params, &deal_description)),
         comm_offside_test_env, offside_policy_test);
 
     let dummy = AgentGen::new(
-        ContractDummyState::construct_from((&contract_params.declarer().next_i(2), &contract_params, &deal_description)), comm_dummy_env, RandomPolicy::new(), );
+        ContractDummyState::from((&contract_params.declarer().next_i(2), &contract_params, &deal_description)), comm_dummy_env, RandomPolicy::new(), );
 
     let (north_comm, east_comm, south_comm, west_comm) = match contract_params.declarer() {
         Side::East => (comm_env_offside, comm_env_decl, comm_env_whist, comm_env_dummy),
@@ -208,7 +207,7 @@ where <InfoSet as EvaluatedInformationSet<ContractDP>>::RewardType: FloatTensorR
         Side::North => ( comm_env_decl, comm_env_whist, comm_env_dummy, comm_env_offside),
     };
     let environment = ContractEnv::new(
-        ContractEnvStateComplete::construct_from((&contract_params, &deal_description)),
+        ContractEnvStateComplete::from((&contract_params, &deal_description)),
         SideMap::new(north_comm, east_comm, south_comm, west_comm));
 
     Ok(TSession::_new(
