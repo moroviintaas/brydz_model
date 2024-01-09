@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex};
+use std::thread;
 use brydz_core::contract::{Contract};
 use brydz_core::player::side::{SideMap};
 
@@ -6,13 +7,18 @@ use brydz_core::amfi::comm::ContractEnvSyncComm;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use amfi::agent::{AgentGen, RandomPolicy};
-use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
+use amfi::comm::DynEndpoint;
+//use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
 use amfi::error::{CommunicationError};
 use amfi::domain::{AgentMessage, EnvironmentMessage};
+use amfi::env::RoundRobinUniversalEnvironment;
+//use amfi::env::{RoundRobinModel, RoundRobinModelBuilder};
 use amfi_net_ext::{ComplexComm1024};
+use brydz_core::amfi::env::ContractEnv;
 use crate::error::{BrydzSimError};
 use crate::SimContractParams;
 
+/*
 pub(crate) type LocalModelContract =
 RoundRobinModel<
     ContractDP,
@@ -22,6 +28,8 @@ RoundRobinModel<
         AgentMessage<ContractDP>,
         CommunicationError<ContractDP>>>;
 
+
+ */
 pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelContract, BrydzSimError>{
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
@@ -57,11 +65,12 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
     let (comm_declarer, comm_def1, comm_dummy, comm_def2) = agent_comm_map.destruct_start_with(declarer);
     let (comm_env_declarer, comm_env_def1, comm_env_dummy, comm_env_def2) = env_comm_map.destruct_start_with(declarer);
 
-    let agent_declarer = AgentGen::new(initial_state_declarer, comm_declarer, random_policy.clone() );
-    let agent_def1 = AgentGen::new(initial_state_def1, comm_def1, random_policy.clone() );
-    let agent_dummy = AgentGen::new( initial_state_dummy, comm_dummy, policy_dummy);
-    let agent_def2 = AgentGen::new( initial_state_def2, comm_def2, random_policy );
+    let mut agent_declarer = AgentGen::new(initial_state_declarer, comm_declarer, random_policy.clone() );
+    let mut agent_def1 = AgentGen::new(initial_state_def1, comm_def1, random_policy.clone() );
+    let mut agent_dummy = AgentGen::new( initial_state_dummy, comm_dummy, policy_dummy);
+    let mut agent_def2 = AgentGen::new( initial_state_def2, comm_def2, random_policy );
 
+    /*
     let model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
         .add_local_agent(Arc::new(Mutex::new(agent_declarer)), ComplexComm1024::StdSync(comm_env_declarer))?
@@ -70,6 +79,31 @@ pub fn generate_local_model(params: &SimContractParams) -> Result<LocalModelCont
         .add_local_agent(Arc::new(Mutex::new(agent_def2)), ComplexComm1024::StdSync(comm_env_def2))?
         //.with_remote_agent(Side::South, env_comm_south)?
         .build()?;
+
+     */
+
+    let mut environment = ContractEnv::new(ContractEnvStateMin::new(initial_contract, None), env_comm_map);
+
+    thread::scope(|s|{
+        s.spawn(||{
+            environment.run_round_robin_with_rewards().unwrap();
+        });
+        s.spawn(||{
+            agent_east.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_south.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_west.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_north.run_rewarded().unwrap();
+        });
+    });
 
     Ok(model)
 }

@@ -1,22 +1,23 @@
-use std::sync::{Arc, Mutex};
 use std::thread;
 use brydz_core::bidding::Bid;
 use brydz_core::cards::trump::TrumpGen;
 use brydz_core::contract::{Contract, ContractParametersGen};
 use brydz_core::deal::fair_bridge_deal;
-use brydz_core::player::side::Side;
+use brydz_core::player::side::{Side, SideMap};
 use brydz_core::amfi::comm::ContractEnvSyncComm;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use amfi::agent::{AgentGen, AutomaticAgentRewarded, RandomPolicy};
 use amfi::comm::DynEndpoint;
-use amfi::env::RoundRobinModelBuilder;
 use amfi::error::{CommunicationError, AmfiError};
 use amfi::domain::{AgentMessage, EnvironmentMessage};
+use amfi::env::RoundRobinUniversalEnvironment;
+//use amfi::env::RoundRobinModelBuilder;
 use amfi_net_ext::{ComplexComm};
 use amfi_net_ext::tcp::TcpCommK2;
+use brydz_core::amfi::env::ContractEnv;
 
 pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
     type TcpCommSim = TcpCommK2<AgentMessage<ContractDP>, EnvironmentMessage<ContractDP>, CommunicationError<ContractDP>>;
@@ -65,12 +66,13 @@ pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
     let random_policy = RandomPolicy::<ContractDP, ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractDP, ContractDummyState>::new();
 
-    let agent_east = AgentGen::new(initial_state_east, comm_east, random_policy.clone() );
+    let mut agent_east = AgentGen::new(initial_state_east, comm_east, random_policy.clone() );
     let mut agent_south = AgentGen::new(initial_state_south, agent_comm_south, random_policy.clone() );
-    let agent_west = AgentGen::new( initial_state_west, comm_west, policy_dummy);
-    let agent_north = AgentGen::new( initial_state_north, comm_north, random_policy );
+    let mut agent_west = AgentGen::new( initial_state_west, comm_west, policy_dummy);
+    let mut agent_north = AgentGen::new( initial_state_north, comm_north, random_policy );
 
 
+    /*
     let mut model = RoundRobinModelBuilder::new()
         .with_env_state(ContractEnvStateMin::new(initial_contract, None))?
         .add_local_agent(Arc::new(Mutex::new(agent_east)), DynEndpoint::Std(comm_env_east))?
@@ -80,14 +82,52 @@ pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{
         .with_remote_agent(Side::South, DynEndpoint::Dynamic(env_comm_south))?
         .build()?;
 
-
-
-
-
     thread::spawn(move || {
         agent_south.run().unwrap();
     });
+
+
     model.play().unwrap();
+
+
+     */
+
+
+    let comms = SideMap::new(
+        DynEndpoint::Std(comm_env_north), DynEndpoint::Std(comm_env_east),
+        DynEndpoint::Dynamic(env_comm_south), DynEndpoint::Std(comm_env_west));
+    let mut environment = ContractEnv::new(ContractEnvStateMin::new(initial_contract, None), comms);
+
+
+
+
+
+
+    thread::scope(|s|{
+        s.spawn(||{
+            environment.run_round_robin_with_rewards().unwrap();
+        });
+        s.spawn(||{
+            agent_east.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_south.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_west.run_rewarded().unwrap();
+        });
+
+        s.spawn(||{
+            agent_north.run_rewarded().unwrap();
+        });
+    });
+
+
+
+
+
 
     Ok(())
 }

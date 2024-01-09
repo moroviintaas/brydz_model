@@ -3,9 +3,9 @@ mod options;
 use std::fs;
 pub use options::*;
 use crate::error::BrydzSimError;
-use crate::{generate_local_model, SimContractParams};
+use crate::SimContractParams;
 
-
+/*
 pub fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError>{
     match &gen_options.input_file{
         None => {todo!()}
@@ -23,3 +23,5 @@ pub fn sim2(gen_options: &SimContractOptions) -> Result<(), BrydzSimError>{
     }
     Ok(())
 }
+
+ */

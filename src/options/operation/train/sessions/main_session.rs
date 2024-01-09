@@ -343,7 +343,7 @@ where
     fn play_game(&mut self) -> Result<(), AmfiRLError<ContractDP>>{
         thread::scope(|s|{
             s.spawn(||{
-                match self.environment.run_round_robin_uni_rewards_penalise(-100){
+                match self.environment.run_round_robin_with_rewards_penalise(-100){
                     Ok(_) => {}
                     Err(e) => {
                         error!("Environment run error: {e:}");
@@ -393,7 +393,7 @@ where
     (&mut self, team: &Team) -> Result<(), AmfiRLError<ContractDP>> {
         thread::scope(|s|{
             s.spawn(||{
-                match self.environment.run_round_robin_uni_rewards_penalise(-100){
+                match self.environment.run_round_robin_with_rewards_penalise(-100){
                     Ok(_) => {}
                     Err(e) => {
                         error!("Environment run error: {e:}");

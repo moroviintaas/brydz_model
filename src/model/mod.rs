@@ -1,6 +1,6 @@
-mod contract;
+//mod contract;
 //mod detached;
 
-pub use contract::*;
+//pub use contract::*;
 //pub use detached::*;
 
