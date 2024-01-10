@@ -15,10 +15,10 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractDummyState, ContractEnvStateComplete, ContractState};
 use karty::suits::Suit;
-use amfi::agent::*;
-use amfi::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
-use amfi::error::AmfiError;
-use amfi::domain::DomainParameters;
+use amfi_core::agent::*;
+use amfi_core::env::{RoundRobinPenalisingUniversalEnvironment, StatefulEnvironment};
+use amfi_core::error::AmfiError;
+use amfi_core::domain::DomainParameters;
 
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::{LearningNetworkPolicy, TrainConfig};

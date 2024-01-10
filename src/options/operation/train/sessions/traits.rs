@@ -6,7 +6,7 @@ use brydz_core::amfi::comm::{ContractAgentSyncComm};
 
 use brydz_core::amfi::spec::ContractDP;
 
-use amfi::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
+use amfi_core::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
 
 use amfi_rl::LearningNetworkPolicy;
 use amfi_rl::tensor_repr::{ConvertToTensor, WayToTensor};

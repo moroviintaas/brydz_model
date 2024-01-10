@@ -16,7 +16,7 @@ pub use traits::*;
 use clap::Subcommand;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
-use amfi::agent::EvaluatedInformationSet;
+use amfi_core::agent::EvaluatedInformationSet;
 
 
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};

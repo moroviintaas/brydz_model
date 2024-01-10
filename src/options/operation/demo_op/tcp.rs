@@ -11,10 +11,10 @@ use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi::agent::{AutomaticAgent, RandomPolicy};
-use amfi::env::RoundRobinUniversalEnvironment;
-use amfi::error::CommunicationError;
-use amfi::domain::{AgentMessage, EnvironmentMessage};
+use amfi_core::agent::{AutomaticAgent, RandomPolicy};
+use amfi_core::env::RoundRobinUniversalEnvironment;
+use amfi_core::error::CommunicationError;
+use amfi_core::domain::{AgentMessage, EnvironmentMessage};
 use amfi_net_ext::tcp::TcpCommK1;
 
 pub fn tur_sim_tcp(){

@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 karty = {path = "../karty", features = ["fuzzy"]}
 brydz_core = {path = "../brydz_core", features = ["amfi", "speedy", "serde_dedicate", "serde_ron", "neuro"]}
-amfi = {path = "../amfi", features= ["speedy"]}
+amfi_core = {path = "../amfi_core", features= ["speedy"]}
 log = "0.4.17"
 fern = "0.6.1"
 chrono = "0.4.23"

@@ -11,7 +11,7 @@ use brydz_core::amfi::comm::{ContractAgentSyncComm, ContractEnvSyncComm};
 use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::*;
-use amfi::agent::*;
+use amfi_core::agent::*;
 use amfi_rl::actor_critic::ActorCriticPolicy;
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
