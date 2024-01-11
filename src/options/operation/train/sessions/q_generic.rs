@@ -16,7 +16,7 @@ use amfi_core::agent::{*};
 
 
 use amfi_rl::error::AmfiRLError;
-use amfi_rl::q_learning_policy::{QLearningPolicy, QSelector};
+use amfi_rl::policy::{QLearningPolicy, QSelector};
 use amfi_rl::tensor_repr::{WayToTensor};
 use amfi_rl::torch_net::{NeuralNetTemplate, QValueNet};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};

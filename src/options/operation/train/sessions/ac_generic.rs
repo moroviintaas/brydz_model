@@ -12,7 +12,7 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::*;
 use amfi_core::agent::*;
-use amfi_rl::actor_critic::ActorCriticPolicy;
+use amfi_rl::policy::ActorCriticPolicy;
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::tensor_repr::{FloatTensorReward, WayToTensor};
 use amfi_rl::torch_net::{A2CNet, NeuralNetTemplate, TensorA2C};

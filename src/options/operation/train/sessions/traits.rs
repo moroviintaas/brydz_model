@@ -8,7 +8,7 @@ use brydz_core::amfi::spec::ContractDP;
 
 use amfi_core::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
 
-use amfi_rl::LearningNetworkPolicy;
+use amfi_rl::policy::LearningNetworkPolicy;
 use amfi_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 
 pub trait ContractInfoSetForLearning<ISW: WayToTensor>:

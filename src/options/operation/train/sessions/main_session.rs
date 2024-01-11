@@ -21,7 +21,7 @@ use amfi_core::error::AmfiError;
 use amfi_core::domain::DomainParameters;
 
 use amfi_rl::error::AmfiRLError;
-use amfi_rl::{LearningNetworkPolicy, TrainConfig};
+use amfi_rl::policy::{LearningNetworkPolicy, TrainConfig};
 use amfi_rl::tensor_repr::WayToTensor;
 use crate::error::{BrydzSimError, SimulationError};
 use crate::options::operation::train::sessions::Team;
