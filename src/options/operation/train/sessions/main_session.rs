@@ -22,7 +22,7 @@ use amfi_core::domain::DomainParameters;
 
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::policy::{LearningNetworkPolicy, TrainConfig};
-use amfi_rl::tensor_repr::WayToTensor;
+use amfi_rl::tensor_data::ConversionToTensor;
 use crate::error::{BrydzSimError, SimulationError};
 use crate::options::operation::train::sessions::Team;
 use crate::options::operation::train::TrainOptions;
@@ -39,12 +39,12 @@ pub struct TSession<
     TestPolicyD: Policy<ContractDP>,
     TestPolicyW: Policy<ContractDP>,
     TestPolicyO: Policy<ContractDP>,
-    DIS2T: WayToTensor,
-    WIS2T: WayToTensor,
-    OIS2T: WayToTensor,
-    DISTest2T: WayToTensor,
-    WISTest2T: WayToTensor,
-    OISTest2T: WayToTensor,
+    DIS2T: ConversionToTensor,
+    WIS2T: ConversionToTensor,
+    OIS2T: ConversionToTensor,
+    DISTest2T: ConversionToTensor,
+    WISTest2T: ConversionToTensor,
+    OISTest2T: ConversionToTensor,
 >
 where
     <PolicyD as Policy<ContractDP>>::InfoSetType: EvaluatedInformationSet<ContractDP>,
@@ -92,12 +92,12 @@ impl <
     TestPolicyD: Policy<ContractDP>,
     TestPolicyW: Policy<ContractDP>,
     TestPolicyO: Policy<ContractDP>,
-    DIS2T: WayToTensor,
-    WIS2T: WayToTensor,
-    OIS2T: WayToTensor,
-    DISTest2T: WayToTensor,
-    WISTest2T: WayToTensor,
-    OISTest2T: WayToTensor,
+    DIS2T: ConversionToTensor,
+    WIS2T: ConversionToTensor,
+    OIS2T: ConversionToTensor,
+    DISTest2T: ConversionToTensor,
+    WISTest2T: ConversionToTensor,
+    OISTest2T: ConversionToTensor,
 > TSession<
     PolicyD,
     PolicyW,

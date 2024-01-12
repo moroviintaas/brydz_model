@@ -17,7 +17,7 @@ use amfi_core::agent::{*};
 
 use amfi_rl::error::AmfiRLError;
 use amfi_rl::policy::{QLearningPolicy, QSelector};
-use amfi_rl::tensor_repr::{WayToTensor};
+use amfi_rl::tensor_data::{ConversionToTensor};
 use amfi_rl::torch_net::{NeuralNetTemplate, QValueNet};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
@@ -38,7 +38,7 @@ pub type ContractQPolicyLocalAgent<ISW, S> = TracingAgentGen<
 #[allow(clippy::type_complexity)]
 pub fn t_session_q_symmetric<
     InfoSet: ContractInfoSetForLearning<W2T> + Clone,
-    W2T: WayToTensor
+    W2T: ConversionToTensor
 >(
     //declarer_policy: QLearningPolicy<ContractDP, DIS, DISW2T, ContractActionWayToTensor>,
     //whist_policy: QLearningPolicy<ContractDP, WIS, WISW2T, ContractActionWayToTensor>,

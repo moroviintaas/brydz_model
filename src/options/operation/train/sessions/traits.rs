@@ -9,29 +9,29 @@ use brydz_core::amfi::spec::ContractDP;
 use amfi_core::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
 
 use amfi_rl::policy::LearningNetworkPolicy;
-use amfi_rl::tensor_repr::{ConvertToTensor, WayToTensor};
+use amfi_rl::tensor_data::{ConvertToTensor, ConversionToTensor};
 
-pub trait ContractInfoSetForLearning<ISW: WayToTensor>:
+pub trait ContractInfoSetForLearning<ISW: ConversionToTensor>:
 ConvertToTensor<ISW>
 + for<'a> From<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + EvaluatedInformationSet<ContractDP>
 + PresentPossibleActions<ContractDP>
 + Debug {}
 
-impl<ISW: WayToTensor, T: ConvertToTensor<ISW>
+impl<ISW: ConversionToTensor, T: ConvertToTensor<ISW>
 + for<'a> From<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
 + EvaluatedInformationSet<ContractDP>
 + PresentPossibleActions<ContractDP>
 + Debug > ContractInfoSetForLearning<ISW> for T{}
 
 pub trait SessionAgentTraitDyn<
-    ISW: WayToTensor,
+    ISW: ConversionToTensor,
     P: Policy<ContractDP>
 > where <P as Policy<ContractDP>>::InfoSetType: ContractInfoSetForLearning<ISW>
  + for<'a> From<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>{}
 
 pub trait SessionAgentTrait<
-    ISW: WayToTensor,
+    ISW: ConversionToTensor,
     P: Policy<ContractDP>
 > where <P as Policy<ContractDP>>::InfoSetType: ContractInfoSetForLearning<ISW>
  + for<'a> From<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>{
@@ -46,7 +46,7 @@ pub trait SessionAgentTrait<
 }
 
 impl<
-    ISW: WayToTensor,
+    ISW: ConversionToTensor,
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for TracingAgentGen<ContractDP, P, ContractAgentSyncComm>
 where for<'a> <P as Policy<ContractDP>>::InfoSetType: From<(&'a Side, &'a ContractParameters, &'a DescriptionDeckDeal)>
@@ -61,7 +61,7 @@ where for<'a> <P as Policy<ContractDP>>::InfoSetType: From<(&'a Side, &'a Contra
 }
 
 impl<
-    ISW: WayToTensor,
+    ISW: ConversionToTensor,
     P: Policy<ContractDP>
 > SessionAgentTrait<ISW, P> for AgentGen<ContractDP, P, ContractAgentSyncComm>
 where for<'a> <P as Policy<ContractDP>>::InfoSetType:
