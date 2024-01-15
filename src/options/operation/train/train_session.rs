@@ -27,8 +27,8 @@ use crate::error::BrydzSimError;
 use rand_distr::Distribution;
 use tch::Kind::Float;
 use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
-use amfi_core::agent::{AgentWithId, AutomaticAgent, PolicyAgent, RandomPolicy, ReinitAgent, TracingAgent};
-use amfi_core::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
+use amfiteatr_core::agent::{AgentWithId, AutomaticAgent, PolicyAgent, RandomPolicy, ReinitAgent, TracingAgent};
+use amfiteatr_core::env::{RoundRobinUniversalEnvironment, StatefulEnvironment};
 use crate::model::single_play;
 use crate::options::operation::train::TrainOptions;
 

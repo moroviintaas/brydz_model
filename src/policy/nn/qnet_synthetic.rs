@@ -3,7 +3,7 @@ use tch::{Device, nn, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAction, ContractAgentInfoSetSimple};
-use amfi_core::agent::{Policy, PresentPossibleActions};
+use amfiteatr_core::agent::{Policy, PresentPossibleActions};
 use crate::policy::nn::Model;
 
 

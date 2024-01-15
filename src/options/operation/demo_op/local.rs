@@ -10,8 +10,8 @@ use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi_core::agent::{AgentGen, AutomaticAgent, RandomPolicy};
-use amfi_core::env::RoundRobinUniversalEnvironment;
+use amfiteatr_core::agent::{AgentGen, AutomaticAgent, RandomPolicy};
+use amfiteatr_core::env::RoundRobinUniversalEnvironment;
 
 pub fn tur_sim(){
     let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());

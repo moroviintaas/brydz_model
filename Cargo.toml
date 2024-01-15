@@ -7,12 +7,12 @@ edition = "2021"
 
 [dependencies]
 karty = {path = "../karty", features = ["fuzzy"]}
-brydz_core = {path = "../brydz_core", features = ["amfi", "speedy", "serde_dedicate", "serde_ron", "torch"]}
-amfi_core = {path = "../amfi_core", features= ["speedy"]}
+brydz_core = {path = "../brydz_core", features = ["amfiteatr", "speedy", "serde_dedicate", "serde_ron", "torch"]}
+amfiteatr_core = {path = "../amfiteatr_core", features= ["speedy"]}
 log = "0.4.20"
 fern = "0.6.2"
 chrono = "0.4.31"
-amfi_net_ext = {path = "../amfi_net_ext" }
+amfiteatr_net_ext = {path = "../amfiteatr_net_ext" }
 config = "0.13.4"
 serde = {version = "1.0.195", featueres = ["derive"]}
 toml = "0.8.8"
@@ -24,4 +24,4 @@ ron = "0.8.1"
 tch = "0.14.0"
 smallvec = "1.11.2"
 rand_distr = "0.4.3"
-amfi_rl = {path = "../amfi_rl" }
+amfiteatr_rl = {path = "../amfiteatr_rl" }

@@ -9,14 +9,14 @@ use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi_core::agent::{AgentGen, AutomaticAgentRewarded, RandomPolicy};
-use amfi_core::comm::DynEndpoint;
-use amfi_core::error::{CommunicationError, AmfiError};
-use amfi_core::domain::{AgentMessage, EnvironmentMessage};
-use amfi_core::env::RoundRobinUniversalEnvironment;
-//use amfi_core::env::RoundRobinModelBuilder;
-use amfi_net_ext::{ComplexComm};
-use amfi_net_ext::tcp::TcpCommK2;
+use amfiteatr_core::agent::{AgentGen, AutomaticAgentRewarded, RandomPolicy};
+use amfiteatr_core::comm::DynEndpoint;
+use amfiteatr_core::error::{CommunicationError, AmfiError};
+use amfiteatr_core::domain::{AgentMessage, EnvironmentMessage};
+use amfiteatr_core::env::RoundRobinUniversalEnvironment;
+//use amfiteatr_core::env::RoundRobinModelBuilder;
+use amfiteatr_net_ext::{ComplexComm};
+use amfiteatr_net_ext::tcp::TcpCommK2;
 use brydz_core::amfi::env::ContractEnv;
 
 pub fn test_generic_model() -> Result<(), AmfiError<ContractDP>>{

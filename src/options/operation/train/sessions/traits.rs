@@ -6,10 +6,10 @@ use brydz_core::amfi::comm::{ContractAgentSyncComm};
 
 use brydz_core::amfi::spec::ContractDP;
 
-use amfi_core::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
+use amfiteatr_core::agent::{AgentGen, TracingAgentGen, AutomaticAgentRewarded, Policy, PolicyAgent, PresentPossibleActions, EvaluatedInformationSet, StatefulAgent};
 
-use amfi_rl::policy::LearningNetworkPolicy;
-use amfi_rl::tensor_data::{ConvertToTensor, ConversionToTensor};
+use amfiteatr_rl::policy::LearningNetworkPolicy;
+use amfiteatr_rl::tensor_data::{ConvertToTensor, ConversionToTensor};
 
 pub trait ContractInfoSetForLearning<ISW: ConversionToTensor>:
 ConvertToTensor<ISW>

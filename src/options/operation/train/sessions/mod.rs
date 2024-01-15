@@ -16,10 +16,10 @@ pub use traits::*;
 use clap::Subcommand;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAgentInfoSetAllKnowing, ContractAgentInfoSetSimple, ContractAgentInfoSetAssuming, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
-use amfi_core::agent::EvaluatedInformationSet;
+use amfiteatr_core::agent::EvaluatedInformationSet;
 
 
-use amfi_rl::tensor_data::{FloatTensorReward, ConversionToTensor};
+use amfiteatr_rl::tensor_data::{FloatTensorReward, ConversionToTensor};
 use crate::error::BrydzSimError;
 use crate::options::operation::train::{InfoSetTypeSelect, InfoSetWayToTensorSelect, TrainOptions};
 

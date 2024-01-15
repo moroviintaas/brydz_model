@@ -4,7 +4,7 @@ use tch::{Device, Tensor};
 use tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{BuildStateHistoryTensor, ContractAction};
-use amfi_core::agent::{InformationSet, Policy, PresentPossibleActions};
+use amfiteatr_core::agent::{InformationSet, Policy, PresentPossibleActions};
 use crate::policy::nn::Model;
 use crate::{tch_model};
 use crate::options::operation::train::{SequentialB, SequentialGen};

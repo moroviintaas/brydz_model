@@ -21,7 +21,7 @@ pub struct CliOptions {
     #[arg(short = 'a', long = "log_amfi", default_value_t= LevelFilter::Off)]
     pub amfi_log_level: LevelFilter,
     #[arg(short = 'r', long = "log_amfi-rl", default_value_t= LevelFilter::Off)]
-    pub amfi_rl_log_level: LevelFilter,
+    pub amfiteatr_rl_log_level: LevelFilter,
 
     #[arg(long = "log_file")]
     pub log_file: Option<PathBuf>,

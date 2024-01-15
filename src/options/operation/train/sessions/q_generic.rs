@@ -12,13 +12,13 @@ use brydz_core::amfi::env::ContractEnv;
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::*;
 
-use amfi_core::agent::{*};
+use amfiteatr_core::agent::{*};
 
 
-use amfi_rl::error::AmfiRLError;
-use amfi_rl::policy::{QLearningPolicy, QSelector};
-use amfi_rl::tensor_data::{ConversionToTensor};
-use amfi_rl::torch_net::{NeuralNetTemplate, QValueNet};
+use amfiteatr_rl::error::AmfiRLError;
+use amfiteatr_rl::policy::{QLearningPolicy, QSelector};
+use amfiteatr_rl::tensor_data::{ConversionToTensor};
+use amfiteatr_rl::torch_net::{NeuralNetTemplate, QValueNet};
 use crate::options::operation::train::sessions::{ContractInfoSetForLearning, TSession};
 use crate::options::operation::train::TrainOptions;
 use crate::SimContractParams;

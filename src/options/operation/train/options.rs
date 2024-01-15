@@ -1,7 +1,7 @@
 use clap::{Args, ValueEnum};
 use std::path::PathBuf;
 use tch::Device;
-use amfi_rl::policy::TrainConfig;
+use amfiteatr_rl::policy::TrainConfig;
 
 #[derive(Debug, Clone)]
 pub enum TestPolicyChoice{

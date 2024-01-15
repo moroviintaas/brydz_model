@@ -3,7 +3,7 @@ use brydz_core::deal::BiasedHandDistribution;
 use brydz_core::player::side::Side::North;
 use brydz_core::amfi::spec::ContractDP;
 use karty::cards::ACE_SPADES;
-use amfi_core::error::AmfiError;
+use amfiteatr_core::error::AmfiError;
 
 pub fn test_sample_biased_distribution_parameters() -> Result<(), AmfiError<ContractDP>>{
     //setup_logger(LevelFilter::Debug, &None).unwrap();

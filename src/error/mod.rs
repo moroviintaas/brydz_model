@@ -8,8 +8,8 @@ use brydz_core::error::BridgeCoreError;
 use brydz_core::amfi::spec::ContractDP;
 pub use gen::*;
 pub use simulation::*;
-use amfi_core::error::{AmfiError, WorldError};
-use amfi_rl::error::AmfiRLError;
+use amfiteatr_core::error::{AmfiError, WorldError};
+use amfiteatr_rl::error::AmfiRLError;
 use crate::error::BrydzSimError::Amfi;
 
 #[derive(Debug,  thiserror::Error)]

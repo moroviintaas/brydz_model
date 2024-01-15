@@ -4,7 +4,7 @@ use brydz_core::player::side::Side::North;
 use brydz_core::amfi::spec::ContractDP;
 use karty::cards::ACE_SPADES;
 use karty::hand::HandTrait;
-use amfi_core::error::AmfiError;
+use amfiteatr_core::error::AmfiError;
 
 pub fn test_sample_biased_deal_crossing() -> Result<(), AmfiError<ContractDP>>{
     let mut trng = thread_rng();
