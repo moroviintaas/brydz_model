@@ -1,5 +1,5 @@
-use brydz_simulator::settings::{ContractConfig, PlayerCfg};
-use brydz_simulator::settings::Connection::Local;
+use brydz_model::settings::{ContractConfig, PlayerCfg};
+use brydz_model::settings::Connection::Local;
 use std::str::FromStr;
 
 
@@ -10,15 +10,15 @@ use clap::Parser;
 
 
 
-use brydz_simulator::error::BrydzSimError;
-use brydz_simulator::{
+use brydz_model::error::BrydzSimError;
+use brydz_model::{
     options};
-use brydz_simulator::options::operation::{Operation,
+use brydz_model::options::operation::{Operation,
 };
-use brydz_simulator::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
-use brydz_simulator::options::operation::generate::{gen2, GenerateSubcommand, op_generate_biased_distributions};
-//use brydz_simulator::options::operation::simulate_local::sim2;
-use brydz_simulator::options::operation::train::sessions::build_and_run_train_session;
+use brydz_model::options::operation::demo_op::{test_sample_biased_deal_crossing, test_sample_biased_deal_single, test_sample_biased_distribution_parameters, DemoCommands};
+use brydz_model::options::operation::generate::{gen2, GenerateSubcommand, op_generate_biased_distributions};
+//use brydz_model::options::operation::simulate_local::sim2;
+use brydz_model::options::operation::train::sessions::build_and_run_train_session;
 
 
 //use crate::options::operation::{GenContract, Operation};

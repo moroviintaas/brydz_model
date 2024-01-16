@@ -18,7 +18,7 @@ pub fn setup_logger(options: &CliOptions) -> Result<(), fern::InitError> {
             ))
         })
         //.level(log_level)
-        .level_for("brydz_simulator", options.log_level)
+        .level_for("brydz_model", options.log_level)
         .level_for("brydz_core", options.brydz_core_log_level)
         .level_for("amfiteatr_rl", options.amfiteatr_rl_log_level)
         .level_for("amfi", options.amfi_log_level);
