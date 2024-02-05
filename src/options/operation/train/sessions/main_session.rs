@@ -346,7 +346,7 @@ where
                 match self.environment.run_round_robin_with_rewards_penalise(-100){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Environment run error: {e:}");
+                        debug!("Environment run error: {e:}");
                     }
                 }
             });
@@ -354,7 +354,7 @@ where
                 match self.declarer.run_rewarded(){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Declarer run error: {e:}");
+                        debug!("Declarer run error: {e:}");
                     }
                 }
             });
@@ -363,7 +363,7 @@ where
                 match self.whist.run_rewarded(){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Whist run error: {e:}");
+                        debug!("Whist run error: {e:}");
                     }
                 }
             });
@@ -372,7 +372,7 @@ where
                 match self.dummy.run_rewarded(){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Dummy run error: {e:}");
+                        debug!("Dummy run error: {e:}");
                     }
                 }
             });
@@ -381,7 +381,7 @@ where
                 match self.offside.run_rewarded(){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Offside run error: {e:}");
+                        debug!("Offside run error: {e:}");
                     }
                 }
             });
@@ -396,7 +396,7 @@ where
                 match self.environment.run_round_robin_with_rewards_penalise(-100){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Environment run error: {e:}");
+                        debug!("Environment run error: {e:}");
                     }
                 }
             });
@@ -406,7 +406,7 @@ where
                 match self.dummy.run(){
                     Ok(_) => {}
                     Err(e) => {
-                        error!("Dummy run error: {e:}");
+                        debug!("Dummy run error: {e:}");
                     }
                 }
             });
@@ -417,7 +417,7 @@ where
                         match self.declarer.run_rewarded(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Declarer run error: {e:}");
+                                debug!("Declarer run error: {e:}");
                             }
                         }
                     });
@@ -425,7 +425,7 @@ where
                         match self.test_whist.run(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Whust run error: {e:}");
+                                debug!("Whust run error: {e:}");
                             }
                         }
                     });
@@ -433,7 +433,7 @@ where
                         match self.test_offside.run(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Offside run error: {e:}");
+                                debug!("Offside run error: {e:}");
                             }
                         }
                     });
@@ -444,7 +444,7 @@ where
                         match self.whist.run_rewarded(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Whist run error: {e:}");
+                                debug!("Whist run error: {e:}");
                             }
                         }
                     });
@@ -452,7 +452,7 @@ where
                         match self.test_declarer.run(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Declarer run error: {e:}");
+                                debug!("Declarer run error: {e:}");
                             }
                         }
                     });
@@ -460,7 +460,7 @@ where
                         match self.offside.run_rewarded(){
                             Ok(_) => {}
                             Err(e) => {
-                                error!("Offside run error: {e:}");
+                                debug!("Offside run error: {e:}");
                             }
                         }
 
