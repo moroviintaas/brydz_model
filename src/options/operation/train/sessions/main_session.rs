@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 use std::thread;
-use log::{debug, error, info};
+use log::{debug, info};
 use rand::distributions::Distribution;
 use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
@@ -66,9 +66,9 @@ where
     test_whist: TracingAgentGen<ContractDP, TestPolicyW, ContractAgentSyncComm>,
     test_offside: TracingAgentGen<ContractDP, TestPolicyO, ContractAgentSyncComm>,
 
-    declarer_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyD as Policy<ContractDP>>::InfoSetType>>,
-    whist_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyW as Policy<ContractDP>>::InfoSetType>>,
-    offside_trajectories: Vec<StdAgentTrajectory<ContractDP, <PolicyO as Policy<ContractDP>>::InfoSetType>>,
+    declarer_trajectories: Vec<Trajectory<ContractDP, <PolicyD as Policy<ContractDP>>::InfoSetType>>,
+    whist_trajectories: Vec<Trajectory<ContractDP, <PolicyW as Policy<ContractDP>>::InfoSetType>>,
+    offside_trajectories: Vec<Trajectory<ContractDP, <PolicyO as Policy<ContractDP>>::InfoSetType>>,
     declarer_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     whist_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
     offside_rewards: Vec<<ContractDP as DomainParameters>::UniversalReward>,
