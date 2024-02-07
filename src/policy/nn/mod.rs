@@ -5,8 +5,8 @@ mod explore_exploit_policy;
 
 //pub use contract_net::*;
 
-use tch::{nn, Tensor};
-use tch::nn::Sequential;
+use amfiteatr_rl::tch::{nn, Tensor};
+use amfiteatr_rl::tch::nn::Sequential;
 pub use qnet_synthetic::*;
 pub use qnet_state_hist::*;
 pub use explore_exploit_policy::*;

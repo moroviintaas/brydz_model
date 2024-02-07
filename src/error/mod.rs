@@ -2,7 +2,7 @@ mod gen;
 mod simulation;
 
 use ron::Error;
-use tch::TchError;
+use amfiteatr_rl::tch::TchError;
 //use tensorflow::{SaveModelError, Status};
 use brydz_core::error::BridgeCoreError;
 use brydz_core::amfi::spec::ContractDP;

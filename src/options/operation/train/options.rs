@@ -1,6 +1,6 @@
 use clap::{Args, ValueEnum};
 use std::path::PathBuf;
-use tch::Device;
+use amfiteatr_rl::tch::Device;
 use amfiteatr_rl::policy::TrainConfig;
 
 #[derive(Debug, Clone)]
@@ -30,7 +30,7 @@ pub enum InfoSetWayToTensorSelect{
 }
 
 impl DeviceSelect{
-    pub fn map(self) -> tch::Device{
+    pub fn map(self) -> amfiteatr_rl::tch::Device{
         match self{
             DeviceSelect::Cpu => {Device::Cpu}
             DeviceSelect::Cuda => {Device::Cuda(32000)}

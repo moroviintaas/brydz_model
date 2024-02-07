@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use log::debug;
-use tch::{Device, Tensor};
-use tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
+use amfiteatr_rl::tch::{Device, Tensor};
+use amfiteatr_rl::tch::nn::{Adam, Optimizer, OptimizerConfig, Path, Sequential, VarStore};
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{BuildStateHistoryTensor, ContractAction};
 use amfiteatr_core::agent::{InformationSet, Policy, PresentPossibleActions};
@@ -63,7 +63,7 @@ Policy<ContractDP> for ContractStateHistQPolicy<S>
 
             //let tensor = Tensor::from(&q_input[..]);
             debug!("state_tensor: {:?} action_tensor: {:?}, joint: {:?}", &in_array_state, &action_tensor, input_tensor);
-            let r =  tch::no_grad(||{(self.model)(&input_tensor)});
+            let r =  amfiteatr_rl::tch::no_grad(||{(self.model)(&input_tensor)});
             debug!("q_funced tensor: {:?}", r);
             let v:Vec<f32> =r.try_into().unwrap();
 

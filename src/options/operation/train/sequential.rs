@@ -1,4 +1,4 @@
-use tch::nn::{Path, Sequential};
+use amfiteatr_rl::tch::nn::{Path, Sequential};
 
 pub trait SequentialGen{
 

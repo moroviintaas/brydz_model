@@ -1,6 +1,6 @@
 use log::debug;
-use tch::{Device, nn, Tensor};
-use tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
+use amfiteatr_rl::tch::{Device, nn, Tensor};
+use amfiteatr_rl::tch::nn::{Adam, Optimizer, OptimizerConfig, VarStore};
 use brydz_core::amfi::spec::ContractDP;
 use brydz_core::amfi::state::{ContractAction, ContractAgentInfoSetSimple};
 use amfiteatr_core::agent::{Policy, PresentPossibleActions};
@@ -76,7 +76,7 @@ impl Policy<ContractDP> for SyntheticContractQNetSimple {
             q_input[(CONTRACT_Q_INPUT_SIZE-CONTRACT_ACTION_SIZE) as usize +1] = action_array[1];
             let tensor = Tensor::from(&q_input[..]);
 
-            let v:Vec<f32> = tch::no_grad(||{(self.model)(&tensor)}).get(0).try_into().unwrap();
+            let v:Vec<f32> = amfiteatr_rl::tch::no_grad(||{(self.model)(&tensor)}).get(0).try_into().unwrap();
 
             let current_q = v[0];
             debug!("Action {} checked with q value: {}", action, current_q);

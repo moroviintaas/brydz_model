@@ -1,8 +1,8 @@
 use std::fs;
 use rand::prelude::{Distribution};
 use rand::thread_rng;
-use tch::{nn, Tensor};
-use tch::nn::{Adam, VarStore};
+use amfiteatr_rl::tch::{nn, Tensor};
+use amfiteatr_rl::tch::nn::{Adam, VarStore};
 use brydz_core::contract::{ContractRandomizer};
 use brydz_core::deal::{DealDistribution, DescriptionDeckDeal};
 
