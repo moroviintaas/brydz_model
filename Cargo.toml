@@ -1,6 +1,6 @@
 [package]
 name = "brydz_model"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 repository = "https://github.com/moroviintaas/brydz_model"
 license-file = "LICENSE"
@@ -25,8 +25,8 @@ ron = "0.8.1"
 smallvec = "1.11.2"
 rand_distr = "0.4.3"
 
-amfiteatr_rl = { version = "0.1.0" }
+amfiteatr_rl = { version = "0.2.0" }
 karty = { version = "0.1.1", features = ["fuzzy"]}
-brydz_core = {version = "0.1.1", features = ["amfiteatr", "speedy", "serde_dedicate", "serde_ron", "torch"]}
-amfiteatr_core = {version = "0.1.0", features= ["speedy"]}
-amfiteatr_net_ext = {version = "0.1.0" }
+brydz_core = {version = "0.2.0", features = ["amfiteatr", "speedy", "serde_dedicate", "serde_ron", "torch"]}
+amfiteatr_core = {version = "0.2.0", features= ["speedy"]}
+amfiteatr_net_ext = {version = "0.2.0" }
