@@ -1,9 +1,4 @@
-# brydz_model
-
-Minimal implementation of bridge game simulator. 
-This is very early stage of development.
-
-
-At current moment crate lacks features and documentation,
-it is published as use case example for 
-[`amfiteatr`](https://github.com/moroviintaas/amfiteatr)
+# Repository archived
+Code from this repository was moved to [`brydz`](https://github.com/moroviintaas/brydz).
+The move was made because contract bridge toolset will be developed simultaneously and
+the versions will be matched.
